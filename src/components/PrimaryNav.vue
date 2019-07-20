@@ -1,0 +1,98 @@
+<template>
+	<nav class="primary">
+		<div class="nav-logo">
+			<sia-central /> SiaCentral
+		</div>
+		<health-status />
+		<router-link :to="{ name: 'dashboard' }"><icon icon="chart-pie" /> Dashboard</router-link>
+		<router-link :to="{ name: 'storage' }"><icon icon="hdd" /> Storage</router-link>
+		<router-link :to="{ name: 'contracts' }"><icon icon="file-contract" /> Contracts</router-link>
+		<router-link :to="{ name: 'config' }"><icon icon="wrench" /> Configuration</router-link>
+		<a href="#" @click.prevent="modal = 'settings'"><icon icon="cogs" /> Settings</a>
+		<settings-modal v-if="modal === 'settings'" @close="modal = null" />
+
+	</nav>
+</template>
+
+<script>
+import SiaCentral from '@/assets/siacentral.svg';
+import HealthStatus from '@/components/HealthStatus';
+import SettingsModal from '@/components/SettingsModal';
+
+export default {
+	components: {
+		SiaCentral,
+		HealthStatus,
+		SettingsModal
+	},
+	data() {
+		return {
+			modal: null
+		};
+	}
+};
+</script>
+
+<style lang="stylus" scoped>
+nav.primary {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 200px;
+	padding: 30px 0;
+	background: bg-accent;
+	box-shadow: 1px 0 3px 0px rgba(0, 0, 0, 0.05)
+
+	.nav-logo.nav-logo {
+		font-size: 1rem;
+		color: primary;
+		border-bottom: 1px solid #3a3a3a;
+		cursor: default;
+	}
+
+	a, .nav-logo {
+		position: relative;
+		display: flex;
+		align-items: center;
+		color: rgba(0, 0, 0, 0.54);
+		padding: 15px;
+		font-size: 0.8rem;
+		text-align: left;
+		white-space: nowrap;
+		text-decoration: none;
+		transition: color 0.3s linear;
+		cursor: pointer;
+
+		span.badge {
+			position: absolute;
+			right: 15px;
+			color: rgba(255, 255, 255, 0.27);
+		}
+
+		&.router-link-exact-active.router-link-exact-active {
+			color: primary;
+		}
+
+		svg, svg.svg-inline--fa.svg-inline--fa {
+			width: 18px;
+			height: 18px;
+			margin-right: 15px;
+		}
+	}
+}
+
+body.dark {
+	.title-bar {
+		background: bg-dark-accent;
+	}
+
+	nav.primary {
+		background: bg-dark-accent;
+
+		a {
+			color: rgba(255, 255, 255, 0.54);
+		}
+	}
+}
+</style>

@@ -1,0 +1,266 @@
+@require "vars";
+
+* {
+	box-sizing: border-box;
+}
+
+html, body {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	font-size: 14px;
+	color: rgba(0, 0, 0, 0.84);
+	background-color: bg;
+	font-family: sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	overflow: hidden;
+}
+
+body {
+	font-size: 1rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Montserrat', sans-serif;
+}
+
+.text-center.text-center {
+	text-align: center;
+}
+
+.panel {
+	position: relative;
+	display: block;
+	width: 100%;
+	padding: 30px;
+	background: #fff;
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+}
+
+.page {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+
+	.page-content {
+		display: grid;
+		margin: auto;
+		justify-content: center;
+    	align-content: center;
+		grid-gap: 15px;
+	}
+}
+
+.panel.icon-panel {
+	padding: 30px;
+	display: grid;
+	grid-template-columns: 30px minmax(0, 1fr);
+	align-content: center;
+	justify-content: center;
+	align-items: center;
+	grid-column-gap: 30px;
+
+	.panel-icon {
+		color: primary;
+		margin: auto;
+
+		&.icon-error {
+			color: #f14a4a;
+		}
+
+		svg.svg-inline--fa {
+			height: 30px;
+			width: 30px;
+			margin: 0;
+		}
+	}
+
+	.panel-content {
+		width: 100%;
+		max-width: 100%;
+	}
+}
+
+.btn {
+	display: block;
+	width: 100%;
+	outline: none;
+	background: #CCC;
+	padding: 8px 13px;
+	white-space: nowrap;
+	border: none;
+	font-size: 1rem;
+	border-radius: 4px;
+	box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.14);
+	transition: all 0.3s linear;
+
+	&:focus, &:active, &:hover {
+		cursor: pointer;
+		box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.28);
+	}
+
+	> svg {
+		margin-right: 10px;
+	}
+
+	&.btn-inline {
+		display: inline-block;
+		width: auto;
+		margin-right: 15px;
+	}
+
+	&.btn-success {
+		background: primary;
+		color: rgba(255, 255, 255, 0.84);
+	}
+
+	&.btn-warning {
+		background: warning-accent;
+		color: rgba(255, 255, 255, 0.84);	
+	}
+
+	&.btn-danger {
+		background: negative-accent;
+		color: rgba(255, 255, 255, 0.84);
+	}
+
+	&:disabled {
+		opacity: 0.54;
+		cursor: default;
+	}
+}
+
+.fade-enter-active {
+	transition: all .5s ease;
+}
+
+.fade-leave-active {
+	transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+
+.fade-enter, .fade-leave-to {
+	transform: translateY(30px);
+	opacity: 0;
+}
+
+.fade-slow-enter-active {
+	transition: all 1s ease;
+}
+
+.fade-slow-leave-active {
+	transition: all 0.5s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+
+.fade-slow-enter, .fade-slow-leave-to {
+	transform: translateY(30px);
+	opacity: 0;
+}
+
+@media screen and (max-width: 767px) {
+	.hide-mobile.hide-mobile {
+		display: none;
+	}
+}
+
+.group-stats {
+	display: grid;
+	align-items: center;
+	grid-template-columns: repeat(1, 1fr);
+	grid-gap: 15px;
+
+	.group-item {
+		padding: 15px 15px;
+		white-space: nowrap;
+		text-align: center;
+		color: primary;
+
+		&.group-negative {
+			color negative-accent;
+		}
+	}
+
+	.group-title {
+		font-size: 0.8rem;
+		margin-bottom: 10px;
+		color: rgba(0, 0, 0, 0.54);
+	}
+}
+
+@media screen and (min-width: 400px) {
+	.group-stats {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media screen and (min-width: 700px) {
+	.group-stats {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+body.theme-change {
+	* {
+		transition: background-color 0.3s linear, color 0.3s linear;
+	}
+}
+
+body.dark {
+	background-color: bg-dark;
+	background-image: linear-gradient(225deg, bg-dark-accent 0%, bg-dark 100%);
+	color: rgba(255, 255, 255, 0.84);
+
+	.btn {
+		background: #383838;
+    	color: rgba(255, 255, 255, 0.84);
+    	border-color: #191919;
+
+		&.btn-success {
+			background: primary;
+			color: rgba(0, 0, 0, 0.7);
+		}
+
+		&.btn-warning {
+			background: warning-accent;
+			color: rgba(255, 255, 255, 0.84);	
+		}
+
+		&.btn-danger {
+			background: negative-accent;
+			color: rgba(255, 255, 255, 0.84);
+		}
+	}
+
+	div.control {
+		input, select, textarea {
+			color: rgba(255, 255, 255, 0.84);
+			border-color: dark-gray;
+		}
+
+		label {
+			color: rgba(255, 255, 255, 0.54);
+		}
+
+		input[type="checkbox"] {
+			+ label:before {
+				border-color: dark-gray;
+			}
+
+			&:checked + label:before {
+				border-color: primary;
+			}
+		}
+	}
+}
+
+@require "grid";
+@require "table";
+@require "controls";

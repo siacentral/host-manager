@@ -1,0 +1,157 @@
+.control {
+	position: relative;
+	width: 100%;
+	position: relative;
+	margin-bottom: 30px;
+
+	&.control-search {
+		display: grid;
+		grid-template-columns: 1fr auto;
+
+		label {
+			grid-area: auto/ 1 / auto / span 2;
+		}
+
+		input, select, textarea {
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+
+		button {
+			background: none;
+			color: rgba(255, 255, 255, 0.84);
+			border-top-right-radius: 8px;
+			border-bottom-right-radius: 8px;
+			border: 1px solid light-gray;
+			cursor: pointer;
+			outline: none;
+		}
+	}
+
+	&.control-inline {
+		width: auto;
+		display: inline-block;
+	}
+
+	label {
+		display: block;
+		width: 100%;
+		color: primary;
+		font-size: 0.9rem;
+		margin-bottom: 5px;
+		-webkit-transition: all 0.3s linear;
+		transition: all 0.3s linear;
+
+		&.error.error {
+			position: absolute;
+			bottom: -18px;
+			left: 0;
+			right: 0;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			margin: 0;
+			font-size: 0.8rem;
+			color: negative-accent;
+		}
+	}
+
+	textarea, select, input {
+		display: block;
+		padding: 10px 15px;
+		font-size: 1.2rem;
+		width: 100%;
+		background: transparent;
+		border-radius: 4px;
+		border: 1px solid light-gray;
+		outline: none;
+		appearance: none;
+	}
+
+	input[type="checkbox"] {
+		position: absolute;
+		display: inline-block;
+		width: auto;
+		opacity: 0;
+		padding: 0;
+
+		&:checked {
+			+ label {
+				&:before {
+					border-color: primary;
+				}
+
+				&:after {
+					position: absolute;
+					display: inline-block;
+					content: '';
+					left: 4px;
+					top: 6px;
+					width: 12px;
+					height: 12px;
+					background: primary;
+					border-radius: 2px;
+				}
+			}
+		}
+
+		+ label {
+			position: relative;
+			display: inline-block;
+			width: auto;
+			margin: 0;
+			min-height: 24px;
+			padding-left: 28px;
+			padding-top: 4px;
+			color: rgba(0, 0, 0, 0.54);
+			font-size: 1rem;
+
+			&:before {
+				position: absolute;
+				display: inline-block;
+				content: '';
+				left: 0;
+				top: 2px;
+				width: 18px;
+				height: 18px;
+				border: 1px solid #CCC;
+				border-radius: 4px;
+			}
+		}
+	}
+
+	select option {
+		color: rgba(0, 0, 0, 0.84);
+	}
+}
+
+body.dark {
+
+	.control-search {
+		button {
+			border-color: #383838;
+    		background: #3d3d3d;
+		}	
+	}
+
+	div.control {
+		input, select, textarea {
+			color: rgba(255, 255, 255, 0.84);
+			border-color: dark-gray;
+		}
+
+		label {
+			color: rgba(255, 255, 255, 0.54);
+		}
+
+		input[type="checkbox"] {
+			+ label:before {
+				border-color: dark-gray;
+			}
+
+			&:checked + label:before {
+				border-color: primary;
+			}
+		}
+	}
+}

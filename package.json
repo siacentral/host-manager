@@ -1,0 +1,63 @@
+{
+  "name": "desktop",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "electron": "electron public/app.js",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "pack": "electron-builder --dir",
+    "dist": "NODE_ENV=production npm run build && electron-builder"
+  },
+  "build": {
+    "appId": "com.siacentral.hostmanager",
+    "productName": "SiaCentral Host Manager",
+    "copyright": "Copyright © 2019 SiaCentral",
+    "win": {
+      "requestedExecutionLevel": "highestAvailable"
+    }
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.19",
+    "@fortawesome/free-regular-svg-icons": "^5.9.0",
+    "@fortawesome/free-solid-svg-icons": "^5.9.0",
+    "@fortawesome/vue-fontawesome": "^0.1.6",
+    "@stablelib/utf8": "^0.10.1",
+    "bignumber.js": "^9.0.0",
+    "core-js": "^2.6.5",
+    "decimal.js-light": "^2.5.0",
+    "request": "^2.88.0",
+    "style-resources-loader": "^1.2.1",
+    "vue": "^2.6.10",
+    "vue-router": "^3.0.3",
+    "vue-svg-loader": "^0.12.0",
+    "vue-worker": "^1.2.1",
+    "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.9.0",
+    "@vue/cli-plugin-eslint": "^3.9.0",
+    "@vue/cli-service": "^3.9.0",
+    "@vue/eslint-config-standard": "^4.0.0",
+    "babel-eslint": "^10.0.1",
+    "electron": "^5.0.6",
+    "electron-packager": "^14.0.1",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "lint-staged": "^8.1.5",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
+    "vue-template-compiler": "^2.6.10",
+    "worker-loader": "^2.0.0"
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,vue}": [
+      "vue-cli-service lint",
+      "git add"
+    ]
+  }
+}
