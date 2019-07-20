@@ -1,5 +1,7 @@
 # Sia Central Desktop (Alpha)
 
+![siacentral+sia](https://imgur.com/MtDubn1.png)
+
 *This application is currently in development and not recommended for daily use. There have been no official releases of the software yet, but feel free to build it from source if you like.*
 
 An improved interface for Sia network hosts. Get accurate and complete statistics and 
