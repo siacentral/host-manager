@@ -31,13 +31,14 @@ npm install
 
 ### Development
 
-1. Starts the http server and hot-reloading
+1. Starts the http server, hot-reloading, and electron
 ```
 npm run serve
 ```
 
-2. Starts electron and opens the main window
+### Build and Package
+
 ```
-npm run electron
+npm run build
 ```
 
