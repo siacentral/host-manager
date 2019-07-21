@@ -1,21 +1,19 @@
 <template>
-	<transition name="fade" appear>
-		<div class="setup-step">
-			<div></div>
-			<div class="setup-info">
-				<slot name="info"></slot>
-			</div>
-			<div class="setup-content-wrapper">
-				<div class="setup-contents">
-					<slot></slot>
-				</div>
-			</div>
-			<div></div>
-			<div class="setup-controls">
-				<slot name="controls"></slot>
+	<div class="setup-step">
+		<div></div>
+		<div class="setup-info">
+			<slot name="info"></slot>
+		</div>
+		<div class="setup-content-wrapper">
+			<div class="setup-contents">
+				<slot></slot>
 			</div>
 		</div>
-	</transition>
+		<div></div>
+		<div class="setup-controls">
+			<slot name="controls"></slot>
+		</div>
+	</div>
 </template>
 
 <style lang="stylus">
@@ -73,8 +71,13 @@
 		padding: 15px;
 		text-align: center;
 
-		.btn:last-of-type {
-			margin-right: 0;
+		* {
+			margin-bottom: 0;
+			margin-right: 15px;
+
+			&:last-child {
+				margin-right: 0;
+			}
 		}
 	}
 }

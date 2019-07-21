@@ -25,14 +25,14 @@ async function init() {
 	try {
 		const config = await readConfig();
 
-		config.currency = 'usd';
-
 		store.dispatch('setConfig', config);
 
 		if (config.dark_mode)
 			document.body.classList.add('dark');
 		else
 			document.body.classList.remove('dark');
+
+		store.dispatch('setFirstRun', false);
 	} catch (ex) {
 		console.log(ex);
 	}

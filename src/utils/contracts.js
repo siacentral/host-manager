@@ -60,7 +60,6 @@ function determineAlerts(contract, globalAlerts, blockHeight) {
 			value: 'Proof is confirmed but contract is still ongoing this contract should move to succeeded before the proof deadline'
 		});
 	} else if (contract.status === 'obligationUnresolved' && contract.actualStatus === 'obligationSucceeded' && contract.proof_deadline.lt(blockHeight)) {
-		console.log(blockHeight, contract);
 		alerts.push({
 			value: 'Proof was confirmed but contract is still ongoing and proof deadline has passed. Contract should have nmoved to succeeded.'
 		});

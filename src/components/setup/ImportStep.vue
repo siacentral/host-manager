@@ -24,7 +24,8 @@ export default {
 	name: 'welcome-step',
 	props: {
 		config: Object,
-		import: Object
+		import: Object,
+		advanced: Boolean
 	},
 	beforeMount() {
 		if (!this.import)
@@ -39,11 +40,9 @@ export default {
 			const ev = { inc: 1 };
 
 			if (doImport) {
-				ev.inc = 4;
+				ev.inc = this.advanced ? 3 : 2;
 				ev.config = { ...this.config, ...this.import };
 			}
-
-			console.log(ev.config);
 
 			this.$emit('done', ev);
 		}

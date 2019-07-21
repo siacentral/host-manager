@@ -1,11 +1,13 @@
 <template>
 	<div class="page setup-page">
-		<welcome-step v-if="stepActive('welcome')" :import="imported" :fresh="freshInstall" :config="config" @done="onStepComplete" />
-		<import-step v-if="stepActive('import')" :import="imported" :fresh="freshInstall" :config="config" @done="onStepComplete" />
-		<consensus-location-step v-if="stepActive('consensus')" :fresh="freshInstall" :config="config" @done="onStepComplete" />
-		<daemon-override-step v-if="stepActive('settings')" :fresh="freshInstall" :config="config" @done="onStepComplete" />
-		<auto-unlock-step v-if="stepActive('unlock')" :fresh="freshInstall" :config="config" @done="onStepComplete" />
-		<review-step v-if="stepActive('review')" :fresh="freshInstall" :config="config" @done="onStepComplete" />
+		<transition name="fade" mode="out-in" appear>
+			<welcome-step v-if="stepActive('welcome')" key="welcome" :import="imported" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
+			<import-step v-else-if="stepActive('import')" key="import" :import="imported" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
+			<consensus-location-step v-else-if="stepActive('consensus')" key="consensus" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
+			<daemon-override-step v-else-if="stepActive('settings')" key="settings" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
+			<auto-unlock-step v-else-if="stepActive('unlock')" key="unlock" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
+			<review-step v-else-if="stepActive('review')" key="review" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
+		</transition>
 	</div>
 </template>
 
@@ -24,8 +26,11 @@ export default {
 		return {
 			loaded: false,
 			step: 0,
-			freshInstall: false,
-			config: {},
+			showAdvanced: false,
+			config: {
+				dark_mode: true,
+				siad_api_addr: 'localhost:9980'
+			},
 			imported: null
 		};
 	},
@@ -50,7 +55,12 @@ export default {
 	},
 	methods: {
 		stepActive(name) {
-			const steps = ['welcome', 'import', 'consensus', 'settings', 'unlock', 'review'];
+			const steps = ['welcome', 'import', 'consensus'];
+
+			if (this.showAdvanced)
+				steps.push('settings');
+
+			steps.push('unlock', 'review');
 
 			return this.loaded && this.step === steps.indexOf(name.toLowerCase());
 		},
@@ -58,8 +68,8 @@ export default {
 			this.config = data.config ? { ...this.config, ...data.config } : this.config;
 			this.step += data.inc;
 
-			if (typeof data.freshInstall === 'boolean')
-				this.freshInstall = data.freshInstall;
+			if (typeof data.showAdvanced === 'boolean')
+				this.showAdvanced = data.showAdvanced;
 		}
 	}
 };

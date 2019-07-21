@@ -3,21 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "electron": "electron public/app.js",
-    "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "pack": "electron-builder --dir",
-    "dist": "NODE_ENV=production npm run build && electron-builder"
+    "build": "vue-cli-service electron:build",
+    "serve": "vue-cli-service electron:serve",
+    "generate-icons": "electron-icon-builder --input=./public/siacentral.png --output=build --flatten",
+    "postinstall": "electron-builder install-app-deps",
+    "postuninstall": "electron-builder install-app-deps"
   },
-  "build": {
-    "appId": "com.siacentral.hostmanager",
-    "productName": "SiaCentral Host Manager",
-    "copyright": "Copyright © 2019 SiaCentral",
-    "win": {
-      "requestedExecutionLevel": "highestAvailable"
-    }
-  },
+  "main": "background.js",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.19",
     "@fortawesome/free-regular-svg-icons": "^5.9.0",
@@ -41,13 +34,16 @@
     "@vue/cli-service": "^3.9.0",
     "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.1",
-    "electron": "^5.0.6",
+    "electron": "^5.0.7",
+    "electron-builder": "^21.1.1",
+    "electron-icon-builder": "^1.0.1",
     "electron-packager": "^14.0.1",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "lint-staged": "^8.1.5",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
+    "vue-cli-plugin-electron-builder": "^1.3.6",
     "vue-template-compiler": "^2.6.10",
     "worker-loader": "^2.0.0"
   },

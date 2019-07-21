@@ -42,6 +42,8 @@ export async function refreshLastBlock() {
 
 setInterval(async() => {
 	try {
-		refreshBlockHeight();
-	} catch (ex) {}
-}, 30 * 1000);
+		await refreshBlockHeight();
+	} catch (ex) {
+		Store.dispatch('setCriticalError', ex.message);
+	}
+}, 15 * 1000);

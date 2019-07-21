@@ -46,9 +46,9 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-	if (to.name !== 'setup' && typeof Store.state.config !== 'object')
+	if (to.name !== 'setup' && Store.state.config === null)
 		return next({ name: 'setup' });
-	else if (to.name === 'setup' && typeof Store.state.config === 'object')
+	else if (to.name === 'setup' && Store.state.config !== null)
 		return next({ name: 'dashboard' });
 
 	next();

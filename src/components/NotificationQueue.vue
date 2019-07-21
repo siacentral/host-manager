@@ -44,7 +44,6 @@ export default {
 	watch: {
 		notifications() {
 			try {
-				console.log('notifications changed');
 				if (this.notification)
 					return;
 

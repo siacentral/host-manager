@@ -12,6 +12,9 @@ module.exports = {
 		'plugin:vue/essential',
 		'standard'
 	],
+	globals: {
+		'__static': 'readonly'
+	},
 	// required to lint *.vue files
 	plugins: [
 		'vue'

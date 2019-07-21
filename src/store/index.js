@@ -1,8 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import { writeConfig } from '@/utils';
-
 import hostConnection from './connection';
 import hostContracts from './contracts';
 import hostConfig from './config';
@@ -11,11 +9,6 @@ import hostStorage from './storage';
 import hostWallet from './wallet';
 
 Vue.use(Vuex);
-
-const defaultConfig = {
-	siad_api_agent: 'Sia-Agent',
-	siad_api_addr: 'localhost:9980'
-};
 
 export default new Vuex.Store({
 	modules: {
@@ -27,6 +20,7 @@ export default new Vuex.Store({
 		hostWallet
 	},
 	state: {
+		firstRun: true,
 		config: null,
 		netAddress: null,
 		coinPrice: 0.00318536,
@@ -35,10 +29,17 @@ export default new Vuex.Store({
 		synced: false,
 		syncTime: 0,
 		loaded: false,
+		criticalError: null,
 		alerts: [],
 		notifications: []
 	},
 	mutations: {
+		setFirstRun(state, firstRun) {
+			state.firstRun = firstRun;
+		},
+		setCriticalError(state, criticalError) {
+			state.criticalError = criticalError;
+		},
 		setLoaded(state, loaded) {
 			state.loaded = loaded;
 		},
@@ -46,8 +47,7 @@ export default new Vuex.Store({
 			state.netAddress = netaddress;
 		},
 		setConfig(state, value) {
-			state.config = { ...defaultConfig, ...state.config, ...value };
-			writeConfig(state.config);
+			state.config = { ...state.config, ...value, dark_mode: true };
 		},
 		setCoinPrice(state, price) {
 			state.coinPrice = price;
@@ -65,7 +65,6 @@ export default new Vuex.Store({
 			state.syncTime = time;
 		},
 		pushNotification(state, notification) {
-			console.log('adding notification', notification);
 			state.notifications.push(notification);
 		},
 		clearNotification(state) {
@@ -76,8 +75,14 @@ export default new Vuex.Store({
 		}
 	},
 	actions: {
+		setFirstRun(context, firstRun) {
+			context.commit('setFirstRun', firstRun);
+		},
 		setLoaded(context, loaded) {
 			context.commit('setLoaded', loaded);
+		},
+		setCriticalError(context, criticalError) {
+			context.commit('setCriticalError', criticalError);
 		},
 		setNetAddress(context, netaddress) {
 			context.commit('setNetAddress', netaddress);

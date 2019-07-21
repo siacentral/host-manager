@@ -25,6 +25,9 @@ async function loadHostWallet() {
 		throw new Error(resp.body.message);
 
 	Store.dispatch('hostWallet/setUnlocked', resp.body.unlocked);
+	Store.dispatch('hostWallet/setEncrypted', resp.body.encrypted);
+	Store.dispatch('hostWallet/setRescanning', resp.body.rescanning);
+	Store.dispatch('hostWallet/setHeight', resp.body.height);
 	Store.dispatch('hostWallet/setBalance', new BigNumber(resp.body.confirmedsiacoinbalance));
 	Store.dispatch('hostWallet/setBalanceDelta', new BigNumber(resp.body.unconfirmedincomingsiacoins).minus(resp.body.unconfirmedoutgoingsiacoins));
 }

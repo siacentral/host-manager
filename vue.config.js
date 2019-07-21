@@ -30,6 +30,16 @@ module.exports = {
 			.end();
 
 		config.module.rule('js').exclude.add(/InlineWorker\.js|\.worker\.js$/);
+	},
+	pluginOptions: {
+		electronBuilder: {
+			outputDir: 'dist',
+			builderOptions: {
+				appId: 'com.siacentral.hostmanager',
+				productName: 'Sia Central Desktop',
+				copyright: 'Copyright © 2019 Sia Central'
+			}
+		}
 	}
 };
 

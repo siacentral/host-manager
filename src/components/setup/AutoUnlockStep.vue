@@ -2,7 +2,7 @@
 	<setup-step>
 		<template v-slot:info>
 			<div class="setup-icon">
-				<icon :con="unlock" />
+				<icon icon="unlock" />
 			</div>
 			<h3>Is Your Wallet Setup to Automatically Unlock?</h3>
 			<p>To host on the Sia network and form contracts your wallet needs to be unlocked while your Daemon is running.

@@ -7,7 +7,7 @@
 			<h3>{{ questionText }}</h3>
 			<p>Some hosts like to store their consensus data on a different harddrive from Sia. Leave the field blank to use the default.</p>
 		</template>
-		<div class="control">
+		<div class="control control-search">
 			<label>Path to Sia Data</label>
 			<input type="text" v-model="consensusLocation" />
 			<button @click="onSearchFile"><icon icon="search" /> Browse</button>
@@ -59,26 +59,3 @@ export default {
 	}
 };
 </script>
-
-<style lang="stylus" scoped>
-.control {
-	position: relative;
-
-	input {
-		padding-right: 30px;
-	}
-
-	button {
-		position: absolute;
-		right: 0;
-		top: 50%;
-		border: none;
-		background: transparent;
-		outline: none;
-		font-size: 1rem;
-		color: primary;
-		transform: translateY(-50%);
-		cursor: pointer;
-	}
-}
-</style>

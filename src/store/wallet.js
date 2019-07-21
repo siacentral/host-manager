@@ -5,7 +5,10 @@ export default {
 	state: {
 		balance: new BigNumber(0),
 		balanceDelta: new BigNumber(0),
-		unlocked: false
+		height: 0,
+		rescanning: false,
+		unlocked: false,
+		encrypted: false
 	},
 	mutations: {
 		setBalance(state, balance) {
@@ -14,8 +17,17 @@ export default {
 		setBalanceDelta(state, delta) {
 			state.balanceDelta = delta;
 		},
+		setHeight(state, height) {
+			state.height = height;
+		},
 		setUnlocked(state, unlocked) {
 			state.unlocked = unlocked;
+		},
+		setEncrypted(state, encrypted) {
+			state.encrypted = encrypted;
+		},
+		setRescanning(state, rescanning) {
+			state.rescanning = rescanning;
 		}
 	},
 	actions: {
@@ -25,8 +37,17 @@ export default {
 		setBalanceDelta(context, delta) {
 			context.commit('setBalanceDelta', delta);
 		},
+		setHeight(context, height) {
+			context.commit('setHeight', height);
+		},
 		setUnlocked(context, unlocked) {
 			context.commit('setUnlocked', unlocked);
+		},
+		setEncrypted(context, encrypted) {
+			context.commit('setEncrypted', encrypted);
+		},
+		setRescanning(context, rescanning) {
+			context.commit('setRescanning', rescanning);
 		}
 	}
 };

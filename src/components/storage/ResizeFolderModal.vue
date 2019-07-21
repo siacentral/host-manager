@@ -68,8 +68,6 @@ export default {
 				errors['size'] = ex.message;
 			}
 
-			console.log(Object.keys(errors));
-
 			this.valid = Object.keys(errors).length === 0;
 			this.errors = errors;
 		}

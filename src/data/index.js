@@ -5,6 +5,7 @@ import { refreshHostStorage } from './storage';
 import { refreshHostWallet } from './wallet';
 import { refreshHostConfig } from './config';
 import { getCoinPrice } from '@/utils/siacentral';
+import { getWalletAddress } from '@/utils/sia';
 import Store from '@/store';
 
 let refreshTimeout, loadingData, priceTimeout;
@@ -18,6 +19,17 @@ export async function refreshData() {
 
 		clearTimeout(refreshTimeout);
 
+		try {
+			// used to detect whether the api address and api password work properly
+			const resp = await getWalletAddress();
+
+			if (resp.statusCode !== 200)
+				throw new Error(resp.body.message || 'Unable to connect');
+		} catch (ex) {
+			if (ex.message.indexOf('wallet must be unlocked before it can be used') < 0)
+				throw new Error(ex.message);
+		}
+
 		await refreshLastBlock();
 		await Promise.all([
 			refreshBlockHeight(),
@@ -29,13 +41,10 @@ export async function refreshData() {
 
 		await refreshHostConnectability();
 
-		console.log('data refreshed', new Date());
-
 		Store.dispatch('setLoaded', true);
-	} catch (ex) {
-		console.log(ex);
-	} finally {
+
 		refreshTimeout = setTimeout(refreshData, 1000 * 60 * 5);
+	} finally {
 		loadingData = false;
 	}
 }
@@ -47,8 +56,6 @@ async function refreshCoinPrice() {
 		const price = await getCoinPrice();
 
 		Store.dispatch('setCoinPrice', price.market_data.current_price);
-
-		console.log(Store.state.coinPrice);
 	} catch (ex) {
 		console.log(ex);
 	} finally {

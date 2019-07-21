@@ -1,14 +1,11 @@
 'use strict';
 
 import Store from '@/store';
-
-import { nodeRequire } from '@/utils';
-
-const request = nodeRequire('request');
+import request from 'request';
 
 function sendJSONRequest(url, method, body) {
 	return new Promise((resolve, reject) => {
-		url = `${Store.state.config.siad_api_addr}${url}`;
+		url = `${Store.state.config.siad_api_addr || 'localhost:9980'}${url}`;
 
 		if (url.indexOf('http') < 0)
 			url = `http://${url}`;
@@ -16,7 +13,7 @@ function sendJSONRequest(url, method, body) {
 		const opts = {
 			method,
 			headers: {
-				'User-Agent': Store.state.config.siad_api_agent
+				'User-Agent': Store.state.config.siad_api_agent || 'Sia-Agent'
 			},
 			auth: {
 				username: '',
@@ -33,8 +30,9 @@ function sendJSONRequest(url, method, body) {
 
 			const r = { ...resp.toJSON() };
 
-			if (resp.statusCode === 200)
+			try {
 				r.body = JSON.parse(body);
+			} catch (ex) {}
 
 			if (r.statusCode >= 200 && r.statusCode < 300)
 				r.statusCode = 200;
@@ -62,6 +60,29 @@ export function getHostStorage() {
 
 export function getWallet() {
 	return sendJSONRequest('/wallet', 'GET', null);
+}
+
+export function getWalletAddress() {
+	return sendJSONRequest('/wallet/address', 'GET', null);
+}
+
+export function unlockWallet(password) {
+	return sendJSONRequest('/wallet/unlock', 'POST', {
+		encryptionpassword: password
+	});
+}
+
+export function createWallet(encryptionpassword) {
+	return sendJSONRequest('/wallet/init', 'POST', {
+		encryptionpassword
+	});
+}
+
+export function recoverWallet(seed, encryptionpassword) {
+	return sendJSONRequest('/wallet/init/seed', 'POST', {
+		encryptionpassword,
+		seed
+	});
 }
 
 export function updateHost(config) {

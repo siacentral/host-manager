@@ -3,12 +3,16 @@
 		<div class="setup-icon">
 			<SiaCentralSia />
 		</div>
-		<h1>Welcome to SiaCentral Desktop</h1>
+		<h1>Welcome to Sia Central Desktop</h1>
 		<p>SiaCentral Desktop provides complete control over all aspects of your host as well as additional insights into the health of your host.</p>
 		<p>We need to ask you some questions about your host before we get started.</p>
 
 		<template v-slot:controls>
 			<button class="btn btn-success btn-inline" @click="onNext">Get Started</button>
+			<div class="control control-inline">
+				<input type="checkbox" id="chk-show-advanced" v-model="showAdvanced" />
+				<label for="chk-show-advanced">Show Advanced</label>
+			</div>
 		</template>
 	</setup-step>
 </template>
@@ -23,13 +27,18 @@ export default {
 		config: Object,
 		import: Object
 	},
+	data() {
+		return {
+			showAdvanced: false
+		};
+	},
 	components: {
 		SetupStep,
 		SiaCentralSia
 	},
 	methods: {
 		onNext() {
-			this.$emit('done', { inc: 1 });
+			this.$emit('done', { inc: 1, showAdvanced: this.showAdvanced });
 		}
 	}
 };

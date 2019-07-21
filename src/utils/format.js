@@ -176,36 +176,36 @@ const supportedCrypto = [
 	];
 
 export function formatDataPriceString(val) {
-	const currency = (Store.state.config.currency || 'siacoin').toLowerCase();
+	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
 
-	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice[currency])
+	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
 		return formatCryptoString(val.times(1e12));
 
-	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice[currency])
+	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
 		return formatCurrencyString(val.times(1e12));
 
 	return formatSiacoinString(val.times(1e12));
 };
 
 export function formatMonthlyPriceString(val) {
-	const currency = (Store.state.config.currency || 'siacoin').toLowerCase();
+	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
 
-	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice[currency])
+	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
 		return formatCryptoString(val.times(1e12).times(4320));
 
-	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice[currency])
+	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
 		return formatCurrencyString(val.times(1e12).times(4320));
 
 	return formatSiacoinString(val.times(1e12).times(4320));
 };
 
 export function formatPriceString(val, dec) {
-	const currency = (Store.state.config.currency || 'siacoin').toLowerCase();
+	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
 
-	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice[currency])
+	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
 		return formatCryptoString(val);
 
-	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice[currency])
+	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
 		return formatCurrencyString(val);
 
 	return formatSiacoinString(val, dec);

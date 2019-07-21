@@ -187,7 +187,6 @@ export default {
 		formatByteString,
 		formatPriceString,
 		updateConfig() {
-			console.log(this.storagePrice.toString(10));
 			this.currentConfig = {
 				contractPrice: formatPriceString(this.contractPrice, 2),
 				storagePrice: formatPriceString(this.storagePrice.times(1e12).times(4320), 2),
@@ -211,11 +210,7 @@ export default {
 			try {
 				this.updating = true;
 
-				console.log(this.config);
-
 				const resp = await updateHost(this.config);
-
-				console.log(resp);
 
 				if (resp.statusCode !== 200) {
 					this.pushNotification({
@@ -261,8 +256,6 @@ export default {
 
 			try {
 				const val = parseCurrencyString(value);
-
-				console.log(val.toFixed(0).toString(10), val.div(1e12).div(4320).toFixed(0).toString(10));
 
 				this.config[key] = val.div(1e12).div(4320).toFixed(0).toString(10);
 				this.$set(this.errors, key, null);

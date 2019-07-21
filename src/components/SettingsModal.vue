@@ -48,6 +48,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import { writeConfig } from '@/utils';
 
 import Modal from '@/components/Modal';
 
@@ -84,7 +85,7 @@ export default {
 			this.apiPassword = this.config.siad_api_password;
 			this.dataPath = this.config.siad_data_path;
 		},
-		onUpdateConfig() {
+		async onUpdateConfig() {
 			try {
 				this.setConfig({
 					currency: this.currency,
@@ -94,6 +95,7 @@ export default {
 					siad_data_path: this.dataPath
 				});
 
+				await writeConfig(this.config);
 				this.$emit('close');
 			} catch (ex) {
 				console.log(ex);

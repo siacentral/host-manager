@@ -1,20 +1,11 @@
 import { decode } from '@stablelib/utf8';
+import fs from 'fs';
+import { platform } from 'os';
+import path from 'path';
+import process from 'process';
+import { remote } from 'electron';
 
-const fs = nodeRequire('fs'),
-	{ platform } = nodeRequire('os'),
-	path = nodeRequire('path'),
-	process = nodeRequire('process'),
-	{ app } = nodeRequire('electron').remote;
-
-/**
- * Fixes an issue where webpack replaces require with __webpack_require for node dependencies
- */
-export function nodeRequire() {
-	if (window)
-		return window.require.apply(this, arguments);
-
-	return require.apply(this, arguments);
-}
+const app = remote.app;
 
 export function getDefaultSiaPath() {
 	switch (getPlatform()) {
@@ -38,7 +29,7 @@ export async function readSiaUIConfig() {
 	return {
 		'siad_path': config.siad.path,
 		'siad_data_path': config.siad.datadir,
-		'dark_mode': config.darkMode
+		'dark_mode': true // config.darkMode
 	};
 }
 
@@ -51,8 +42,6 @@ export async function getDefaultAPIPassword() {
 
 export async function writeConfig(config) {
 	const siacentralPath = app.getPath('userData');
-
-	console.log(siacentralPath);
 
 	await mkdirAsync(siacentralPath);
 
@@ -105,7 +94,6 @@ function mkdirAsync(dirPath) {
 			recursive: true
 		}, (err) => {
 			if (err) {
-				console.log(err);
 				reject(err);
 				return;
 			}
@@ -249,8 +237,6 @@ export function formatSeconds(seconds) {
 }
 
 export function blobToDataURI(blob) {
-	console.log(blob);
-
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader();
 

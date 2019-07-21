@@ -1,9 +1,9 @@
 <template>
 	<transition name="fade-slow">
-		<div class="loader">
+		<div :class="loaderClasses">
 			<div class="loader-content">
 				<transition name="fade" appear>
-					<svg width="100%" height="100%" viewBox="0 0 500 500" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;fill:none;stroke:#19cf86;stroke-width:30px;">
+					<svg width="100%" height="100%" viewBox="0 0 500 500" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;fill:none;stroke:currentColor;stroke-width:30px;">
 						<g>
 							<path d="M458.416,264.045c22.691,85.77 -28.347,173.927 -114.108,196.906c-27.249,7.301 -54.752,7.152 -80.342,0.802c40.888,-39.394 59.718,-99.253 43.995,-157.934c-11.115,-41.482 13.539,-84.184 55.022,-95.299c41.482,-11.115 84.184,13.539 95.299,55.021l0.134,0.504Z" />
 							<path d="M170.155,80.336c62.934,-62.536 164.799,-62.414 227.58,0.368c19.948,19.948 33.57,43.841 40.866,69.177c-54.561,-15.713 -115.815,-2.091 -158.773,40.866c-30.367,30.367 -79.675,30.367 -110.042,0c-30.367,-30.367 -30.367,-79.676 0,-110.043l0.369,-0.368Z" />
@@ -16,8 +16,11 @@
 						<div class="progress-bar" :style="{ width: `${progress}%` }"></div>
 					</div>
 				</transition>
-				<transition name="fade" appear>
-					<div class="loader-text" v-if="text">{{ text }}</div>
+				<transition name="fade" mode="out-in" appear>
+					<div class="loader-text" :key="text" v-if="text">{{ text }}</div>
+				</transition>
+				<transition name="fade" mode="out-in" appear>
+					<div class="loader-sub-text" :key="subText" v-if="subText">{{ subText }}</div>
 				</transition>
 			</div>
 		</div>
@@ -28,13 +31,23 @@
 export default {
 	props: {
 		text: String,
-		progress: Number,
-		subText: String
+		subText: String,
+		severity: String,
+		progress: Number
 	},
 	mounted() {
 		window.setTimeout(() => {
 			this.$emit('animated');
 		}, 6000);
+	},
+	computed: {
+		loaderClasses() {
+			const classes = { 'loader': true };
+
+			classes[`loader-${this.severity}`] = true;
+
+			return classes;
+		}
 	}
 };
 </script>
@@ -49,6 +62,18 @@ export default {
 	background-color: bg-dark;
 	background-image: linear-gradient(225deg, bg-dark-accent 0%, bg-dark 100%);
 	z-index: 999;
+
+	&.loader-success {
+		color: primary;
+	}
+
+	&.loader-warning {
+		color: warning-accent;
+	}
+
+	&.loader-danger {
+		color: negative-accent;
+	}
 
 	.loader-content {
 		display: grid;
@@ -78,6 +103,9 @@ export default {
 
 	.loader-text {
 		font-size: 1.4rem;
+	}
+
+	.loader-sub-text {
 		color: rgba(255, 255, 255, 0.54);
 	}
 
@@ -87,6 +115,7 @@ export default {
 		width: 300px;
 		height: 300px;
 		margin: auto;
+		transition: all 0.4s ease;
 	}
 
 	svg path {

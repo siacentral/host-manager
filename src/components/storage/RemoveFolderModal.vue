@@ -54,14 +54,10 @@ export default {
 				if (this.validateName !== this.folder.path)
 					return;
 
-				console.log('removing');
-
 				const resp = await removeStorageFolder(this.folder.path, this.forceDelete);
 
 				if (resp.statusCode !== 200)
 					throw new Error(resp.body.message);
-
-				console.log(resp);
 
 				this.$emit('close');
 			} catch (ex) {

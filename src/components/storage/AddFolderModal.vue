@@ -49,7 +49,7 @@ export default {
 			try {
 				this.errors['path'] = null;
 
-				const paths = dialog.showOpenDialog({ title: 'Locate Your Sia Data Path', buttonLabel: 'Select', properties: ['openDirectory'] });
+				const paths = dialog.showOpenDialog({ title: 'Path for new Storage Folder', buttonLabel: 'Select', properties: ['openDirectory'] });
 
 				this.path = paths ? paths[0] : null;
 			} catch (ex) {
@@ -86,15 +86,12 @@ export default {
 				errors['size'] = ex.message;
 			}
 
-			console.log(Object.keys(errors));
-
 			this.valid = Object.keys(errors).length === 0;
 			this.errors = errors;
 		}
 	},
 	watch: {
 		name() {
-			console.log('validating');
 			this.validate();
 		},
 		sizeStr(val) {

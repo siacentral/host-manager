@@ -1,52 +1,89 @@
 <template>
 	<div id="app">
 		<div class="titlebar"></div>
-		<loader v-if="!loaded || !animationComplete" @animated="animationComplete = true" text="Getting things started..." />
-		<transition name="slide-right" appear>
-			<primary-nav />
+		<transition name="fade" mode="out-in" appear>
+			<loader v-if="showLoader" key="loader" @animated="animationComplete = true" :text="loaderText" :severity="loaderSeverity" :subText="loaderSubtext" />
+			<create-wallet key="create-wallet" v-else-if="fullyLoaded && createWallet" @close="createWallet = false" />
+			<primary-view v-else key="primary" />
 		</transition>
-		<div :class="{ 'app-content': true, 'app-navigation': showNavigation }">
-			<transition name="fade" appear>
-				<router-view/>
-			</transition>
-		</div>
-		<notification-queue />
 	</div>
 </template>
 <script>
-import PrimaryNav from '@/components/PrimaryNav';
 import Loader from '@/components/Loader';
-import NotificationQueue from '@/components/NotificationQueue';
+import CreateWallet from '@/components/setup/CreateWallet';
+import PrimaryView from '@/views/PrimaryView';
 
 import { mapActions, mapState } from 'vuex';
 import { refreshData } from '@/data';
 
 export default {
 	components: {
+		CreateWallet,
 		Loader,
-		PrimaryNav,
-		NotificationQueue
+		PrimaryView
 	},
 	methods: {
 		...mapActions(['setConfig'])
 	},
 	data() {
 		return {
-			animationComplete: false
+			animationComplete: false,
+			createWallet: false
 		};
 	},
 	async beforeMount() {
 		try {
+			if (!this.config) {
+				this.$router.replace({ name: 'setup' });
+				return;
+			}
+
 			this.$router.replace({ name: 'dashboard' });
 			await refreshData();
+
+			this.createWallet = !this.unlocked && !this.encrypted;
 		} catch (ex) {
 			console.log(ex);
 		}
 	},
 	computed: {
-		...mapState(['config', 'loaded']),
-		showNavigation() {
-			return !this.$route.meta || !this.$route.meta.hide_navigation;
+		...mapState(['config', 'loaded', 'firstRun', 'criticalError']),
+		...mapState('hostWallet', ['unlocked', 'encrypted']),
+		fullyLoaded() {
+			return this.loaded && this.animationComplete;
+		},
+		showLoader() {
+			if (!this.firstRun && this.criticalError)
+				return true;
+
+			if (!this.firstRun && !this.loaded)
+				return true;
+
+			if (!this.animationComplete)
+				return true;
+
+			return false;
+		},
+		loaderText() {
+			if (this.criticalError)
+				return 'Uh Oh! We\'ve run into a problem.';
+
+			if (this.firstRun)
+				return 'Welcome to Sia Central Desktop!';
+
+			return 'Getting things started...';
+		},
+		loaderSeverity() {
+			if (this.criticalError)
+				return 'danger';
+
+			return 'success';
+		},
+		loaderSubtext() {
+			if (this.criticalError)
+				return this.criticalError;
+
+			return null;
 		}
 	},
 	watch: {
@@ -75,18 +112,5 @@ export default {
 #app {
 	width: 100%;
 	height: 100%;
-}
-
-.app-content {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	transition: left 0.4s linear;
-
-	&.app-navigation {
-		left: 200px;
-	}
 }
 </style>
