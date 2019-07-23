@@ -36,9 +36,9 @@ async function loadHostStorage() {
 	const folders = (resp.body.folders || []).map(f => {
 		let progress = 0;
 
-		// this appears to only work on exceptionally slow add or resizes remove does not use this for whatever reason
+		// this appears to only work on exceptionally slow add or resizes. Remove does not use this for whatever reason
 		if (f.ProgressDenominator > 0)
-			progress = Decimal.div(f.ProgressNumerator, f.ProgressDenominator).toFixed(3).toNumber();
+			progress = new Decimal(f.ProgressNumerator).div(f.ProgressDenominator).toNumber();
 
 		f = {
 			path: f.path,

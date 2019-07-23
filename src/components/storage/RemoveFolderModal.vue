@@ -29,6 +29,8 @@
 import Modal from '@/components/Modal';
 import { formatByteString } from '@/utils/format';
 import { removeStorageFolder } from '@/utils/sia';
+import { mapActions } from 'vuex';
+import { refreshHostStorage } from '@/data/storage';
 
 export default {
 	components: {
@@ -45,12 +47,15 @@ export default {
 		};
 	},
 	methods: {
+		...mapActions(['pushNotification']),
 		formatByteString,
 		async onRemoveFolder() {
 			if (this.removing)
 				return;
 
 			try {
+				this.removing = true;
+
 				if (this.validateName !== this.folder.path)
 					return;
 
@@ -59,9 +64,20 @@ export default {
 				if (resp.statusCode !== 200)
 					throw new Error(resp.body.message);
 
+				await refreshHostStorage();
+
+				this.pushNotification({
+					message: 'Folder is being removed. Any stored data will be moved to other locations',
+					icon: 'hdd'
+				});
 				this.$emit('close');
 			} catch (ex) {
 				console.log(ex);
+				this.pushNotification({
+					message: ex.message,
+					icon: 'hdd',
+					severity: 'danger'
+				});
 			} finally {
 				this.removing = false;
 			}

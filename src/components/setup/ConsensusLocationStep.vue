@@ -20,8 +20,9 @@
 
 <script>
 import SetupStep from './SetupStep';
+import { remote } from 'electron';
 
-const { dialog } = window.require('electron').remote;
+const dialog = remote.dialog;
 
 export default {
 	name: 'consensus-location-step',

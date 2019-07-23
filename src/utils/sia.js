@@ -85,8 +85,31 @@ export function recoverWallet(seed, encryptionpassword) {
 	});
 }
 
+export function announceHost(address) {
+	const body = {};
+
+	if (address && typeof address === 'string')
+		body.netaddress = address;
+
+	return sendJSONRequest('/host/announce', 'POST', body);
+}
+
 export function updateHost(config) {
 	return sendJSONRequest('/host', 'POST', config);
+}
+
+export function addStorageFolder(path, size) {
+	return sendJSONRequest('/host/storage/folders/add', 'POST', {
+		path,
+		size: size.toString(10)
+	});
+}
+
+export function resizeStorageFolder(path, size) {
+	return sendJSONRequest('/host/storage/folders/resize', 'POST', {
+		path,
+		newsize: size.toString(10)
+	});
 }
 
 export function removeStorageFolder(path, force) {

@@ -7,31 +7,56 @@
 		<p>You should only announce your host if you have not announced before, or if your IP address
 			has changed.</p>
 		<div class="control">
-			<input type="checkbox" v-model="useCustom" id="chk-custom-announce" />
-			<label for="chk-custom-announce">Custom Announce Address</label>
-		</div>
-		<div class="control" v-if="useCustom">
-			<label>Announce Address</label>
-			<input type="text" v-model="announceAddress" />
+			<label>Announce Address and port</label>
+			<input type="text" v-model="announceAddress" :placeholder="configNetAddress || netAddress" />
 		</div>
 		<div class="controls">
-			<button class="btn btn-success btn-inline">Announce Host</button>
+			<button class="btn btn-success btn-inline" @click="onAnnounceHost">Announce Host</button>
 		</div>
 	</modal>
 </template>
 
 <script>
 import Modal from '@/components/Modal';
+import { mapState, mapActions } from 'vuex';
 
 export default {
 	components: {
 		Modal
 	},
+	computed: {
+		...mapState({
+			configNetAddress: state => state.hostConfig.netaddress,
+			netAddress: state => state.netAddress
+		})
+	},
 	data() {
 		return {
-			useCustom: false,
-			announceAddress: ''
+			announceAddress: null,
+			announcing: false
 		};
+	},
+	methods: {
+		...mapActions(['pushNotification']),
+		async onAnnounceHost() {
+			if (this.announcing)
+				return;
+
+			try {
+				this.announcing = true;
+
+				this.pushNotification({
+					message: 'Not yet implemented sorry!',
+					icon: 'bullhorn',
+					severity: 'warning'
+				});
+				this.$emit('close');
+			} catch (ex) {
+				console.log(ex);
+			} finally {
+				this.announce = false;
+			}
+		}
 	}
 };
 </script>

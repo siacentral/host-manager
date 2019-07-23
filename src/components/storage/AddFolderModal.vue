@@ -7,11 +7,6 @@
 			<label class="error" v-if="errors['path']">{{ errors['path'] }}</label>
 		</div>
 		<div class="control">
-			<label>Name</label>
-			<input type="text" v-model="name" />
-			<label class="error" v-if="errors['name']">{{ errors['name'] }}</label>
-		</div>
-		<div class="control">
 			<label>Size</label>
 			<input type="text" v-model="sizeStr" />
 			<label class="error" v-if="errors['size']">{{ errors['size'] }}</label>
@@ -27,8 +22,12 @@
 import Modal from '@/components/Modal';
 import { BigNumber } from 'bignumber.js';
 import { parseByteString } from '@/utils/parse';
+import { addStorageFolder } from '@/utils/sia';
+import { refreshHostStorage } from '@/data/storage';
+import { remote } from 'electron';
+import { mapActions } from 'vuex';
 
-const { dialog } = window.require('electron').remote;
+const dialog = remote.dialog;
 
 export default {
 	components: {
@@ -37,14 +36,15 @@ export default {
 	data() {
 		return {
 			path: '',
-			name: '',
-			sizeStr: '100 GB',
+			sizeStr: '100 GiB',
 			sizeValue: new BigNumber(0),
 			errors: {},
-			valid: false
+			valid: false,
+			creating: false
 		};
 	},
 	methods: {
+		...mapActions(['pushNotification']),
 		onBrowsePath() {
 			try {
 				this.errors['path'] = null;
@@ -56,16 +56,38 @@ export default {
 				console.log(ex);
 			}
 		},
-		onCreateFolder() {
+		async onCreateFolder() {
+			if (this.creating)
+				return;
+
 			try {
+				this.creating = true;
 				this.validate();
 
 				if (!this.valid)
 					return;
 
-				console.log(this.path, this.name, this.sizeValue);
+				const resp = await addStorageFolder(this.path, this.sizeValue);
+
+				if (resp.statusCode !== 200)
+					throw new Error(resp.body.message || 'Unable to create storage folder');
+
+				await refreshHostStorage();
+
+				this.pushNotification({
+					message: 'Successfully added storage folder',
+					icon: 'hdd'
+				});
+				this.$emit('close');
 			} catch (ex) {
 				console.log(ex);
+				this.pushNotification({
+					message: ex.message,
+					icon: 'hdd',
+					severity: 'danger'
+				});
+			} finally {
+				this.creating = false;
 			}
 		},
 		validate() {
@@ -73,9 +95,6 @@ export default {
 
 			if (!this.path || this.path.trim().length === 0)
 				errors['path'] = 'Path is required';
-
-			if (!this.name || this.name.trim().length === 0)
-				errors['name'] = 'Name is required';
 
 			try {
 				this.sizeValue = parseByteString(this.sizeStr);
@@ -91,10 +110,10 @@ export default {
 		}
 	},
 	watch: {
-		name() {
+		sizeStr() {
 			this.validate();
 		},
-		sizeStr(val) {
+		path() {
 			this.validate();
 		}
 	}

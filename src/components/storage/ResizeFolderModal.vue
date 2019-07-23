@@ -21,6 +21,9 @@ import Modal from '@/components/Modal';
 import { BigNumber } from 'bignumber.js';
 import { formatByteString } from '@/utils/format';
 import { parseByteString } from '@/utils/parse';
+import { mapActions } from 'vuex';
+import { refreshHostStorage } from '@/data/storage';
+import { resizeStorageFolder } from '@/utils/sia';
 
 export default {
 	components: {
@@ -34,7 +37,8 @@ export default {
 			sizeStr: '100 GB',
 			sizeValue: new BigNumber(0),
 			errors: {},
-			valid: true
+			valid: true,
+			resizing: false
 		};
 	},
 	beforeMount() {
@@ -46,14 +50,39 @@ export default {
 		}
 	},
 	methods: {
-		onResizeFolder() {
+		...mapActions(['pushNotification']),
+		async onResizeFolder() {
+			if (this.resizing)
+				return;
+
 			try {
+				this.resizing = true;
 				this.validate();
 
 				if (!this.valid)
 					return;
+
+				const resp = await resizeStorageFolder(this.folder.path, this.sizeValue);
+
+				if (resp.statusCode !== 200)
+					throw new Error(resp.body.message);
+
+				await refreshHostStorage();
+
+				this.pushNotification({
+					message: 'Folder is being resized. This can take some time.',
+					icon: 'hdd'
+				});
+				this.$emit('close');
 			} catch (ex) {
 				console.log(ex);
+				this.pushNotification({
+					message: ex.message,
+					icon: 'hdd',
+					severity: 'danger'
+				});
+			} finally {
+				this.resizing = false;
 			}
 		},
 		validate() {

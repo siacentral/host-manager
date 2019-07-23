@@ -3,15 +3,17 @@
 		<div class="titlebar"></div>
 		<transition name="fade" mode="out-in" appear>
 			<loader v-if="showLoader" key="loader" @animated="animationComplete = true" :text="loaderText" :severity="loaderSeverity" :subText="loaderSubtext" />
-			<create-wallet key="create-wallet" v-else-if="fullyLoaded && createWallet" @close="createWallet = false" />
+			<create-wallet key="create-wallet" v-else-if="loaded && createWallet" @close="createWallet = false" />
+			<unlock-wallet key="unlock-wallet" v-else-if="loaded && !unlocked" />
 			<primary-view v-else key="primary" />
 		</transition>
 	</div>
 </template>
 <script>
-import Loader from '@/components/Loader';
-import CreateWallet from '@/components/setup/CreateWallet';
+import Loader from '@/views/Loader';
+import CreateWallet from '@/views/CreateWallet';
 import PrimaryView from '@/views/PrimaryView';
+import UnlockWallet from '@/views/UnlockWallet';
 
 import { mapActions, mapState } from 'vuex';
 import { refreshData } from '@/data';
@@ -20,7 +22,8 @@ export default {
 	components: {
 		CreateWallet,
 		Loader,
-		PrimaryView
+		PrimaryView,
+		UnlockWallet
 	},
 	methods: {
 		...mapActions(['setConfig'])
@@ -49,9 +52,6 @@ export default {
 	computed: {
 		...mapState(['config', 'loaded', 'firstRun', 'criticalError']),
 		...mapState('hostWallet', ['unlocked', 'encrypted']),
-		fullyLoaded() {
-			return this.loaded && this.animationComplete;
-		},
 		showLoader() {
 			if (!this.firstRun && this.criticalError)
 				return true;

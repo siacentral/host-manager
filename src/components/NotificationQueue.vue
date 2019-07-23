@@ -1,8 +1,8 @@
 <template>
 	<transition name="fade" appear>
-		<div @mouseenter="cancelTimeout" @mouseleave="startTimeout" class="notification" v-if="notification">
-			<div class="notification-icon" :style="{ color: alertColor }"><icon :icon="alertIcon" /></div>
-			<div class="notification-content">{{notification.message}}</div>
+		<div @mouseenter="cancelTimeout" @mouseleave="startTimeout" :class="classes" v-if="notification">
+			<div class="notification-icon"><icon :icon="icon" /></div>
+			<div class="notification-content">{{ notification.message }}</div>
 		</div>
 	</transition>
 </template>
@@ -19,11 +19,25 @@ export default {
 	},
 	computed: {
 		...mapState(['notifications']),
-		alertIcon() {
+		icon() {
 			return this.notification && this.notification.icon ? this.notification.icon : 'hdd';
 		},
-		alertColor() {
-			return this.notification && this.notification.color ? this.notification.color : 'rgba(255, 255, 255, 0.84)';
+		classes() {
+			const classes = { 'notification': true };
+
+			switch (this.notification.severity) {
+			case 'danger':
+				classes['notification-danger'] = true;
+				break;
+			case 'warning':
+				classes['notification-warning'] = true;
+				break;
+			default:
+				classes['notification-success'] = true;
+				break;
+			}
+
+			return classes;
 		}
 	},
 	methods: {
@@ -80,7 +94,7 @@ export default {
 	}
 
 	&.notification-warning {
-		color: primary;
+		color: warning-accent;
 	}
 
 	&.notification-danger {
@@ -101,7 +115,7 @@ export default {
 @media screen and (min-width: 767px) {
 	.notification {
 		left: initial;
-		max-width: 20vw;
+		max-width: 300px;
 	}
 }
 </style>
