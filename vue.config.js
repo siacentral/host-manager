@@ -22,14 +22,6 @@ module.exports = {
 			});
 
 		types.forEach(type => addStyleResource(config.module.rule('stylus').oneOf(type)));
-
-		config.module.rule('worker')
-			.test(/\.worker\.js$/i)
-			.use('worker-loader')
-			.loader('worker-loader')
-			.end();
-
-		config.module.rule('js').exclude.add(/InlineWorker\.js|\.worker\.js$/);
 	},
 	pluginOptions: {
 		electronBuilder: {
@@ -37,7 +29,17 @@ module.exports = {
 			builderOptions: {
 				appId: 'com.siacentral.hostmanager',
 				productName: 'Sia Central Desktop',
-				copyright: 'Copyright © 2019 Sia Central'
+				copyright: 'Copyright © 2019 Sia Central',
+				extraResources: [
+					{
+						/* eslint-disable no-template-curly-in-string */
+						from: 'build/bin/${platform}',
+						to: 'bin',
+						filter: [
+							'**/*'
+						]
+					}
+				]
 			}
 		}
 	}

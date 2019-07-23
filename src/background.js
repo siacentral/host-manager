@@ -25,6 +25,7 @@ function createWindow() {
 		title: 'Sia Central Desktop',
 		icon: path.join(__static, 'icon.png'),
 		titleBarStyle: 'hiddenInset',
+		autoHideMenuBar: true,
 		backgroundColor: '#1d1e21',
 		show: false,
 		resizable: true,
