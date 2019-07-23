@@ -25,36 +25,38 @@
 		</div>
 		<div class="storage-folders">
 			<empty-state icon="folder" text="You have no storage folders" v-if="folders.length === 0" />
-			<table v-else>
-				<thead>
-					<td></td>
-					<td>Path</td>
-					<td>Used Capacity</td>
-					<td>Total Capacity</td>
-					<td>Read Errors</td>
-					<td>Write Errors</td>
-					<td></td>
-				</thead>
-				<tbody>
-					<tr v-for="folder in sorted" :key="folder.path" :class="{ 'folder-disabled': folder.progress > 0 }">
-						<td class="fit-text folder-progress">
-							<template v-if="folder.progress > 0">
-								<icon icon="sync" />
-								{{ Math.round(folder.progress * 100) }}%
-							</template>
-						</td>
-						<td>{{ folder.path }}</td>
-						<td>{{ formatByteString(folder.used_capacity, 2) }}</td>
-						<td>{{ formatByteString(folder.total_capacity, 2) }}</td>
-						<td>{{ folder.failed_reads }}</td>
-						<td>{{ folder.failed_writes }}</td>
-						<td class="fit-text">
-							<button class="expand-btn" @click="onResizeFolder(folder)" :v-if="folder.progress <= 0"><icon icon="expand" /></button>
-							<button class="delete-btn" :v-if="folder.progress <= 0" @click="onRemoveFolder(folder)"><icon icon="trash" /></button>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<div class="grid-wrapper" v-else>
+				<table>
+					<thead>
+						<td></td>
+						<td>Path</td>
+						<td>Used Capacity</td>
+						<td>Total Capacity</td>
+						<td>Read Errors</td>
+						<td>Write Errors</td>
+						<td></td>
+					</thead>
+					<tbody>
+						<tr v-for="folder in sorted" :key="folder.path" :class="{ 'folder-disabled': folder.progress > 0 }">
+							<td class="fit-text folder-progress">
+								<template v-if="folder.progress > 0">
+									<icon icon="sync" />
+									{{ Math.round(folder.progress * 100) }}%
+								</template>
+							</td>
+							<td>{{ folder.path }}</td>
+							<td>{{ formatByteString(folder.used_capacity, 2) }}</td>
+							<td>{{ formatByteString(folder.total_capacity, 2) }}</td>
+							<td>{{ folder.failed_reads }}</td>
+							<td>{{ folder.failed_writes }}</td>
+							<td class="fit-text">
+								<button class="expand-btn" @click="onResizeFolder(folder)" :v-if="folder.progress <= 0"><icon icon="expand" /></button>
+								<button class="delete-btn" :v-if="folder.progress <= 0" @click="onRemoveFolder(folder)"><icon icon="trash" /></button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</div>
 		<add-folder-modal v-if="modal === 'add-folder'" @close="modal = null" />
 		<resize-folder-modal v-if="modal === 'resize-folder'" :folder="selectedFolder" @close="modal = null" />
@@ -143,6 +145,7 @@ export default {
 .page-storage {
 	display: grid;
 	grid-template-rows: auto auto 1fr;
+	overflow: hidden;
 }
 
 .controls {
@@ -157,6 +160,12 @@ export default {
 .storage-folders {
 	width: 100%;
 	height: 100%;
+
+	.grid-wrapper {
+		width: 100%;
+		height: 100%;
+		overflow: auto;
+	}
 }
 
 td.folder-progress.folder-progress {

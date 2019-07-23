@@ -40,11 +40,18 @@ export default {
 		left: 0;
 		bottom: 0;
 		right: 0;
+		overflow: hidden;
 		transition: left 0.4 ease;
 	}
 
 	&.app-navigation .app-content {
 		left: 200px;
+	}
+}
+
+body.win32 {
+	.app-content {
+		top: 32px;
 	}
 }
 </style>

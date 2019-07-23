@@ -22,6 +22,9 @@ Vue.component('icon-layers', FontAwesomeLayers);
 Vue.config.productionTip = false;
 
 async function init() {
+	console.log(process);
+	document.body.classList.add(process.platform);
+
 	try {
 		const config = await readConfig();
 

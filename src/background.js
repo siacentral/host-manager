@@ -1,6 +1,6 @@
 'use strict';
 
-import { app, Tray, protocol, BrowserWindow, shell } from 'electron';
+import { app, Menu, Tray, protocol, BrowserWindow, shell } from 'electron';
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib';
 import path from 'path';
 
@@ -17,22 +17,27 @@ let win, tray;
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
 
 function createWindow() {
-	// Create the browser window.
-	win = new BrowserWindow({
+	const opts = {
 		width: 1000,
 		height: 800,
 		minWidth: 800,
 		minHeight: 600,
 		title: 'Sia Central Desktop',
 		icon: path.join(__static, 'icon.png'),
-		titleBarStyle: 'hidden',
+		titleBarStyle: 'hiddenInset',
 		backgroundColor: '#1d1e21',
 		show: false,
 		resizable: true,
 		webPreferences: {
 			nodeIntegration: true
 		}
-	});
+	};
+
+	if (process.platform !== 'darwin')
+		opts.frame = false;
+
+	// Create the browser window.
+	win = new BrowserWindow(opts);
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
 		// Load the url of the dev server if in development mode
@@ -54,7 +59,9 @@ function createWindow() {
 	};
 
 	win.on('close', (e) => {
-		app.dock.hide();
+		if (process.platform === 'darwin')
+			app.dock.hide();
+
 		win.hide();
 		e.preventDefault();
 
@@ -68,7 +75,29 @@ function createWindow() {
 	win.focus();
 }
 
+function openWindow() {
+	if (!win)
+		createWindow();
+
+	if (win.isMinimized())
+		win.restore();
+
+	if (process.platform === 'darwin')
+		app.dock.show();
+
+	win.show();
+	win.focus();
+}
+
+function forceExit() {
+	app.exit();
+}
+
 function createTray() {
+	const menu = Menu.buildFromTemplate([
+		{ label: 'Show Desktop', click: openWindow },
+		{ label: 'Exit', click: forceExit }
+	]);
 	tray = new Tray(path.join(__static, 'icons/siacentral_white_16.png'));
 
 	tray.on('double-click', () => {
@@ -78,9 +107,14 @@ function createTray() {
 		if (win.isMinimized())
 			win.restore();
 
+		if (process.platform === 'darwin')
+			app.dock.show();
+
 		win.show();
 		win.focus();
 	});
+
+	tray.setContextMenu(menu);
 }
 
 app.on('second-instance', () => {

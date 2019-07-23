@@ -174,6 +174,7 @@ export default {
 	grid-template-rows: auto auto minmax(0, 1fr);
 	grid-template-columns: 100%;
 	grid-gap: 0;
+	overflow: hidden;
 }
 
 .contracts {

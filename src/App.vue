@@ -1,32 +1,60 @@
 <template>
 	<div id="app">
-		<div class="titlebar"></div>
+		<div class="titlebar">
+			<button @click="onCloseWindow">
+				<span>&#xE8BB;</span>
+			</button>
+			<button @click="onMaxWindow">
+				<span>&#xE922;</span>
+			</button>
+			<button @click="onMinWindow">
+				<span>&#xE921;</span>
+			</button>
+		</div>
 		<transition name="fade" mode="out-in" appear>
 			<loader v-if="showLoader" key="loader" @animated="animationComplete = true" :text="loaderText" :severity="loaderSeverity" :subText="loaderSubtext" />
-			<create-wallet key="create-wallet" v-else-if="loaded && createWallet" @close="createWallet = false" />
-			<unlock-wallet key="unlock-wallet" v-else-if="loaded && !unlocked" />
 			<primary-view v-else key="primary" />
 		</transition>
 	</div>
 </template>
 <script>
+import { remote } from 'electron';
 import Loader from '@/views/Loader';
-import CreateWallet from '@/views/CreateWallet';
 import PrimaryView from '@/views/PrimaryView';
-import UnlockWallet from '@/views/UnlockWallet';
 
 import { mapActions, mapState } from 'vuex';
 import { refreshData } from '@/data';
 
 export default {
 	components: {
-		CreateWallet,
 		Loader,
-		PrimaryView,
-		UnlockWallet
+		PrimaryView
 	},
 	methods: {
-		...mapActions(['setConfig'])
+		...mapActions(['setConfig']),
+		onMinWindow() {
+			try {
+				const window = remote.getCurrentWindow();
+				window.minimize();
+			} catch (ex) {
+				console.log(ex);
+			}
+		},
+		onMaxWindow() {
+			try {
+
+			} catch (ex) {
+				console.log(ex);
+			}
+		},
+		onCloseWindow() {
+			try {
+				const window = remote.getCurrentWindow();
+				window.close();
+			} catch (ex) {
+				console.log(ex);
+			}
+		}
 	},
 	data() {
 		return {
@@ -107,6 +135,37 @@ export default {
 	height: 20px;
 	-webkit-user-select: none;
 	-webkit-app-region: drag;
+	z-index: 1000;
+
+	button {
+		display: none;
+	}
+}
+
+body.win32 {
+	.titlebar {
+		height: 32px;
+
+		button {
+			display: inline-block;
+			width: 46px;
+			height: 32px;
+			text-align: center;
+			border: none;
+			outline: none;
+			background: none;
+			font-family: "Segoe MDL2 Assets";
+			font-size: 10px;
+			color: rgba(255, 255, 255, 0.84);
+			cursor: pointer;
+			float: right;
+			-webkit-app-region: none;
+
+			&:hover, &:active, &:focus {
+				color: primary;
+			}
+		}
+	}
 }
 
 #app {
