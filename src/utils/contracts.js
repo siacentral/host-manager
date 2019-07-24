@@ -3,6 +3,7 @@
 import { getHostContracts, getBlock } from '@/utils/siacentral';
 import { BigNumber } from 'bignumber.js';
 import { parseNumberString } from '@/utils/parse';
+import log from 'electron-log';
 
 async function getHeight() {
 	const resp = await getBlock();
@@ -234,7 +235,7 @@ function parseContractText(text) {
 			risked_collateral: new BigNumber(c.riskedcollateral)
 		}));
 	} catch (ex) {
-		console.log(ex);
+		log.error(ex);
 	}
 
 	try {
@@ -286,7 +287,7 @@ function parseContractText(text) {
 
 		return contracts;
 	} catch (ex) {
-		console.log(ex);
+		log.error(ex);
 	}
 
 	return [];

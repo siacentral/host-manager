@@ -25,6 +25,8 @@ import PrimaryView from '@/views/PrimaryView';
 import { mapActions, mapState } from 'vuex';
 import { refreshData } from '@/data';
 import { launch } from '@/utils/daemon';
+import { listen } from '@/data/sync';
+import log from 'electron-log';
 
 export default {
 	components: {
@@ -46,7 +48,7 @@ export default {
 
 				this.createWallet = !this.walletUnlocked && !this.walletEncrypted;
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 				this.setCriticalError(ex.message);
 			}
 		},
@@ -55,14 +57,14 @@ export default {
 				const window = remote.getCurrentWindow();
 				window.minimize();
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 			}
 		},
 		onMaxWindow() {
 			try {
 
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 			}
 		},
 		onCloseWindow() {
@@ -70,7 +72,7 @@ export default {
 				const window = remote.getCurrentWindow();
 				window.close();
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 			}
 		}
 	},
@@ -82,6 +84,7 @@ export default {
 	},
 	beforeMount() {
 		this.tryLoad();
+		listen();
 	},
 	computed: {
 		...mapState({

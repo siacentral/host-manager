@@ -1,10 +1,12 @@
 'use strict';
 
+import { autoUpdater } from 'electron-updater';
 import { app, Menu, Tray, protocol, BrowserWindow, shell } from 'electron';
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib';
 import path from 'path';
+import log from 'electron-log';
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
+const isDevelopment = !!~process.defaultApp;
 
 if (!app.requestSingleInstanceLock())
 	app.quit();
@@ -150,11 +152,33 @@ app.on('ready', async() => {
 		try {
 			await installVueDevtools();
 		} catch (e) {
-			console.error('Vue Devtools failed to install:', e.toString());
+			log.error('Vue Devtools failed to install:', e.toString());
 		}
 	}
+
 	createWindow();
 	createTray();
+});
+
+app.on('ready', () => {
+	log.info('checking for updates');
+	autoUpdater.checkForUpdatesAndNotify();
+});
+
+autoUpdater.on('update-available', info => {
+	log.info('Update Available', info);
+});
+
+autoUpdater.on('download-progress', progress => {
+	log.info('Update Download', progress);
+});
+
+autoUpdater.on('update-downloaded', info => {
+	log.info('Downloaded', info);
+});
+
+autoUpdater.on('error', (err) => {
+	log.info('Update Error', err);
 });
 
 // Exit cleanly on request from parent process in development mode.

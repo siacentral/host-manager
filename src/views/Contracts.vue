@@ -69,6 +69,8 @@
 </template>
 
 <script>
+import log from 'electron-log';
+
 import { mapState } from 'vuex';
 import { BigNumber } from 'bignumber.js';
 
@@ -87,7 +89,7 @@ export default {
 		try {
 			await refreshHostContracts();
 		} catch (ex) {
-			console.log(ex);
+			log.error(ex);
 		}
 	},
 	data() {

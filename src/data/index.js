@@ -1,3 +1,5 @@
+import log from 'electron-log';
+
 import { refreshBlockHeight, refreshLastBlock } from './consensus';
 import { refreshHostConnectability } from './connection';
 import { refreshHostContracts } from './contracts';
@@ -57,7 +59,7 @@ async function refreshCoinPrice() {
 
 		Store.dispatch('setCoinPrice', price.market_data.current_price);
 	} catch (ex) {
-		console.log(ex);
+		log.error(ex);
 	} finally {
 		priceTimeout = setTimeout(refreshCoinPrice, 1000 * 60 * 30);
 	}

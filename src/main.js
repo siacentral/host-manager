@@ -2,6 +2,7 @@ import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
 import store from './store';
+import log from 'electron-log';
 
 import { readConfig } from '@/utils';
 
@@ -40,7 +41,7 @@ async function init() {
 
 		store.dispatch('setFirstRun', false);
 	} catch (ex) {
-		console.log(ex);
+		log.error(ex);
 	}
 
 	new Vue({

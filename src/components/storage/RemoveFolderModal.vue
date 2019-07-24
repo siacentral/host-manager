@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import log from 'electron-log';
+
 import Modal from '@/components/Modal';
 import { formatByteString } from '@/utils/format';
 import { removeStorageFolder } from '@/utils/sia';
@@ -72,7 +74,7 @@ export default {
 				});
 				this.$emit('close');
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'hdd',

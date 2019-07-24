@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import log from 'electron-log';
+
 import Modal from '@/components/Modal';
 import { BigNumber } from 'bignumber.js';
 import { parseByteString } from '@/utils/parse';
@@ -53,7 +55,7 @@ export default {
 
 				this.path = paths ? paths[0] : null;
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 			}
 		},
 		async onCreateFolder() {
@@ -80,7 +82,7 @@ export default {
 				});
 				this.$emit('close');
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'hdd',

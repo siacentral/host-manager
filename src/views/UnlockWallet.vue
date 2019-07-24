@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import log from 'electron-log';
+
 import { mapActions } from 'vuex';
 import { unlockWallet } from '@/utils/sia';
 import { refreshData } from '@/data';
@@ -57,7 +59,7 @@ export default {
 					throw new Error(resp.body.message || 'Error unlocking wallet');
 				}
 
-				console.log('unlocked');
+				log.info('unlocked');
 
 				refreshData();
 			} catch (ex) {

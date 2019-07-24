@@ -19,6 +19,7 @@
 <script>
 import Modal from '@/components/Modal';
 import { mapState, mapActions } from 'vuex';
+import log from 'electron-log';
 
 export default {
 	components: {
@@ -52,7 +53,7 @@ export default {
 				});
 				this.$emit('close');
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 			} finally {
 				this.announce = false;
 			}

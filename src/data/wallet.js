@@ -1,4 +1,5 @@
 import { BigNumber } from 'bignumber.js';
+import log from 'electron-log';
 
 import { getWallet, unlockWallet } from '@/utils/sia';
 import Store from '@/store';
@@ -30,7 +31,7 @@ async function unlockHostWalllet() {
 		if (resp.statusCode !== 200)
 			throw new Error(resp.body.message);
 	} catch (ex) {
-		console.log(ex);
+		log.error(ex);
 		disableUnlock = true;
 	} finally {
 		unlocking = false;

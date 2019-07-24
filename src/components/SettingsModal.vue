@@ -49,6 +49,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import { writeConfig } from '@/utils';
+import log from 'electron-log';
 
 import Modal from '@/components/Modal';
 
@@ -60,7 +61,7 @@ export default {
 		try {
 			this.updateConfig();
 		} catch (ex) {
-			console.log(ex);
+			log.error(ex);
 		}
 	},
 	computed: {
@@ -98,7 +99,7 @@ export default {
 				await writeConfig(this.config);
 				this.$emit('close');
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 			}
 		}
 	}

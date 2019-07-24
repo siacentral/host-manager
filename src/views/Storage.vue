@@ -65,6 +65,8 @@
 </template>
 
 <script>
+import log from 'electron-log';
+
 import AddFolderModal from '@/components/storage/AddFolderModal';
 import ResizeFolderModal from '@/components/storage/ResizeFolderModal';
 import RemoveFolderModal from '@/components/storage/RemoveFolderModal';
@@ -126,7 +128,7 @@ export default {
 				this.selectedFolder = folder;
 				this.modal = 'resize-folder';
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 			}
 		},
 		onRemoveFolder(folder) {
@@ -134,7 +136,7 @@ export default {
 				this.selectedFolder = folder;
 				this.modal = 'remove-folder';
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 			}
 		}
 	}

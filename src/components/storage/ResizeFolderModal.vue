@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import log from 'electron-log';
+
 import Modal from '@/components/Modal';
 import { BigNumber } from 'bignumber.js';
 import { formatByteString } from '@/utils/format';
@@ -46,7 +48,7 @@ export default {
 			this.sizeValue = this.folder.total_capacity;
 			this.sizeStr = formatByteString(this.folder.total_capacity, 2);
 		} catch (ex) {
-			console.log(ex);
+			log.error(ex);
 		}
 	},
 	methods: {
@@ -75,7 +77,7 @@ export default {
 				});
 				this.$emit('close');
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'hdd',

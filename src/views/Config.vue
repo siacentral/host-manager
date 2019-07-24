@@ -145,6 +145,8 @@
 </template>
 
 <script>
+import log from 'electron-log';
+
 import { mapState, mapActions } from 'vuex';
 import { formatByteString, formatPriceString, formatBlockTimeString } from '@/utils/format';
 import { parseCurrencyString, parseByteString, parseBlockTimeString } from '@/utils/parse';
@@ -247,7 +249,7 @@ export default {
 
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -260,7 +262,7 @@ export default {
 				this.config[key] = val.div(1e12).div(4320).toFixed(0).toString(10);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -271,7 +273,7 @@ export default {
 				this.config[key] = parseCurrencyString(value).div(1e12).toFixed(0).toString(10);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -282,7 +284,7 @@ export default {
 				this.config[key] = parseInt(value, 10);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -293,7 +295,7 @@ export default {
 				this.config[key] = parseBlockTimeString(value);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -304,7 +306,7 @@ export default {
 				this.config[key] = parseByteString(value).toString(10);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 				this.$set(this.errors, key, ex.message);
 			}
 		}

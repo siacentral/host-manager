@@ -9,6 +9,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import log from 'electron-log';
 
 export default {
 	data() {
@@ -66,7 +67,7 @@ export default {
 				if (this.notification)
 					this.startTimeout();
 			} catch (ex) {
-				console.log(ex);
+				log.error(ex);
 			}
 		}
 	}

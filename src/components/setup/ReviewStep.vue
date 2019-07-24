@@ -24,6 +24,7 @@
 
 <script>
 import { mapActions } from 'vuex';
+import log from 'electron-log';
 import { writeConfig } from '@/utils';
 import { refreshData } from '@/data/index';
 import { launch } from '@/utils/daemon';
@@ -50,16 +51,16 @@ export default {
 		try {
 			this.setConfig(this.config);
 
-			console.log('launching');
+			log.info('launching');
 			await launch();
-			console.log('refreshing data');
+			log.info('refreshing data');
 			await refreshData();
-			console.log('writing config');
+			log.info('writing config');
 			await writeConfig(this.config);
-			console.log('changing page');
+			log.info('changing page');
 			this.$nextTick(() => this.$router.push({ name: 'dashboard' }));
 		} catch (ex) {
-			console.log(ex);
+			log.error(ex);
 			this.error = ex.message;
 		}
 	},

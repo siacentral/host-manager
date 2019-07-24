@@ -12,6 +12,8 @@
 </template>
 
 <script>
+import log from 'electron-log';
+
 import WelcomeStep from '@/components/setup/WelcomeStep';
 import ImportStep from '@/components/setup/ImportStep';
 import ConsensusLocationStep from '@/components/setup/ConsensusLocationStep';
@@ -44,12 +46,12 @@ export default {
 	},
 	async beforeMount() {
 		try {
-			console.log('loading setup');
+			log.info('loading setup');
 			const importConfig = await readSiaUIConfig();
 
 			this.imported = importConfig;
 		} catch (ex) {
-			console.log(ex);
+			log.error(ex);
 		} finally {
 			this.loaded = true;
 		}
@@ -68,7 +70,7 @@ export default {
 
 			steps.push('unlock', 'review');
 
-			console.log(steps, this.loaded, this.step, name);
+			log.info(steps, this.loaded, this.step, name);
 
 			return this.loaded && this.step === steps.indexOf(name.toLowerCase());
 		},

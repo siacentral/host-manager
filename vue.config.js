@@ -8,12 +8,6 @@ else
 module.exports = {
 	parallel: false,
 	chainWebpack: config => {
-		config.externals = {
-			'child_process': 'require("electron").remote.require("child_process")',
-			'process': 'require("electron").remote.require("process")',
-			'fs': 'require("electron").remote.require("fs")',
-			'path': 'require("electron").remote.require("path")'
-		};
 		config.output.publicPath = `${process.cwd()}/dist/`;
 
 		const svgRule = config.module.rule('svg'),
@@ -33,9 +27,14 @@ module.exports = {
 		electronBuilder: {
 			outputDir: 'dist',
 			builderOptions: {
-				appId: 'com.siacentral.hostmanager',
+				appId: 'com.siacentral.desktop',
 				productName: 'Sia Central Desktop',
 				copyright: 'Copyright © 2019 Sia Central',
+				/**
+				 * Cannot notarize app until after this issue is fixed. Included siad binary is not compatible with new apple notarization
+				 * https://github.com/golang/go/issues/30488
+				 */
+				// afterSign: 'build/scripts/notarize.js',
 				extraResources: [
 					{
 						/* eslint-disable no-template-curly-in-string */
@@ -45,7 +44,22 @@ module.exports = {
 							'**/*'
 						]
 					}
-				]
+				],
+				mac: {
+					hardenedRuntime: true,
+					gatekeeperAssess: false,
+					entitlements: 'build/entitlements.mac.plist',
+					entitlementsInherit: 'build/entitlements.mac.plist'
+				},
+				dmg: {
+					sign: false
+				},
+				publish: {
+					provider: 's3',
+					bucket: 'siacentral-public',
+					region: 'us-east-2',
+					acl: 'public-read'
+				}
 			}
 		}
 	}

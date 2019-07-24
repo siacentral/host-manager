@@ -1,9 +1,11 @@
 import Store from '@/store';
 import path from 'path';
 import process from 'process';
+import { remote } from 'electron';
 import { spawn } from 'child_process';
 import { getUserDataPath } from './index';
 import { decode } from '@stablelib/utf8';
+import log from 'electron-log';
 
 import { stopDaemon } from './sia';
 
@@ -30,7 +32,7 @@ function buildArgs() {
 	if (config.siad_api_addr && config.siad_api_addr.length > 0)
 		args.push('--api-addr', config.siad_api_addr);
 
-	console.log(args);
+	log.info(args);
 
 	return args;
 }
@@ -48,7 +50,9 @@ function buildEnv() {
 function getPath() {
 	const binary = process.platform === 'win32' ? 'siad.exe' : 'siad';
 
-	if (process.env.NODE_ENV !== 'production')
+	log.info('PACKAGED', remote.app.isPackaged);
+
+	if (!remote.app.isPackaged)
 		return path.join(__static, '..', 'build', 'bin', process.platform, binary);
 
 	return path.join(process.resourcesPath, 'bin', binary);
@@ -172,7 +176,7 @@ export function launch() {
 				Store.dispatch('hostDaemon/setCurrentModule', '');
 
 				if (stderr.indexOf('bind: address already in use') >= 0) {
-					console.log('daemon already started');
+					log.info('daemon already started');
 					resolve();
 					return;
 				}
