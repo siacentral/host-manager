@@ -21,8 +21,11 @@ Vue.component('icon-layers', FontAwesomeLayers);
 
 Vue.config.productionTip = false;
 
+process.on('unhandledRejection', error => {
+	console.error(error);
+});
+
 async function init() {
-	console.log(process);
 	document.body.classList.add(process.platform);
 
 	try {

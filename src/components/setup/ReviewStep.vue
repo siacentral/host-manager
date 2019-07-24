@@ -24,8 +24,9 @@
 
 <script>
 import { mapActions } from 'vuex';
-import { getDefaultAPIPassword, writeConfig } from '@/utils';
+import { writeConfig } from '@/utils';
 import { refreshData } from '@/data/index';
+import { launch } from '@/utils/daemon';
 
 import SetupStep from './SetupStep';
 import SiaCentral from '@/assets/siacentral.svg';
@@ -47,19 +48,18 @@ export default {
 	},
 	async mounted() {
 		try {
-			if (!this.config.siad_api_password || this.config.siad_api_password.length === 0) {
-				const password = await getDefaultAPIPassword();
-
-				this.config.siad_api_password = password;
-			}
-
 			this.setConfig(this.config);
 
+			console.log('launching');
+			await launch();
+			console.log('refreshing data');
 			await refreshData();
-
+			console.log('writing config');
 			await writeConfig(this.config);
-			this.$router.push({ name: 'dashboard' });
+			console.log('changing page');
+			this.$nextTick(() => this.$router.push({ name: 'dashboard' }));
 		} catch (ex) {
+			console.log(ex);
 			this.error = ex.message;
 		}
 	},

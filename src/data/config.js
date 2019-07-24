@@ -16,7 +16,7 @@ export async function refreshHostConfig() {
 		await Promise.all([
 			loadAverageSettings(),
 			loadHost()
-		]);	
+		]);
 	} finally {
 		refreshing = false;
 	}

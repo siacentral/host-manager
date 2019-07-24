@@ -12,7 +12,7 @@
 			</button>
 		</div>
 		<transition name="fade" mode="out-in" appear>
-			<loader v-if="showLoader" key="loader" @animated="animationComplete = true" :text="loaderText" :severity="loaderSeverity" :subText="loaderSubtext" />
+			<loader v-if="showLoader" key="loader" @animated="animationComplete = true" :progress="loaderProgress" :text="loaderText" :severity="loaderSeverity" :subText="loaderSubtext" />
 			<primary-view v-else key="primary" />
 		</transition>
 	</div>
@@ -24,6 +24,7 @@ import PrimaryView from '@/views/PrimaryView';
 
 import { mapActions, mapState } from 'vuex';
 import { refreshData } from '@/data';
+import { launch } from '@/utils/daemon';
 
 export default {
 	components: {
@@ -31,7 +32,24 @@ export default {
 		PrimaryView
 	},
 	methods: {
-		...mapActions(['setConfig']),
+		...mapActions(['setConfig', 'setCriticalError']),
+		async tryLoad() {
+			try {
+				if (!this.config) {
+					this.$router.replace({ name: 'setup' });
+					return;
+				}
+
+				this.$router.replace({ name: 'dashboard' });
+				await launch();
+				await refreshData();
+
+				this.createWallet = !this.walletUnlocked && !this.walletEncrypted;
+			} catch (ex) {
+				console.log(ex);
+				this.setCriticalError(ex.message);
+			}
+		},
 		onMinWindow() {
 			try {
 				const window = remote.getCurrentWindow();
@@ -62,39 +80,41 @@ export default {
 			createWallet: false
 		};
 	},
-	async beforeMount() {
-		try {
-			if (!this.config) {
-				this.$router.replace({ name: 'setup' });
-				return;
-			}
-
-			this.$router.replace({ name: 'dashboard' });
-			await refreshData();
-
-			this.createWallet = !this.unlocked && !this.encrypted;
-		} catch (ex) {
-			console.log(ex);
-		}
+	beforeMount() {
+		this.tryLoad();
 	},
 	computed: {
-		...mapState(['config', 'loaded', 'firstRun', 'criticalError']),
-		...mapState('hostWallet', ['unlocked', 'encrypted']),
+		...mapState({
+			config: state => state.config,
+			dataLoaded: state => state.loaded,
+			firstRun: state => state.firstRun,
+			criticalError: state => state.criticalError,
+			walletUnlocked: state => state.hostWallet.unlocked,
+			walletEncrypted: state => state.hostWallet.encrypted,
+			daemonLoaded: state => state.hostDaemon.loaded,
+			daemonLoadingModule: state => state.hostDaemon.currentModule,
+			daemonLoadPercent: state => state.hostDaemon.loadPercent,
+			daemonManaged: state => state.hostDaemon.managed
+		}),
 		showLoader() {
-			if (!this.firstRun && this.criticalError)
+			if (this.firstRun && this.animationComplete)
+				return false;
+
+			if (this.criticalError || (!this.daemonLoaded && this.daemonManaged) || !this.animationComplete)
 				return true;
 
-			if (!this.firstRun && !this.loaded)
-				return true;
-
-			if (!this.animationComplete)
+			if (!this.firstRun && !this.dataLoaded)
 				return true;
 
 			return false;
 		},
 		loaderText() {
-			if (this.criticalError)
+			console.log(this.firstRun);
+			if (this.criticalError && !this.firstRun)
 				return 'Uh Oh! We\'ve run into a problem.';
+
+			if (!this.daemonLoaded && this.daemonManaged)
+				return 'Loading daemon';
 
 			if (this.firstRun)
 				return 'Welcome to Sia Central Desktop!';
@@ -107,9 +127,18 @@ export default {
 
 			return 'success';
 		},
+		loaderProgress() {
+			if (!this.daemonLoaded && this.daemonManaged)
+				return Math.ceil(this.daemonLoadPercent * 100) || 0;
+
+			return 0;
+		},
 		loaderSubtext() {
 			if (this.criticalError)
 				return this.criticalError;
+
+			if (!this.daemonLoaded && this.daemonManaged && this.daemonLoadingModule)
+				return this.daemonLoadingModule;
 
 			return null;
 		}

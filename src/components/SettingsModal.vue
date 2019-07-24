@@ -30,15 +30,15 @@
 		</div>
 		<div class="control">
 			<label>API Address</label>
-			<input type="text" v-model="apiAddr" />
+			<input type="text" v-model="apiAddr" placeholder="localhost:9980" />
 		</div>
 		<div class="control">
 			<label>API Agent</label>
-			<input type="text" v-model="apiAgent" />
+			<input type="text" v-model="apiAgent" placeholder="Sia-Agent" />
 		</div>
 		<div class="control">
 			<label>API Password</label>
-			<input type="text" v-model="apiPassword" />
+			<input type="text" v-model="apiPassword" placeholder="automatic" />
 		</div>
 		<div class="controls">
 			<button class="btn btn-success btn-inline" @click="onUpdateConfig">Update</button>

@@ -44,8 +44,7 @@
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
     "vue-cli-plugin-electron-builder": "^1.3.6",
-    "vue-template-compiler": "^2.6.10",
-    "worker-loader": "^2.0.0"
+    "vue-template-compiler": "^2.6.10"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

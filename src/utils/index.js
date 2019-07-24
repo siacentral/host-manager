@@ -1,6 +1,5 @@
 import { decode } from '@stablelib/utf8';
 import fs from 'fs';
-import { platform } from 'os';
 import path from 'path';
 import process from 'process';
 import { remote } from 'electron';
@@ -8,8 +7,8 @@ import { remote } from 'electron';
 const app = remote.app;
 
 export function getDefaultSiaPath() {
-	switch (getPlatform()) {
-	case 'windows':
+	switch (process.platform) {
+	case 'win32':
 		return path.join(process.env.LOCALAPPDATA, 'Sia');
 	case 'darwin':
 		return path.join(process.env.HOME, 'Library', 'Application Support', 'Sia');
@@ -33,13 +32,6 @@ export async function readSiaUIConfig() {
 	};
 }
 
-export async function getDefaultAPIPassword() {
-	const passwordFile = path.join(getDefaultSiaPath(), 'apipassword'),
-		data = decode(await readFileAsync(passwordFile)).trim();
-
-	return data;
-};
-
 export async function writeConfig(config) {
 	const siacentralPath = app.getPath('userData');
 
@@ -51,9 +43,6 @@ export async function writeConfig(config) {
 export async function readConfig() {
 	const siacentralPath = app.getPath('userData'),
 		config = await readFileAsync(path.join(siacentralPath, 'config.json'));
-
-	if (!config.siad_api_password || typeof config.siad_api_password !== 'string' || config.siad_api_password.length === 0)
-		config.siad_api_password = await getDefaultAPIPassword();
 
 	return JSON.parse(decode(config));
 }
@@ -114,17 +103,6 @@ export function fileExistsAsync(path) {
 			resolve(true);
 		});
 	});
-};
-
-export function getPlatform() {
-	const os = platform();
-
-	switch (os) {
-	case 'win32':
-		return 'windows';
-	default:
-		return os;
-	}
 };
 
 export function getLastItems(arr, n) {

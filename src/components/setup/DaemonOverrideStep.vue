@@ -20,10 +20,6 @@
 			<input type="text" v-model="apiAddr" placeholder="localhost:9980" />
 		</div>
 		<div class="control">
-			<label>API Password</label>
-			<input type="text" v-model="apiPassword" placeholder="" />
-		</div>
-		<div class="control">
 			<label>API User Agent</label>
 			<input type="text" v-model="userAgent" placeholder="Sia-Agent" />
 		</div>
@@ -50,15 +46,13 @@ export default {
 		this.hostPort = this.config.siad_host_port;
 		this.rpcPort = this.config.siad_rpc_port;
 		this.apiAddr = this.config.siad_api_addr;
-		this.apiPassword = this.config.siad_api_password;
 	},
 	data() {
 		return {
 			userAgent: null,
 			hostPort: null,
 			rpcPort: null,
-			apiAddr: null,
-			apiPassword: null
+			apiAddr: null
 		};
 	},
 	methods: {
@@ -69,8 +63,7 @@ export default {
 					'siad_api_agent': this.userAgent,
 					'siad_host_port': this.hostPort,
 					'siad_rpc_port': this.rpcPort,
-					'siad_api_addr': this.apiAddr,
-					'siad_api_password': this.apiPassword
+					'siad_api_addr': this.apiAddr
 				}
 			});
 		}

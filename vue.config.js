@@ -8,6 +8,12 @@ else
 module.exports = {
 	parallel: false,
 	chainWebpack: config => {
+		config.externals = {
+			'child_process': 'require("electron").remote.require("child_process")',
+			'process': 'require("electron").remote.require("process")',
+			'fs': 'require("electron").remote.require("fs")',
+			'path': 'require("electron").remote.require("path")'
+		};
 		config.output.publicPath = `${process.cwd()}/dist/`;
 
 		const svgRule = config.module.rule('svg'),

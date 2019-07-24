@@ -4,6 +4,7 @@ import Vuex from 'vuex';
 import hostConnection from './connection';
 import hostContracts from './contracts';
 import hostConfig from './config';
+import hostDaemon from './daemon';
 import avgConfig from './averageconfig';
 import hostStorage from './storage';
 import hostWallet from './wallet';
@@ -16,6 +17,7 @@ export default new Vuex.Store({
 		hostConnection,
 		hostContracts,
 		hostConfig,
+		hostDaemon,
 		hostStorage,
 		hostWallet
 	},

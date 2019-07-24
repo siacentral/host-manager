@@ -2,10 +2,42 @@
 
 import Store from '@/store';
 import request from 'request';
+import path from 'path';
+import { decode } from '@stablelib/utf8';
 
-function sendJSONRequest(url, method, body) {
+import { readFileAsync, getDefaultSiaPath } from './index';
+
+let apiPassword;
+
+export async function getAPIPassword() {
+	await loadDefaultAPIPassword();
+
+	return apiPassword;
+}
+
+async function loadDefaultAPIPassword() {
+	if (apiPassword)
+		return;
+
+	if (process.env.SIA_API_PASSWORD && process.env.SIA_API_PASSWORD.length > 0) {
+		apiPassword = process.env.SIA_API_PASSWORD;
+
+		return;
+	}
+
+	const passwordFile = path.join(getDefaultSiaPath(), 'apipassword'),
+		data = decode(await readFileAsync(passwordFile)).trim();
+
+	apiPassword = data;
+}
+
+async function sendJSONRequest(url, method, body) {
+	const config = Store.state.config || {};
+
+	await loadDefaultAPIPassword();
+
 	return new Promise((resolve, reject) => {
-		url = `${Store.state.config.siad_api_addr || 'localhost:9980'}${url}`;
+		url = `${config.siad_api_addr || 'localhost:9980'}${url}`;
 
 		if (url.indexOf('http') < 0)
 			url = `http://${url}`;
@@ -13,11 +45,11 @@ function sendJSONRequest(url, method, body) {
 		const opts = {
 			method,
 			headers: {
-				'User-Agent': Store.state.config.siad_api_agent || 'Sia-Agent'
+				'User-Agent': config.siad_api_agent || 'Sia-Agent'
 			},
 			auth: {
 				username: '',
-				password: Store.state.config.siad_api_password
+				password: apiPassword
 			}
 		};
 
@@ -42,20 +74,40 @@ function sendJSONRequest(url, method, body) {
 	});
 }
 
+export function getDaemonVersion() {
+	return sendJSONRequest('/daemon/version', 'GET', null);
+}
+
+export function stopDaemon() {
+	return sendJSONRequest('/daemon/stop', 'GET', null);
+}
+
 export function getConsensus() {
 	return sendJSONRequest('/consensus', 'GET', null);
 }
 
-export function getContracts() {
-	return sendJSONRequest('/host/contracts', 'GET', null);
+export function getGateway() {
+	return sendJSONRequest('/gateway', 'GET', null);
+}
+
+export function getHostDB() {
+	return sendJSONRequest('/hostdb', 'GET', null);
 }
 
 export function getHost() {
 	return sendJSONRequest('/host', 'GET', null);
 }
 
+export function getHostContracts() {
+	return sendJSONRequest('/host/contracts', 'GET', null);
+}
+
 export function getHostStorage() {
 	return sendJSONRequest('/host/storage', 'GET', null);
+}
+
+export function getTransactionpoolFee() {
+	return sendJSONRequest('/tpool/fee', 'GET', null);
 }
 
 export function getWallet() {

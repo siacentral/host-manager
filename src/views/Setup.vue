@@ -29,7 +29,7 @@ export default {
 			showAdvanced: false,
 			config: {
 				dark_mode: true,
-				siad_api_addr: 'localhost:9980'
+				siad_api_addr: null
 			},
 			imported: null
 		};
@@ -44,6 +44,7 @@ export default {
 	},
 	async beforeMount() {
 		try {
+			console.log('loading setup');
 			const importConfig = await readSiaUIConfig();
 
 			this.imported = importConfig;
@@ -55,12 +56,19 @@ export default {
 	},
 	methods: {
 		stepActive(name) {
-			const steps = ['welcome', 'import', 'consensus'];
+			const steps = ['welcome'];
+
+			if (this.imported)
+				steps.push('import');
+
+			steps.push('consensus');
 
 			if (this.showAdvanced)
 				steps.push('settings');
 
 			steps.push('unlock', 'review');
+
+			console.log(steps, this.loaded, this.step, name);
 
 			return this.loaded && this.step === steps.indexOf(name.toLowerCase());
 		},

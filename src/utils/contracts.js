@@ -1,6 +1,6 @@
 'use strict';
 
-import { getContracts, getBlock } from '@/utils/siacentral';
+import { getHostContracts, getBlock } from '@/utils/siacentral';
 import { BigNumber } from 'bignumber.js';
 import { parseNumberString } from '@/utils/parse';
 
@@ -80,7 +80,7 @@ function determineAlerts(contract, globalAlerts, blockHeight) {
 
 async function checkContracts(contracts) {
 	const height = await getHeight(),
-		resp = await getContracts(contracts.map(c => c.obligation_id)),
+		resp = await getHostContracts(contracts.map(c => c.obligation_id)),
 		totals = {
 			earned_revenue: new BigNumber(0),
 			potential_revenue: new BigNumber(0),

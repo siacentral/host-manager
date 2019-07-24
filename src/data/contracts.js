@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js';
 
 import Store from '@/store';
-import { getContracts } from '@/utils/sia';
+import { getHostContracts } from '@/utils/sia';
 import { getConfirmedContracts, getBlock } from '@/utils/siacentral';
 
 async function getLastHeight() {
@@ -165,7 +165,7 @@ export async function parseHostContracts() {
 }
 
 async function loadHostContracts() {
-	const resp = await getContracts();
+	const resp = await getHostContracts();
 
 	if (resp.statusCode !== 200)
 		throw new Error(resp.body.error);
