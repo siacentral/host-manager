@@ -1,9 +1,9 @@
 import { BigNumber } from 'bignumber.js';
 
-import { getWallet } from '@/utils/sia';
+import { getWallet, unlockWallet } from '@/utils/sia';
 import Store from '@/store';
 
-let refreshing = false;
+let refreshing = false, unlocking = false, disableUnlock = false;
 
 export async function refreshHostWallet() {
 	if (refreshing)
@@ -18,11 +18,37 @@ export async function refreshHostWallet() {
 	}
 }
 
+async function unlockHostWalllet() {
+	if (unlocking || disableUnlock)
+		return;
+
+	try {
+		unlocking = true;
+
+		const resp = await unlockWallet();
+
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+	} catch (ex) {
+		console.log(ex);
+		disableUnlock = true;
+	} finally {
+		unlocking = false;
+	}
+}
+
 async function loadHostWallet() {
-	const resp = await getWallet();
+	const config = Store.state.config || {},
+		resp = await getWallet();
 
 	if (resp.statusCode !== 200)
 		throw new Error(resp.body.message);
+
+	if (!resp.body.unlocked && resp.body.encrypted && !resp.body.rescanning && config.siad_wallet_password && !disableUnlock) {
+		await unlockHostWalllet();
+		await loadHostWallet();
+		return;
+	}
 
 	Store.dispatch('hostWallet/setUnlocked', resp.body.unlocked);
 	Store.dispatch('hostWallet/setEncrypted', resp.body.encrypted);

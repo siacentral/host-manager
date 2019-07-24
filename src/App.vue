@@ -109,7 +109,6 @@ export default {
 			return false;
 		},
 		loaderText() {
-			console.log(this.firstRun);
 			if (this.criticalError && !this.firstRun)
 				return 'Uh Oh! We\'ve run into a problem.';
 
