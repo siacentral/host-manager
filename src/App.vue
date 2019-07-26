@@ -44,7 +44,7 @@ export default {
 				if (!this.config)
 					return;
 
-				await launch();
+				await launch(this.config);
 				await refreshData();
 
 				this.createWallet = !this.walletUnlocked && !this.walletEncrypted;

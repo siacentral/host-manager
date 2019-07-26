@@ -12,7 +12,7 @@ export async function refreshHostConnectability() {
 
 		const resp = await getConnectability(Store.state.netAddress);
 
-		Store.dispatch('hostConnection/setConnectability', resp);
+		Store.dispatch('hostConnection/setConnectability', resp.body);
 	} finally {
 		refreshing = false;
 	}

@@ -1,9 +1,17 @@
 import request from 'request';
 
 export async function sendJSONRequest(url, opts) {
+	opts = {
+		method: 'GET',
+		...(opts || {})
+	};
+
 	return new Promise((resolve, reject) => {
 		if (url.indexOf('http') < 0)
 			url = `http://${url}`;
+
+		if (opts.body && typeof opts.body !== 'string')
+			opts.body = JSON.stringify(opts.body);
 
 		request(url, opts, (err, resp, body) => {
 			if (err)
