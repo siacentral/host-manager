@@ -30,8 +30,8 @@ import log from 'electron-log';
 
 import Modal from '@/components/Modal';
 import { formatByteString } from '@/utils/format';
-import { removeStorageFolder } from '@/utils/sia';
-import { mapActions } from 'vuex';
+import SiaApiClient from '@/api/sia';
+import { mapActions, mapState } from 'vuex';
 import { refreshHostStorage } from '@/data/storage';
 
 export default {
@@ -48,6 +48,9 @@ export default {
 			removing: false
 		};
 	},
+	computed: {
+		...mapState(['config'])
+	},
 	methods: {
 		...mapActions(['pushNotification']),
 		formatByteString,
@@ -61,7 +64,8 @@ export default {
 				if (this.validateName !== this.folder.path)
 					return;
 
-				const resp = await removeStorageFolder(this.folder.path, this.forceDelete);
+				const client = new SiaApiClient(this.config),
+					resp = await client.removeStorageFolder(this.folder.path, this.forceDelete);
 
 				if (resp.statusCode !== 200)
 					throw new Error(resp.body.message);
@@ -74,7 +78,7 @@ export default {
 				});
 				this.$emit('close');
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'hdd',

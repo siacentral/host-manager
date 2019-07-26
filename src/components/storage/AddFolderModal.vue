@@ -24,10 +24,10 @@ import log from 'electron-log';
 import Modal from '@/components/Modal';
 import { BigNumber } from 'bignumber.js';
 import { parseByteString } from '@/utils/parse';
-import { addStorageFolder } from '@/utils/sia';
+import SiaApiClient from '@/api/sia';
 import { refreshHostStorage } from '@/data/storage';
 import { remote } from 'electron';
-import { mapActions } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 
 const dialog = remote.dialog;
 
@@ -45,6 +45,9 @@ export default {
 			creating: false
 		};
 	},
+	computed: {
+		...mapState(['config'])
+	},
 	methods: {
 		...mapActions(['pushNotification']),
 		onBrowsePath() {
@@ -55,7 +58,7 @@ export default {
 
 				this.path = paths ? paths[0] : null;
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 			}
 		},
 		async onCreateFolder() {
@@ -69,7 +72,8 @@ export default {
 				if (!this.valid)
 					return;
 
-				const resp = await addStorageFolder(this.path, this.sizeValue);
+				const client = new SiaApiClient(this.config),
+					resp = await client.addStorageFolder(this.path, this.sizeValue);
 
 				if (resp.statusCode !== 200)
 					throw new Error(resp.body.message || 'Unable to create storage folder');
@@ -82,7 +86,7 @@ export default {
 				});
 				this.$emit('close');
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'hdd',

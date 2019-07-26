@@ -128,7 +128,7 @@ export default {
 				this.selectedFolder = folder;
 				this.modal = 'resize-folder';
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 			}
 		},
 		onRemoveFolder(folder) {
@@ -136,7 +136,7 @@ export default {
 				this.selectedFolder = folder;
 				this.modal = 'remove-folder';
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 			}
 		}
 	}

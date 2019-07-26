@@ -28,6 +28,7 @@ import log from 'electron-log';
 import { writeConfig } from '@/utils';
 import { refreshData } from '@/data/index';
 import { launch } from '@/utils/daemon';
+import SiaApiClient from '@/api/sia';
 
 import SetupStep from './SetupStep';
 import SiaCentral from '@/assets/siacentral.svg';
@@ -49,23 +50,29 @@ export default {
 	},
 	async mounted() {
 		try {
-			this.setConfig(this.config);
-
 			log.info('launching');
-			await launch();
+			await launch(this.config);
+
+			const client = new SiaApiClient(this.config);
+
+			if (!(await client.checkCredentials()))
+				throw new Error('Unable to authenticate check API address or password');
+
+			this.setConfig(this.config);
 			log.info('refreshing data');
 			await refreshData();
 			log.info('writing config');
 			await writeConfig(this.config);
 			log.info('changing page');
 			this.$nextTick(() => this.$router.push({ name: 'dashboard' }));
+			this.setFirstRun(false);
 		} catch (ex) {
-			log.error(ex);
+			log.error(ex.message);
 			this.error = ex.message;
 		}
 	},
 	methods: {
-		...mapActions(['setConfig'])
+		...mapActions(['setConfig', 'setFirstRun'])
 	}
 };
 </script>

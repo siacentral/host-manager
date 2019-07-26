@@ -1,12 +1,11 @@
-import { getConsensus } from '@/utils/sia';
-import { getBlock } from '@/utils/siacentral';
-
+import { apiClient } from './index';
+import { getBlock } from '@/api/siacentral';
 import Store from '@/store';
 
 let startTime, startBlock, finalBlock;
 
 export async function refreshBlockHeight() {
-	const resp = await getConsensus();
+	const resp = await apiClient.getConsensus();
 
 	if (resp.statusCode !== 200)
 		return;
@@ -32,8 +31,8 @@ export async function refreshLastBlock() {
 	const resp = await getBlock();
 	let height = 0;
 
-	if (resp.type === 'success')
-		height = resp.height;
+	if (resp.body.type === 'success')
+		height = resp.body.height;
 
 	finalBlock = height;
 

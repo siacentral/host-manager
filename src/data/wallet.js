@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js';
 import log from 'electron-log';
 
-import { getWallet, unlockWallet } from '@/utils/sia';
+import { apiClient } from './index';
 import Store from '@/store';
 
 let refreshing = false, unlocking = false, disableUnlock = false;
@@ -26,12 +26,12 @@ async function unlockHostWalllet() {
 	try {
 		unlocking = true;
 
-		const resp = await unlockWallet();
+		const resp = await apiClient.unlockWallet();
 
 		if (resp.statusCode !== 200)
 			throw new Error(resp.body.message);
 	} catch (ex) {
-		log.error(ex);
+		log.error(ex.message);
 		disableUnlock = true;
 	} finally {
 		unlocking = false;
@@ -40,7 +40,7 @@ async function unlockHostWalllet() {
 
 async function loadHostWallet() {
 	const config = Store.state.config || {},
-		resp = await getWallet();
+		resp = await apiClient.getWallet();
 
 	if (resp.statusCode !== 200)
 		throw new Error(resp.body.message);

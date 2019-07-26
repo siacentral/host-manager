@@ -23,7 +23,6 @@ import ReviewStep from '@/components/setup/ReviewStep';
 import { readSiaUIConfig } from '@/utils';
 
 export default {
-	name: 'setup',
 	data() {
 		return {
 			loaded: false,
@@ -46,12 +45,11 @@ export default {
 	},
 	async beforeMount() {
 		try {
-			log.info('loading setup');
 			const importConfig = await readSiaUIConfig();
 
 			this.imported = importConfig;
 		} catch (ex) {
-			log.error(ex);
+			log.error(ex.message);
 		} finally {
 			this.loaded = true;
 		}
@@ -69,8 +67,6 @@ export default {
 				steps.push('settings');
 
 			steps.push('unlock', 'review');
-
-			log.info(steps, this.loaded, this.step, name);
 
 			return this.loaded && this.step === steps.indexOf(name.toLowerCase());
 		},

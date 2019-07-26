@@ -1,15 +1,31 @@
-export async function sendJSONRequest(url, method, data, headers) {
-	const opts = {
-		method,
-		headers,
-		cache: 'no-cache',
-		body: data ? JSON.stringify(data) : null
-	};
+import request from 'request';
 
-	const r = await fetch(url, opts),
-		resp = await r.json();
+// sends body as JSON instead of url-encoded form
+async function sendJSONRequest(url, method, body) {
+	return new Promise((resolve, reject) => {
+		const opts = {
+			method
+		};
 
-	return resp;
+		if (method === 'POST' && body)
+			opts.body = JSON.stringify(body);
+
+		request(url, opts, (err, resp, body) => {
+			if (err)
+				return reject(err);
+
+			const r = { ...resp.toJSON() };
+
+			try {
+				r.body = JSON.parse(body);
+			} catch (ex) {}
+
+			if (r.statusCode >= 200 && r.statusCode < 300)
+				r.statusCode = 200;
+
+			resolve(r);
+		});
+	});
 }
 
 export async function getAverageSettings() {

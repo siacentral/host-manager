@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js';
 import Decimal from 'decimal.js-light';
 
-import { getHostStorage } from '@/utils/sia';
+import { apiClient } from './index';
 import Store from '@/store';
 
 let refreshing = false;
@@ -20,7 +20,7 @@ export async function refreshHostStorage() {
 }
 
 async function loadHostStorage() {
-	const resp = await getHostStorage();
+	const resp = await apiClient.getHostStorage();
 
 	let usedStorage = new BigNumber(0),
 		totalStorage = new BigNumber(0),

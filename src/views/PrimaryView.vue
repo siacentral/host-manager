@@ -1,8 +1,6 @@
 <template>
-	<div :class="{ 'app-wrapper': true, 'app-navigation': showNavigation }">
-		<transition name="slide-right" appear>
-			<primary-nav v-if="showNavigation" />
-		</transition>
+	<div class="app-wrapper">
+		<primary-nav />
 		<div class="app-content">
 			<transition name="fade" appear>
 				<router-view/>
@@ -20,11 +18,6 @@ export default {
 	components: {
 		NotificationQueue,
 		PrimaryNav
-	},
-	computed: {
-		showNavigation() {
-			return !this.$route.meta || !this.$route.meta.hide_navigation;
-		}
 	}
 };
 </script>
@@ -37,15 +30,11 @@ export default {
 	.app-content {
 		position: fixed;
 		top: 0;
-		left: 0;
+		left: 200px;
 		bottom: 0;
 		right: 0;
 		overflow: hidden;
 		transition: left 0.4 ease;
-	}
-
-	&.app-navigation .app-content {
-		left: 200px;
 	}
 }
 

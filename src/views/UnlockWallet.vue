@@ -24,8 +24,8 @@
 <script>
 import log from 'electron-log';
 
-import { mapActions } from 'vuex';
-import { unlockWallet } from '@/utils/sia';
+import { mapActions, mapState } from 'vuex';
+import SiaApiClient from '@/api/sia';
 import { refreshData } from '@/data';
 
 export default {
@@ -35,6 +35,9 @@ export default {
 			unlocking: false,
 			error: null
 		};
+	},
+	computed: {
+		...mapState(['config'])
 	},
 	methods: {
 		...mapActions(['pushNotification']),
@@ -50,7 +53,8 @@ export default {
 					return;
 				}
 
-				const resp = await unlockWallet(this.password);
+				const client = new SiaApiClient(this.config),
+					resp = await client.unlockWallet(this.password);
 
 				if (resp.statusCode !== 200) {
 					if (resp.body.message && resp.body.message.indexOf('provided encryption key is incorrect') >= 0)

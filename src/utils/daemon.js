@@ -3,17 +3,16 @@ import path from 'path';
 import process from 'process';
 import { remote } from 'electron';
 import { spawn } from 'child_process';
-import { getUserDataPath } from './index';
 import { decode } from '@stablelib/utf8';
 import log from 'electron-log';
 
-import { stopDaemon } from './sia';
+import SiaApiClient from '@/api/sia';
+import { getUserDataPath } from './index';
 
 let siaProcess, shutdown = false, stdout = '', stderr = '';
 
-function buildArgs() {
-	const config = Store.state.config,
-		args = [];
+function buildArgs(config) {
+	const args = [];
 
 	if (config.siad_data_path && config.siad_data_path.length > 0)
 		args.push('-d', config.siad_data_path);
@@ -32,14 +31,11 @@ function buildArgs() {
 	if (config.siad_api_addr && config.siad_api_addr.length > 0)
 		args.push('--api-addr', config.siad_api_addr);
 
-	log.info(args);
-
 	return args;
 }
 
-function buildEnv() {
-	const config = Store.state.config,
-		env = JSON.parse(JSON.stringify(process.env));
+function buildEnv(config) {
+	const env = JSON.parse(JSON.stringify(process.env));
 
 	if (config.siad_wallet_password && config.siad_wallet_password.length > 0)
 		env['SIA_WALLET_PASSWORD'] = config.siad_wallet_password;
@@ -49,8 +45,6 @@ function buildEnv() {
 
 function getPath() {
 	const binary = process.platform === 'win32' ? 'siad.exe' : 'siad';
-
-	log.info('PACKAGED', remote.app.isPackaged);
 
 	if (!remote.app.isPackaged)
 		return path.join(__static, '..', 'build', 'bin', process.platform, binary);
@@ -100,10 +94,11 @@ function parseStdOut(output) {
 
 export async function stop() {
 	const waitForExit = new Promise(resolve => {
-		siaProcess.on('close', code => resolve(code));
-	});
+			siaProcess.on('close', code => resolve(code));
+		}),
+		client = new SiaApiClient(Store.state.config);
 
-	await stopDaemon();
+	await client.stopDaemon();
 
 	return waitForExit;
 }
@@ -116,8 +111,10 @@ export function stdErr() {
 	return stderr;
 }
 
-export function launch() {
+export function launch(config) {
 	const daemonPath = getPath();
+
+	config = config || {};
 
 	if (siaProcess)
 		return;
@@ -137,13 +134,13 @@ export function launch() {
 		try {
 			const opts = {
 				windowsHide: true,
-				env: buildEnv()
+				env: buildEnv(config)
 			};
 
 			if (process.geteuid)
 				opts.uid = process.geteuid();
 
-			siaProcess = spawn(daemonPath, buildArgs(), opts);
+			siaProcess = spawn(daemonPath, buildArgs(config), opts);
 
 			siaProcess.stdout.on('data', data => {
 				stdout += decode(data);
@@ -184,7 +181,7 @@ export function launch() {
 				if (shutdown)
 					return;
 
-				launch();
+				launch(config);
 			});
 		} catch (ex) {
 			reject(ex);

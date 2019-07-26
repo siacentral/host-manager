@@ -40,6 +40,17 @@ export async function writeConfig(config) {
 	return writeFileAsync(path.join(siacentralPath, 'config.json'), JSON.stringify(config, null, '\t'));
 }
 
+let config;
+
+export async function getConfig() {
+	if (config)
+		return config;
+
+	config = await readConfig();
+
+	return config;
+}
+
 export async function readConfig() {
 	const siacentralPath = app.getPath('userData'),
 		config = await readFileAsync(path.join(siacentralPath, 'config.json'));

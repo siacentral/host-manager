@@ -23,9 +23,9 @@ import Modal from '@/components/Modal';
 import { BigNumber } from 'bignumber.js';
 import { formatByteString } from '@/utils/format';
 import { parseByteString } from '@/utils/parse';
-import { mapActions } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 import { refreshHostStorage } from '@/data/storage';
-import { resizeStorageFolder } from '@/utils/sia';
+import SiaApiClient from '@/api/sia';
 
 export default {
 	components: {
@@ -48,8 +48,11 @@ export default {
 			this.sizeValue = this.folder.total_capacity;
 			this.sizeStr = formatByteString(this.folder.total_capacity, 2);
 		} catch (ex) {
-			log.error(ex);
+			log.error(ex.message);
 		}
+	},
+	computed: {
+		...mapState(['config'])
 	},
 	methods: {
 		...mapActions(['pushNotification']),
@@ -64,7 +67,8 @@ export default {
 				if (!this.valid)
 					return;
 
-				const resp = await resizeStorageFolder(this.folder.path, this.sizeValue);
+				const client = new SiaApiClient(this.config),
+					resp = await client.resizeStorageFolder(this.folder.path, this.sizeValue);
 
 				if (resp.statusCode !== 200)
 					throw new Error(resp.body.message);
@@ -77,7 +81,7 @@ export default {
 				});
 				this.$emit('close');
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'hdd',

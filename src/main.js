@@ -1,21 +1,20 @@
 import Vue from 'vue';
+import log from 'electron-log';
+
 import App from './App.vue';
 import router from './router';
 import store from './store';
-import log from 'electron-log';
-
 import { readConfig } from '@/utils';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faWrench, faClock, faWifi, faExpand, faTrash, faCheckCircle, faCoins, faUser, faBell, faChartPie, faRedo, faFileContract, faCogs, faPencilAlt,
-	faFolder, faTerminal, faLock, faDollarSign, faWallet, faServer, faExternalLinkAlt,
-	faEllipsisV, faPlus, faMinus, faArrowsAltH, faBullhorn, faPowerOff, faPlay, faFire, faSync,
-	faQuestionCircle, faExclamationCircle, faHdd, faSearch, faDatabase, faKey, faUnlock, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
+	faChartPie, faHdd, faFileContract, faWrench, faCogs, faSearch,
+	faUnlock, faDatabase, faPlus, faExpand, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome';
 
-library.add(faWrench, faClock, faWifi, faExpand, faTrash, faCheckCircle, faCoins, faUser, faBell, faRedo, faChartPie, faFileContract, faCogs, faPencilAlt, faFolder, faTerminal,
-	faLock, faDollarSign, faWallet, faServer, faExternalLinkAlt, faEllipsisV, faPlus, faMinus, faArrowsAltH, faBullhorn,
-	faPowerOff, faPlay, faFire, faSync, faQuestionCircle, faExclamationCircle, faHdd, faSearch, faDatabase, faKey, faUnlock, faTimes);
+library.add(faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes, faChartPie,
+	faHdd, faFileContract, faWrench, faCogs, faSearch, faUnlock,
+	faDatabase, faPlus, faExpand, faTrash, faSync);
 
 Vue.component('icon', FontAwesomeIcon);
 Vue.component('icon-layers', FontAwesomeLayers);
@@ -23,7 +22,7 @@ Vue.component('icon-layers', FontAwesomeLayers);
 Vue.config.productionTip = false;
 
 process.on('unhandledRejection', error => {
-	console.error(error);
+	log.error(error);
 });
 
 async function init() {
@@ -41,7 +40,7 @@ async function init() {
 
 		store.dispatch('setFirstRun', false);
 	} catch (ex) {
-		log.error(ex);
+		log.error(ex.message);
 	}
 
 	new Vue({

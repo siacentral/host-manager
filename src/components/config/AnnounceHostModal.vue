@@ -53,7 +53,7 @@ export default {
 				});
 				this.$emit('close');
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 			} finally {
 				this.announce = false;
 			}

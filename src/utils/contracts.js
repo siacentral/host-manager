@@ -1,6 +1,6 @@
 'use strict';
 
-import { getHostContracts, getBlock } from '@/utils/siacentral';
+import { getHostContracts, getBlock } from '@/api/siacentral';
 import { BigNumber } from 'bignumber.js';
 import { parseNumberString } from '@/utils/parse';
 import log from 'electron-log';
@@ -8,8 +8,8 @@ import log from 'electron-log';
 async function getHeight() {
 	const resp = await getBlock();
 
-	if (resp.type === 'success')
-		return resp.height;
+	if (resp.body.type === 'success')
+		return resp.body.height;
 
 	return 0;
 }
@@ -17,8 +17,8 @@ async function getHeight() {
 async function getBlockTimestamp(height) {
 	const resp = await getBlock(height);
 
-	if (resp.type === 'success')
-		return new Date(resp.block.timestamp);
+	if (resp.body.type === 'success')
+		return new Date(resp.body.block.timestamp);
 
 	return new Date(0);
 }
@@ -96,10 +96,10 @@ async function checkContracts(contracts) {
 		};
 	let globalAlerts = {}, minHeight, maxHeight;
 
-	if (resp.type !== 'success')
+	if (resp.body.type !== 'success')
 		return;
 
-	const filtered = resp.contracts.map(c => {
+	const filtered = resp.body.contracts.map(c => {
 			const siaContract = contracts.filter(s => s.obligation_id === c.obligation_id)[0];
 
 			if (!siaContract)
@@ -235,7 +235,7 @@ function parseContractText(text) {
 			risked_collateral: new BigNumber(c.riskedcollateral)
 		}));
 	} catch (ex) {
-		log.error(ex);
+		log.error(ex.message);
 	}
 
 	try {
@@ -287,7 +287,7 @@ function parseContractText(text) {
 
 		return contracts;
 	} catch (ex) {
-		log.error(ex);
+		log.error(ex.message);
 	}
 
 	return [];

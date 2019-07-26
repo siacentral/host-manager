@@ -150,7 +150,7 @@ import log from 'electron-log';
 import { mapState, mapActions } from 'vuex';
 import { formatByteString, formatPriceString, formatBlockTimeString } from '@/utils/format';
 import { parseCurrencyString, parseByteString, parseBlockTimeString } from '@/utils/parse';
-import { updateHost } from '@/utils/sia';
+import SiaApiClient from '@/api/sia';
 import { refreshHostConfig } from '@/data/config';
 
 import AnnounceHostModal from '@/components/config/AnnounceHostModal';
@@ -162,6 +162,9 @@ export default {
 		ConfigItem
 	},
 	computed: {
+		...mapState({
+			appConfig: state => state.config
+		}),
 		...mapState('hostConfig', ['acceptingContracts', 'netaddress', 'maxDuration',
 			'maxReviseSize', 'maxDownloadSize', 'windowSize', 'contractPrice', 'downloadPrice',
 			'uploadPrice', 'storagePrice', 'collateral', 'maxCollateral',
@@ -212,7 +215,8 @@ export default {
 			try {
 				this.updating = true;
 
-				const resp = await updateHost(this.config);
+				const client = new SiaApiClient(this.appConfig),
+					resp = await client.updateHost(this.config);
 
 				if (resp.statusCode !== 200) {
 					this.pushNotification({
@@ -249,7 +253,7 @@ export default {
 
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -262,7 +266,7 @@ export default {
 				this.config[key] = val.div(1e12).div(4320).toFixed(0).toString(10);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -273,7 +277,7 @@ export default {
 				this.config[key] = parseCurrencyString(value).div(1e12).toFixed(0).toString(10);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -284,7 +288,7 @@ export default {
 				this.config[key] = parseInt(value, 10);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -295,7 +299,7 @@ export default {
 				this.config[key] = parseBlockTimeString(value);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -306,7 +310,7 @@ export default {
 				this.config[key] = parseByteString(value).toString(10);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		}

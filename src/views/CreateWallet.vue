@@ -52,8 +52,8 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
-import { createWallet, recoverWallet } from '@/utils/sia';
+import { mapActions, mapState } from 'vuex';
+import SiaApiClient from '@/api/sia';
 import { refreshData } from '@/data';
 
 export default {
@@ -68,6 +68,7 @@ export default {
 		};
 	},
 	computed: {
+		...mapState(['config']),
 		title() {
 			if (this.creating && this.step === 'recover')
 				return 'Recovering your wallet';
@@ -116,7 +117,8 @@ export default {
 					return;
 				}
 
-				const resp = await createWallet(this.password);
+				const client = new SiaApiClient(this.config),
+					resp = await client.createWallet(this.password);
 
 				if (resp.statusCode !== 200)
 					throw new Error(resp.body.message || 'Error creating wallet');
@@ -151,7 +153,8 @@ export default {
 					return;
 				}
 
-				const resp = await recoverWallet(this.recoverSeed, this.password);
+				const client = new SiaApiClient(this.config),
+					resp = await client.recoverWallet(this.recoverSeed, this.password);
 
 				if (resp.statusCode !== 400)
 					throw new Error(resp.body.message || 'Error recovering seed');

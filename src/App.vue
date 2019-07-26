@@ -12,7 +12,8 @@
 			</button>
 		</div>
 		<transition name="fade" mode="out-in" appear>
-			<loader v-if="showLoader" key="loader" @animated="animationComplete = true" :progress="loaderProgress" :text="loaderText" :severity="loaderSeverity" :subText="loaderSubtext" />
+			<setup v-if="firstRun && animationComplete" key="setup" />
+			<loader v-else-if="showLoader" key="loader" @animated="animationComplete = true" :progress="loaderProgress" :text="loaderText" :severity="loaderSeverity" :subText="loaderSubtext" />
 			<primary-view v-else key="primary" />
 		</transition>
 	</div>
@@ -21,34 +22,34 @@
 import { remote } from 'electron';
 import Loader from '@/views/Loader';
 import PrimaryView from '@/views/PrimaryView';
+import Setup from '@/views/Setup';
 
 import { mapActions, mapState } from 'vuex';
 import { refreshData } from '@/data';
 import { launch } from '@/utils/daemon';
-import { listen } from '@/data/sync';
 import log from 'electron-log';
 
 export default {
 	components: {
 		Loader,
-		PrimaryView
+		PrimaryView,
+		Setup
 	},
 	methods: {
 		...mapActions(['setConfig', 'setCriticalError']),
 		async tryLoad() {
 			try {
-				if (!this.config) {
-					this.$router.replace({ name: 'setup' });
-					return;
-				}
-
 				this.$router.replace({ name: 'dashboard' });
+
+				if (!this.config)
+					return;
+
 				await launch();
 				await refreshData();
 
 				this.createWallet = !this.walletUnlocked && !this.walletEncrypted;
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 				this.setCriticalError(ex.message);
 			}
 		},
@@ -57,14 +58,14 @@ export default {
 				const window = remote.getCurrentWindow();
 				window.minimize();
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 			}
 		},
 		onMaxWindow() {
 			try {
 
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 			}
 		},
 		onCloseWindow() {
@@ -72,7 +73,7 @@ export default {
 				const window = remote.getCurrentWindow();
 				window.close();
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 			}
 		}
 	},
@@ -84,7 +85,6 @@ export default {
 	},
 	beforeMount() {
 		this.tryLoad();
-		listen();
 	},
 	computed: {
 		...mapState({
@@ -100,16 +100,7 @@ export default {
 			daemonManaged: state => state.hostDaemon.managed
 		}),
 		showLoader() {
-			if (this.firstRun && this.animationComplete)
-				return false;
-
-			if (this.criticalError || (!this.daemonLoaded && this.daemonManaged) || !this.animationComplete)
-				return true;
-
-			if (!this.firstRun && !this.dataLoaded)
-				return true;
-
-			return false;
+			return this.criticalError || (!this.daemonLoaded && this.daemonManaged) || !this.animationComplete;
 		},
 		loaderText() {
 			if (this.criticalError && !this.firstRun)

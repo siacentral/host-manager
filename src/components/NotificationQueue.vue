@@ -67,7 +67,7 @@ export default {
 				if (this.notification)
 					this.startTimeout();
 			} catch (ex) {
-				log.error(ex);
+				log.error(ex.message);
 			}
 		}
 	}

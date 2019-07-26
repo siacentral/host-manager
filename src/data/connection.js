@@ -1,4 +1,4 @@
-import { getConnectability } from '@/utils/siacentral';
+import { getConnectability } from '@/api/siacentral';
 import Store from '@/store';
 
 let refreshing = false;

@@ -1,16 +1,16 @@
 import { BigNumber } from 'bignumber.js';
 
 import Store from '@/store';
-import { getHostContracts } from '@/utils/sia';
-import { getConfirmedContracts, getBlock } from '@/utils/siacentral';
+import { apiClient } from './index';
+import { getConfirmedContracts, getBlock } from '@/api/siacentral';
 
 async function getLastHeight() {
 	const resp = await getBlock();
 
-	if (resp.type !== 'success')
+	if (resp.body.type !== 'success')
 		return new BigNumber(0);
 
-	return new BigNumber(resp.height);
+	return new BigNumber(resp.body.height);
 }
 
 let refreshing = false;
@@ -57,10 +57,10 @@ export async function parseHostContracts() {
 
 	const resp = await getConfirmedContracts(obligationIDs);
 
-	if (resp.type !== 'success')
-		throw new Error(resp.message);
+	if (resp.body.type !== 'success')
+		throw new Error(resp.body.message);
 
-	const filtered = resp.contracts.reduce((filtered, c) => {
+	const filtered = resp.body.contracts.reduce((filtered, c) => {
 		const match = map[c.obligation_id];
 
 		if (!match)
@@ -165,7 +165,7 @@ export async function parseHostContracts() {
 }
 
 async function loadHostContracts() {
-	const resp = await getHostContracts();
+	const resp = await apiClient.getHostContracts();
 
 	if (resp.statusCode !== 200)
 		throw new Error(resp.body.error);
