@@ -1,35 +1,9 @@
-import request from 'request';
-
-// sends body as JSON instead of url-encoded form
-async function sendJSONRequest(url, method, body) {
-	return new Promise((resolve, reject) => {
-		const opts = {
-			method
-		};
-
-		if (method === 'POST' && body)
-			opts.body = JSON.stringify(body);
-
-		request(url, opts, (err, resp, body) => {
-			if (err)
-				return reject(err);
-
-			const r = { ...resp.toJSON() };
-
-			try {
-				r.body = JSON.parse(body);
-			} catch (ex) {}
-
-			if (r.statusCode >= 200 && r.statusCode < 300)
-				r.statusCode = 200;
-
-			resolve(r);
-		});
-	});
-}
+import { sendJSONRequest } from './common';
 
 export async function getAverageSettings() {
-	const resp = await sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/hostdb/average`, 'GET', null);
+	const resp = await sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/hostdb/average`, {
+		method: 'GET'
+	});
 
 	return resp;
 }
@@ -37,14 +11,19 @@ export async function getAverageSettings() {
 export async function getConnectability(netaddress) {
 	netaddress = encodeURIComponent(netaddress);
 
-	const resp = await sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/hostdb/checkconnection?netaddress=${netaddress}`, 'GET', null);
+	const resp = await sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/hostdb/checkconnection?netaddress=${netaddress}`, {
+		method: 'GET'
+	});
 
 	return resp;
 }
 
 export async function getConfirmedContracts(contracts) {
-	const resp = await sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/explorer/storage-obligations`, 'POST', {
-		contract_ids: contracts
+	const resp = await sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/explorer/storage-obligations`, {
+		method: 'POST',
+		body: {
+			contract_ids: contracts
+		}
 	});
 
 	return resp;
@@ -56,11 +35,15 @@ export async function getBlock(height) {
 	if (height)
 		url += `?height=${height}`;
 
-	const resp = await sendJSONRequest(url, 'GET', null);
+	const resp = await sendJSONRequest(url, {
+		method: 'GET'
+	});
 
 	return resp;
 }
 
 export function getCoinPrice() {
-	return sendJSONRequest('https://api.coingecko.com/api/v3/coins/siacoin?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false', 'GET', null);
+	return sendJSONRequest('https://api.coingecko.com/api/v3/coins/siacoin?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false', {
+		method: 'GET'
+	});
 }

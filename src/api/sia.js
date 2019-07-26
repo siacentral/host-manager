@@ -1,39 +1,5 @@
-import path from 'path';
-import request from 'request';
-import { decode } from '@stablelib/utf8';
-import log from 'electron-log';
-
-import { readFileAsync, getDefaultSiaPath } from '@/utils/index';
-
-let apiPassword;
-
-// sends body as x-form-url-encoded instead of json
-async function sendJSONRequest(url, opts) {
-	await loadDefaultAPIPassword();
-
-	return new Promise((resolve, reject) => {
-		if (url.indexOf('http') < 0)
-			url = `http://${url}`;
-
-		request(url, opts, (err, resp, body) => {
-			if (err)
-				return reject(err);
-
-			const r = { ...resp.toJSON() };
-
-			try {
-				r.body = JSON.parse(body);
-			} catch (ex) {
-				log.warn(ex.message);
-			}
-
-			if (r.statusCode >= 200 && r.statusCode < 300)
-				r.statusCode = 200;
-
-			resolve(r);
-		});
-	});
-}
+import { getDefaultAPIPassword } from '@/utils';
+import { sendJSONRequest } from './common';
 
 export default class SiaApiClient {
 	constructor(opts) {
@@ -59,7 +25,9 @@ export default class SiaApiClient {
 		return false;
 	}
 
-	getDaemonVersion() {
+	async getDaemonVersion() {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/daemon/version`, {
 			method: 'GET',
 			headers: {
@@ -72,7 +40,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	stopDaemon() {
+	async stopDaemon() {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/daemon/stop`, {
 			method: 'GET',
 			headers: {
@@ -85,7 +55,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	getConsensus() {
+	async getConsensus() {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/consensus`, {
 			method: 'GET',
 			headers: {
@@ -98,7 +70,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	getGateway() {
+	async getGateway() {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/gateway`, {
 			method: 'GET',
 			headers: {
@@ -111,7 +85,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	getHostDB() {
+	async getHostDB() {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/hostdb`, {
 			method: 'GET',
 			headers: {
@@ -124,7 +100,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	getHost() {
+	async getHost() {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/host`, {
 			method: 'GET',
 			headers: {
@@ -137,7 +115,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	getHostContracts() {
+	async getHostContracts() {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/host/contracts`, {
 			method: 'GET',
 			headers: {
@@ -150,7 +130,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	getHostStorage() {
+	async getHostStorage() {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/host/storage`, {
 			method: 'GET',
 			headers: {
@@ -163,7 +145,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	getTransactionpoolFee() {
+	async getTransactionpoolFee() {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/tpool/fee`, {
 			method: 'GET',
 			headers: {
@@ -176,7 +160,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	getWallet() {
+	async getWallet() {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/wallet`, {
 			method: 'GET',
 			headers: {
@@ -189,7 +175,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	getWalletAddress() {
+	async getWalletAddress() {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/address`, {
 			method: 'GET',
 			headers: {
@@ -202,7 +190,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	unlockWallet(encryptionpassword) {
+	async unlockWallet(encryptionpassword) {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/unlock`, {
 			method: 'POST',
 			headers: {
@@ -218,7 +208,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	createWallet(encryptionpassword) {
+	async createWallet(encryptionpassword) {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/init`, {
 			method: 'POST',
 			headers: {
@@ -234,7 +226,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	recoverWallet(seed, encryptionpassword) {
+	async recoverWallet(seed, encryptionpassword) {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/init/seed`, 'POST', {
 			method: 'POST',
 			headers: {
@@ -251,7 +245,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	announceHost(address) {
+	async announceHost(address) {
+		const apiPassword = await getDefaultAPIPassword();
+
 		const form = {};
 
 		if (address && typeof address === 'string')
@@ -270,7 +266,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	updateHost(config) {
+	async updateHost(config) {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/host`, {
 			method: 'POST',
 			headers: {
@@ -284,7 +282,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	addStorageFolder(path, size) {
+	async addStorageFolder(path, size) {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/host/storage/folders/add`, {
 			method: 'POST',
 			headers: {
@@ -301,7 +301,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	resizeStorageFolder(path, size) {
+	async resizeStorageFolder(path, size) {
+		const apiPassword = await getDefaultAPIPassword();
+
 		return sendJSONRequest(`${this.config.siad_api_addr}/host/storage/folders/resize`, {
 			method: 'POST',
 			headers: {
@@ -318,7 +320,9 @@ export default class SiaApiClient {
 		});
 	}
 
-	removeStorageFolder(path, force) {
+	async removeStorageFolder(path, force) {
+		const apiPassword = await getDefaultAPIPassword();
+
 		const form = {
 			path
 		};
@@ -338,26 +342,4 @@ export default class SiaApiClient {
 			form
 		});
 	}
-}
-
-export async function getAPIPassword() {
-	await loadDefaultAPIPassword();
-
-	return apiPassword;
-}
-
-async function loadDefaultAPIPassword() {
-	if (apiPassword)
-		return;
-
-	if (process.env.SIA_API_PASSWORD && process.env.SIA_API_PASSWORD.length > 0) {
-		apiPassword = process.env.SIA_API_PASSWORD;
-
-		return;
-	}
-
-	const passwordFile = path.join(getDefaultSiaPath(), 'apipassword'),
-		data = decode(await readFileAsync(passwordFile)).trim();
-
-	apiPassword = data;
 }
