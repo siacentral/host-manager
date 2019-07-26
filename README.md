@@ -17,9 +17,6 @@ Sia Central desktop combines information from your Sia node as well as informati
 + Change all host settings
 + Display financials in different Fiat or Cryptocurrencies.
 
-## Demo
-![demo](https://i.imgur.com/v4zYYch.gif)
-
 ## Screenshots
 
 ![dashboard](https://i.imgur.com/wvbhQS4.png)
