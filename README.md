@@ -15,7 +15,7 @@ Sia Central desktop combines information from your Sia node as well as informati
 + Add, remove and resize storage folders
 + Get detailed information about ongoing, completed, and failed storage obligations
 + Change all host settings
-+ Display Siacoin in many other Fiat and Cryptocurrencies.
++ Display financials in different Fiat or Cryptocurrencies.
 
 ## Screenshots
 
