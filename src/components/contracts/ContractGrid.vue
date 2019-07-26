@@ -65,6 +65,9 @@ export default {
 			if (blocks >= 144)
 				return formatShortDateString(new Date(Date.now() + (blocks * 6e5)));
 
+			if (blocks < 8)
+				return '< 1 hr';
+
 			return formatBlockTimeString(blocks);
 		},
 		getTagClasses(tag) {

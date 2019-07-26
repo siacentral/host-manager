@@ -38,8 +38,8 @@ export function parseBlockTimeString(str) {
 		'months': 4320, 'weeks': 1008, 'days': 144, 'hours': 6
 	};
 
-	const unit = str.replace(/^a-z]/gi, ''),
-		num = parseInt(str.replace(/^0-9]/g, ''), 10);
+	const unit = str.replace(/[^a-z]/gi, ''),
+		num = parseInt(str.replace(/[^0-9]/g, ''), 10);
 
 	if (!multipliers[unit])
 		throw new Error(`${unit} not recognized`);
