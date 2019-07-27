@@ -16,6 +16,6 @@ export default function notarizing(context) {
 		appBundleId: 'com.siacentral.desktop',
 		appPath: `${appOutDir}/${appName}.app`,
 		appleId: process.env.APPLE_ID,
-		appleIdPassword: `@keychain:Application Loader: me@n8m.us`
+		appleIdPassword: `@keychain:Application Loader: ${process.env.APPLE_ID}`
 	});
 };
