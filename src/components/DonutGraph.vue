@@ -56,6 +56,9 @@ export default {
 				if (perc === 0)
 					return segments;
 
+				if (perc + offset > 100)
+					perc = 100 - offset;
+
 				offset = perc + offset;
 
 				segments.push({
