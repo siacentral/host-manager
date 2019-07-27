@@ -20,6 +20,19 @@
 			</tr>
 		</thead>
 		<tbody>
+			<tr class="total-row">
+				<td>Total</td>
+				<td>{{ formatByteString(totals.data_size, 2) }}</td>
+				<td v-if="filterMode === 'obligationUnresolved'">{{ formatPriceString(totals.risked_collateral, 4) }}</td>
+				<td v-if="filterMode === 'obligationSucceeded'">{{ formatPriceString(totals.locked_collateral.plus(totals.risked_collateral), 4) }}</td>
+				<td v-if="filterMode === 'obligationFailed'"> {{formatPriceString(totals.burnt_collateral, 4) }}</td>
+				<td v-if="splitRevenue">{{ formatPriceString(totals.transaction_fees_added.plus(totals.totals_cost), 4) }}</td>
+				<td v-if="!splitRevenue">{{ formatPriceString(totals.total_revenue, 4) }}</td>
+				<td v-if="splitRevenue">{{ formatPriceString(totals.download_revenue, 4) }}</td>
+				<td v-if="splitRevenue">{{ formatPriceString(totals.upload_revenue, 4) }}</td>
+				<td v-if="splitRevenue">{{ formatPriceString(totals.storage_revenue, 4) }}</td>
+				<td></td><td></td>
+			</tr>
 			<tr v-for="contract in contracts" :key="contract.obligation_id">
 				<td v-if="filterMode !== 'obligationUnresolved'">{{ formatShortDateString(contract.expiration_timestamp) }}</td>
 				<td v-else>{{ formatExpirationString(contract.expiration_height.minus(blockHeight)) }}</td>
@@ -42,6 +55,7 @@
 </template>
 
 <script>
+import { BigNumber } from 'bignumber.js';
 import { mapState } from 'vuex';
 import { formatPriceString, formatByteString, formatShortDateString, formatBlockTimeString } from '@/utils/format';
 
@@ -52,7 +66,37 @@ export default {
 		splitRevenue: Boolean
 	},
 	computed: {
-		...mapState(['blockHeight'])
+		...mapState(['blockHeight']),
+		totals() {
+			const totals = {
+				data_size: new BigNumber(0),
+				risked_collateral: new BigNumber(0),
+				locked_collateral: new BigNumber(0),
+				burnt_collateral: new BigNumber(0),
+				transaction_fees_added: new BigNumber(0),
+				totals_cost: new BigNumber(0),
+				total_revenue: new BigNumber(0),
+				download_revenue: new BigNumber(0),
+				upload_revenue: new BigNumber(0),
+				storage_revenue: new BigNumber(0)
+			};
+
+			return this.contracts.reduce((totals, c) => {
+				totals.data_size = totals.data_size.plus(c.data_size);
+				totals.risked_collateral = totals.risked_collateral.plus(c.risked_collateral);
+				totals.locked_collateral = totals.locked_collateral.plus(c.locked_collateral);
+				totals.risked_collateral = totals.risked_collateral.plus(c.risked_collateral);
+				totals.burnt_collateral = totals.burnt_collateral.plus(c.burnt_collateral);
+				totals.transaction_fees_added = totals.transaction_fees_added.plus(c.transaction_fees_added);
+				totals.totals_cost = totals.totals_cost.plus(c.totals_cost);
+				totals.total_revenue = totals.total_revenue.plus(c.total_revenue);
+				totals.download_revenue = totals.download_revenue.plus(c.download_revenue);
+				totals.upload_revenue = totals.upload_revenue.plus(c.upload_revenue);
+				totals.storage_revenue = totals.storage_revenue.plus(c.storage_revenue);
+
+				return totals;
+			}, totals);
+		}
 	},
 	methods: {
 		formatPriceString,

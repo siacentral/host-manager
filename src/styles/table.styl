@@ -36,7 +36,35 @@ table {
 	tbody {
 		tr {
 			&:nth-child(even) {
-				background: primary-light;
+				background: #191919;
+			}
+
+			&.total-row td {
+				position: sticky;
+				top: 38px;
+				background: bg-dark;
+				color: primary;
+
+				/** border-top and border-bottom do not seem to follow sticky when scrolling */
+				&:after {
+					content: '';
+					position: absolute;
+					top: 0;
+					left: 0;
+					right: 0;
+					height: 1px;
+					background: dark-gray;
+				}
+
+				&:before {
+					content: '';
+					position: absolute;
+					bottom: 0;
+					left: 0;
+					right: 0;
+					height: 1px;
+					background: dark-gray;
+				}
 			}
 		}
 	}

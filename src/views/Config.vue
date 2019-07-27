@@ -2,8 +2,8 @@
 	<div class="page page-config">
 		<div class="controls controls-header">
 			<div class="control control-inline">
-				<input type="checkbox" :checked="acceptingContracts" id="chk-accepting-contracts" />
-				<label id="chk-accepting-contracts">Accept Contracts</label>
+				<input type="checkbox" v-model="acceptContracts" id="chk-accepting-contracts" />
+				<label for="chk-accepting-contracts">Accept Contracts</label>
 			</div>
 			<button class="btn btn-inline" @click="modal='announce'">Announce</button>
 		</div>
@@ -89,7 +89,7 @@
 				description="The maximum amount of collateral
 					that the host will risk per contract. If an individual contract reaches this maximum
 					the host will refuse to accept any more data from that contract."
-				@change="onChangeNumber" />
+				@change="onChangePrice" />
 			<config-item title="Collateral"
 				configKey="collateral"
 				:value="currentConfig.collateral"
@@ -117,7 +117,7 @@
 				:error="errors['windowsize']"
 				description="The amount of time the host has to submit
 					a storage proof when the contract expires."
-				@change="onChangeNumber" />
+				@change="onChangeTime" />
 			<div class="config-header">Network</div>
 			<config-item title="Download Batch Size"
 				configKey="maxdownloadbatchsize"
@@ -140,7 +140,7 @@
 		<div class="controls">
 			<button class="btn btn-success btn-inline" @click="onClickUpdate" :disabled="updating">Update Configuration</button>
 		</div>
-		<announce-host-modal v-if="modal === 'announce'" @close="modal = null" />
+		<announce-host-modal v-if="modal === 'announce'" @close="onModalClose" />
 	</div>
 </template>
 
@@ -176,6 +176,7 @@ export default {
 	},
 	data() {
 		return {
+			acceptContracts: false,
 			errors: {},
 			config: {},
 			currentConfig: {},
@@ -191,7 +192,20 @@ export default {
 		formatBlockTimeString,
 		formatByteString,
 		formatPriceString,
+		async onModalClose() {
+			try {
+				this.modal = null;
+				this.updating = true;
+
+				await refreshHostConfig();
+			} catch (ex) {
+				log.error(ex.message);
+			} finally {
+				this.updating = false;
+			}
+		},
 		updateConfig() {
+			this.acceptContracts = this.acceptingContracts;
 			this.currentConfig = {
 				contractPrice: formatPriceString(this.contractPrice, 2),
 				storagePrice: formatPriceString(this.storagePrice.times(1e12).times(4320), 2),
@@ -250,7 +264,6 @@ export default {
 
 			try {
 				this.config[key] = parseCurrencyString(value).toFixed(0).toString(10);
-
 				this.$set(this.errors, key, null);
 			} catch (ex) {
 				log.error(ex.message);
@@ -281,17 +294,6 @@ export default {
 				this.$set(this.errors, key, ex.message);
 			}
 		},
-		onChangeNumber(obj) {
-			const { key, value } = obj;
-
-			try {
-				this.config[key] = parseInt(value, 10);
-				this.$set(this.errors, key, null);
-			} catch (ex) {
-				log.error(ex.message);
-				this.$set(this.errors, key, ex.message);
-			}
-		},
 		onChangeTime(obj) {
 			const { key, value } = obj;
 
@@ -313,6 +315,14 @@ export default {
 				log.error(ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
+		}
+	},
+	watch: {
+		acceptContracts(value, oldvalue) {
+			if (value === oldvalue)
+				return;
+
+			this.config['acceptingcontracts'] = value;
 		}
 	}
 };

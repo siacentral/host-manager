@@ -133,9 +133,10 @@ export function launch(config) {
 	return new Promise(async(resolve, reject) => {
 		try {
 			const opts = {
-				windowsHide: true,
-				env: buildEnv(config)
-			};
+					windowsHide: true,
+					env: buildEnv(config)
+				},
+				startTime = Date.now();
 
 			if (process.geteuid)
 				opts.uid = process.geteuid();
@@ -158,7 +159,7 @@ export function launch(config) {
 			siaProcess.stderr.on('data', data => {
 				stderr += decode(data);
 
-				Store.dispatch('hostDaemon/setError');
+				Store.dispatch('hostDaemon/setError', stderr);
 			});
 
 			siaProcess.on('close', code => {
@@ -175,6 +176,13 @@ export function launch(config) {
 				if (stderr.indexOf('bind: address already in use') >= 0) {
 					log.info('daemon already started');
 					resolve();
+					return;
+				}
+
+				if (Date.now() - startTime < 10000) {
+					Store.dispatch('hostDaemon/setLoaded', false);
+					Store.dispatch('hostDaemon/setManaged', false);
+					Store.dispatch('setCriticalError', 'daemon is unable to stay running. check your logs for more information.');
 					return;
 				}
 

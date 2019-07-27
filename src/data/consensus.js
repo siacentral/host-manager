@@ -27,6 +27,15 @@ export async function refreshBlockHeight() {
 	Store.dispatch('setSynced', resp.body.synced);
 }
 
+export async function refreshDaemonVersion() {
+	const resp = await apiClient.getDaemonVersion();
+
+	if (resp.statusCode !== 200)
+		return;
+
+	Store.dispatch('hostDaemon/setVersion', resp.body.version);
+}
+
 export async function refreshLastBlock() {
 	const resp = await getBlock();
 	let height = 0;
@@ -41,7 +50,10 @@ export async function refreshLastBlock() {
 
 setInterval(async() => {
 	try {
-		await refreshBlockHeight();
+		await Promise.all([
+			refreshDaemonVersion(),
+			refreshBlockHeight()
+		]);
 	} catch (ex) {
 		Store.dispatch('setCriticalError', ex.message);
 	}

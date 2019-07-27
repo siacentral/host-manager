@@ -89,6 +89,7 @@ export default {
 	background: #191919;
 	border-radius: 8px;
 	box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+	z-index: 1001;
 
 	&.notification-success {
 		color: primary;

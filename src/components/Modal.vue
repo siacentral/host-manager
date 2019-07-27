@@ -1,7 +1,7 @@
 <template>
 	<transition name="modal" appear>
 		<div class="modal-wrapper" @mousedown.self="$emit('close')">
-			<div class="modal">
+			<div :class="classes">
 				<div class="modal-header">
 					<div class="modal-title">{{ title }}</div>
 					<div class="modal-controls">
@@ -19,7 +19,18 @@
 <script>
 export default {
 	props: {
-		title: String
+		title: String,
+		modalStyle: String
+	},
+	computed: {
+		classes() {
+			const classes = { 'modal': true };
+
+			if (this.modalStyle)
+				classes[`modal-${this.modalStyle}`] = true;
+
+			return classes;
+		}
 	}
 };
 </script>
@@ -59,6 +70,10 @@ export default {
 			width: 100%;
 			height: 100%;
 			overflow-y: auto;
+		}
+
+		&.modal-small {
+			max-width: 500px;
 		}
 	}
 

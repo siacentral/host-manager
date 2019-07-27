@@ -89,6 +89,8 @@ export async function parseHostContracts() {
 			tags: []
 		};
 
+		contract.unused = contract.data_size.eq(0) && contract.storage_revenue.eq(0);
+
 		if (contract.unused) {
 			contract.tags.push({
 				severity: 'normal',

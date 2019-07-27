@@ -6,7 +6,8 @@ export default {
 		loadPercent: 0,
 		currentModule: '',
 		output: '',
-		error: ''
+		error: '',
+		version: '0.0.0'
 	},
 	mutations: {
 		setManaged(state, managed) {
@@ -26,6 +27,9 @@ export default {
 		},
 		setOutput(state, error) {
 			state.error = error;
+		},
+		setVersion(state, version) {
+			state.version = version;
 		}
 	},
 	actions: {
@@ -46,6 +50,9 @@ export default {
 		},
 		setOutput(context, error) {
 			context.commit('setOutput', error);
+		},
+		setVersion(context, version) {
+			context.commit('setVersion', version);
 		}
 	}
 };

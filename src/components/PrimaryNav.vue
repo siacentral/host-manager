@@ -4,26 +4,31 @@
 			<sia-central /> SiaCentral
 		</div>
 		<health-status />
-		<router-link :to="{ name: 'dashboard' }"><icon icon="chart-pie" /> Dashboard</router-link>
-		<router-link :to="{ name: 'storage' }"><icon icon="hdd" /> Storage</router-link>
-		<router-link :to="{ name: 'contracts' }"><icon icon="file-contract" /> Contracts</router-link>
-		<router-link :to="{ name: 'config' }"><icon icon="wrench" /> Configuration</router-link>
-		<a href="#" @click.prevent="modal = 'settings'"><icon icon="cogs" /> Settings</a>
+		<router-link class="nav-item" :to="{ name: 'dashboard' }"><icon icon="chart-pie" /> Dashboard</router-link>
+		<router-link class="nav-item" :to="{ name: 'storage' }"><icon icon="hdd" /> Storage</router-link>
+		<router-link class="nav-item" :to="{ name: 'contracts' }"><icon icon="file-contract" /> Contracts</router-link>
+		<router-link class="nav-item" :to="{ name: 'config' }"><icon icon="wrench" /> Configuration</router-link>
+		<div class="bottom-nav">
+			<a href="#" class="sub-nav-item" @click.prevent="modal = 'about'"><icon icon="info" /></a>
+			<a href="#" class="sub-nav-item" @click.prevent="modal = 'settings'"><icon icon="cogs" /></a>
+		</div>
 		<settings-modal v-if="modal === 'settings'" @close="modal = null" />
-
+		<about-modal v-if="modal === 'about'" @close="modal = null" />
 	</nav>
 </template>
 
 <script>
-import SiaCentral from '@/assets/siacentral.svg';
+import AboutModal from '@/components/AboutModal';
 import HealthStatus from '@/components/HealthStatus';
 import SettingsModal from '@/components/SettingsModal';
+import SiaCentral from '@/assets/siacentral.svg';
 
 export default {
 	components: {
-		SiaCentral,
+		AboutModal,
 		HealthStatus,
-		SettingsModal
+		SettingsModal,
+		SiaCentral
 	},
 	data() {
 		return {
@@ -51,7 +56,7 @@ nav.primary {
 		cursor: default;
 	}
 
-	a, .nav-logo {
+	.nav-item, .nav-logo {
 		position: relative;
 		display: flex;
 		align-items: center;
@@ -78,6 +83,35 @@ nav.primary {
 			width: 18px;
 			height: 18px;
 			margin-right: 15px;
+		}
+	}
+
+	.bottom-nav {
+		position: absolute;
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-gap: 5px;
+		left: 0;
+		bottom: 0;
+		right: 0;
+		border-top: 1px solid dark-gray;
+		background: #191919;
+
+		.sub-nav-item {
+			display: block;
+			padding: 15px;
+			color: rgba(255, 255, 255, 0.54);
+			font-size: 0.8rem;
+			text-align: center;
+			white-space: nowrap;
+			text-decoration: none;
+			transition: color 0.3s linear;
+			cursor: pointer;
+			border-right: 1px solid dark-gray;
+
+			&:last-child {
+				border-right: none;
+			}
 		}
 	}
 }
