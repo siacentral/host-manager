@@ -56,6 +56,10 @@ module.exports = {
 					// new apple notarization does not need the dmg signed
 					sign: false
 				},
+				nsis: {
+					oneClick: true,
+					perMachine: true
+				},
 				publish: {
 					provider: 's3',
 					bucket: 'siacentral-public',
