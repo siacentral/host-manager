@@ -47,11 +47,13 @@ module.exports = {
 				],
 				mac: {
 					hardenedRuntime: true,
+					// disabled due to new Apple notarization failing
 					gatekeeperAssess: false,
 					entitlements: 'build/entitlements.mac.plist',
 					entitlementsInherit: 'build/entitlements.mac.plist'
 				},
 				dmg: {
+					// new apple notarization does not need the dmg signed
 					sign: false
 				},
 				publish: {
