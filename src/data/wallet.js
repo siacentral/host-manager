@@ -19,17 +19,19 @@ export async function refreshHostWallet() {
 	}
 }
 
-async function unlockHostWalllet() {
+async function unlockHostWalllet(password) {
 	if (unlocking || disableUnlock)
 		return;
 
 	try {
 		unlocking = true;
 
-		const resp = await apiClient.unlockWallet();
+		const resp = await apiClient.unlockWallet(password);
 
 		if (resp.statusCode !== 200)
 			throw new Error(resp.body.message);
+
+		log.info('unlocked wallet');
 	} catch (ex) {
 		log.error(ex.message);
 		disableUnlock = true;
@@ -46,7 +48,7 @@ async function loadHostWallet() {
 		throw new Error(resp.body.message);
 
 	if (!resp.body.unlocked && resp.body.encrypted && !resp.body.rescanning && config.siad_wallet_password && !disableUnlock) {
-		await unlockHostWalllet();
+		await unlockHostWalllet(config.siad_wallet_password);
 		await loadHostWallet();
 		return;
 	}
