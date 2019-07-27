@@ -29,7 +29,7 @@ module.exports = {
 			builderOptions: {
 				appId: 'com.siacentral.desktop',
 				productName: 'Sia Central Desktop',
-				copyright: 'Copyright © 2019 Sia Central',
+				copyright: '',
 				/**
 				 * Cannot notarize app until after this issue is fixed. Included siad binary is not compatible with new apple notarization
 				 * https://github.com/golang/go/issues/30488
