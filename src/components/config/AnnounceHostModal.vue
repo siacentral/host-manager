@@ -1,11 +1,10 @@
 <template>
 	<modal title="Announce Host" @close="$emit('close')">
 		<p>Are you sure you want to announce this host to the network?</p>
-		<p>Announcing your host will change your config to accept contracts and a small
-			amount of money will be deducted from your wallet for the transaction
+		<p>Announcing your host will deduct a small amount of Siacoin from your wallet for the transaction
 			on the blockchain.</p>
-		<p>You should only announce your host if you have not announced before, or if your IP address
-			has changed.</p>
+		<p class="text-warning" v-if="lastAnnounceDate">You should only announce again if your IP address
+			has changed or you are having trouble getting new contracts. Your last confirmed announcement was on {{ lastAnnounceDate }}</p>
 		<div class="control">
 			<label>Announce address and port (leave blank for automatic)</label>
 			<input type="text" v-model="announceAddress" :placeholder="configNetAddress || netAddress" />
@@ -22,6 +21,7 @@ import log from 'electron-log';
 
 import Modal from '@/components/Modal';
 import SiaApiClient from '@/api/sia';
+import { formatShortDateString } from '@/utils/format';
 
 export default {
 	components: {
@@ -30,14 +30,24 @@ export default {
 	computed: {
 		...mapState({
 			configNetAddress: state => state.hostConfig.netaddress,
-			netAddress: state => state.netAddress
-		})
+			netAddress: state => state.netAddress,
+			host: state => state.explorer.host
+		}),
+		lastAnnounceDate() {
+			if (!Array.isArray(this.host.announcements) || this.host.announcements.length === 0)
+				return null;
+
+			return formatShortDateString(new Date(this.host.announcements[this.host.announcements.length - 1].timestamp));
+		}
 	},
 	data() {
 		return {
 			announceAddress: null,
 			announcing: false
 		};
+	},
+	mounted() {
+		console.log(this.host);
 	},
 	methods: {
 		...mapActions(['pushNotification']),
@@ -89,5 +99,9 @@ export default {
 		&:last-child {
 			margin-right: 0;
 		}
+	}
+
+	.text-warning {
+		color: warning-accent;
 	}
 </style>

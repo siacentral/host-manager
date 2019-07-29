@@ -17,6 +17,8 @@ export async function refreshExplorer() {
 			loadExplorerHost(),
 			checkHostConnectability()
 		]);
+
+		console.log('finished explorer');
 	} finally {
 		refreshing = false;
 	}
@@ -29,7 +31,7 @@ export async function checkHostConnectability() {
 }
 
 async function loadExplorerHost() {
-	const resp = await getHost();
+	const resp = await getHost(Store.state.netAddress);
 
 	if (resp.body.type !== 'success')
 		throw new Error(resp.body.message);
@@ -57,7 +59,7 @@ async function loadExplorerHost() {
 			upload_price: new BigNumber(resp.body.host.settings.upload_price)
 		};
 	}
-
+	console.log(resp.body.host);
 	Store.dispatch('explorer/setHost', resp.body.host);
 }
 
