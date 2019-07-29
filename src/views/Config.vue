@@ -16,7 +16,7 @@
 			<config-item title="Contract Price"
 				configKey="mincontractprice"
 				:value="currentConfig.contractPrice"
-				:avgValue="formatPriceString(avgContractPrice, 2)"
+				:avgValue="formatPriceString(averageSettings.contract_price, 2)"
 				:error="errors['mincontractprice']"
 				description="The amount of money to form a contract
 					with the host."
@@ -24,7 +24,7 @@
 			<config-item title="Storage Price"
 				configKey="minstorageprice"
 				:value="currentConfig.storagePrice"
-				:avgValue="formatPriceString(avgStoragePrice.times(1e12).times(4320), 2)"
+				:avgValue="formatPriceString(averageSettings.storage_price.times(1e12).times(4320), 2)"
 				sublabel="per tb/month"
 				:error="errors['minstorageprice']"
 				description="The amount of money that the renter will be charged
@@ -34,7 +34,7 @@
 			<config-item title="Download Price"
 				configKey="mindownloadbandwidthprice"
 				:value="currentConfig.downloadPrice"
-				:avgValue="formatPriceString(avgDownloadPrice.times(1e12), 2)"
+				:avgValue="formatPriceString(averageSettings.download_price.times(1e12), 2)"
 				sublabel="per tb/month"
 				:error="errors['mindownloadbandwidthprice']"
 				description="The amount of money that the renter will be
@@ -44,7 +44,7 @@
 			<config-item title="Upload Price"
 				configKey="minuploadbandwidthprice"
 				:value="currentConfig.uploadPrice"
-				:avgValue="formatPriceString(avgUploadPrice.times(1e12), 2)"
+				:avgValue="formatPriceString(averageSettings.upload_price.times(1e12), 2)"
 				sublabel="per tb/month"
 				:error="errors['minuploadbandwidthprice']"
 				description="The amount of money that the renter will be
@@ -54,7 +54,7 @@
 			<config-item title="Base RPC Price"
 				configKey="minbaserpcprice"
 				:value="currentConfig.baseRPCPrice"
-				:avgValue="formatPriceString(avgBaseRPCPrice, 2)"
+				:avgValue="formatPriceString(averageSettings.base_rpc_price, 2)"
 				sublabel="per request"
 				:error="errors['minuploadbandwidthprice']"
 				description="The amount of money that the renter will be
@@ -63,7 +63,7 @@
 			<config-item title="Sector Access Price"
 				configKey="minsectoraccessprice"
 				:value="currentConfig.sectorAccessPrice"
-				:avgValue="formatPriceString(avgSectorAccessPrice, 2)"
+				:avgValue="formatPriceString(averageSettings.sector_access_price, 2)"
 				sublabel="per sector"
 				:error="errors['minuploadbandwidthprice']"
 				description="The amount of money that the renter will be charged to read a
@@ -83,7 +83,7 @@
 			<config-item title="Max Collateral"
 				configKey="maxcollateral"
 				:value="currentConfig.maxCollateral"
-				:avgValue="formatPriceString(avgMaxCollateral, 2)"
+				:avgValue="formatPriceString(averageSettings.max_collateral, 2)"
 				sublabel="per contract"
 				:error="errors['maxcollateral']"
 				description="The maximum amount of collateral
@@ -93,7 +93,7 @@
 			<config-item title="Collateral"
 				configKey="collateral"
 				:value="currentConfig.collateral"
-				:avgValue="formatPriceString(avgCollateral.times(1e12).times(4320), 2)"
+				:avgValue="formatPriceString(averageSettings.collateral.times(1e12).times(4320), 2)"
 				sublabel="per tb/month"
 				:error="errors['collateral']"
 				description="The amount of collateral the host will
@@ -105,7 +105,7 @@
 			<config-item title="Max Duration"
 				configKey="maxduration"
 				:value="currentConfig.maxDuration"
-				:avgValue="formatBlockTimeString(avgMaxDuration)"
+				:avgValue="formatBlockTimeString(averageSettings.max_duration)"
 				:error="errors['maxduration']"
 				description="The maximum amount of time the host will
 					accept for a storage contract. Hosts are only payed at the end of a storage contract."
@@ -113,7 +113,7 @@
 			<config-item title="Proof Window Duration"
 				configKey="windowsize"
 				:value="currentConfig.windowSize"
-				:avgValue="formatBlockTimeString(avgWindowSize)"
+				:avgValue="formatBlockTimeString(averageSettings.window_size)"
 				:error="errors['windowsize']"
 				description="The amount of time the host has to submit
 					a storage proof when the contract expires."
@@ -122,7 +122,7 @@
 			<config-item title="Download Batch Size"
 				configKey="maxdownloadbatchsize"
 				:value="currentConfig.maxDownloadSize"
-				:avgValue="formatByteString(avgMaxDownloadSize, 2)"
+				:avgValue="formatByteString(averageSettings.max_download_batch_size, 2)"
 				:error="errors['maxdownloadbatchsize']"
 				description="The maximum size of a single download request from
 					the renter. Larger batch sizes mean fewer round trips and better performance,
@@ -131,7 +131,7 @@
 			<config-item title="Revise Batch Size"
 				configKey="maxrevisebatchsize"
 				:value="currentConfig.maxReviseSize"
-				:avgValue="formatByteString(avgMaxReviseSize, 2)"
+				:avgValue="formatByteString(averageSettings.max_revise_batch_size, 2)"
 				:error="errors['maxrevisebatchsize']"
 				description="The maximum size of a single file contract revision.
 					Larger batch sizes allow for higher throughput of renters, but more financial risk for the host."
@@ -169,10 +169,7 @@ export default {
 			'maxReviseSize', 'maxDownloadSize', 'windowSize', 'contractPrice', 'downloadPrice',
 			'uploadPrice', 'storagePrice', 'collateral', 'maxCollateral',
 			'collateralBudget', 'baseRPCPrice', 'sectorAccessPrice']),
-		...mapState('avgConfig', ['avgMaxDuration', 'avgWindowSize', 'avgMaxReviseSize',
-			'avgMaxDownloadSize', 'avgContractPrice', 'avgDownloadPrice', 'avgUploadPrice',
-			'avgStoragePrice', 'avgCollateral', 'avgMaxCollateral', 'avgBaseRPCPrice',
-			'avgSectorAccessPrice'])
+		...mapState('explorer', ['averageSettings'])
 	},
 	data() {
 		return {

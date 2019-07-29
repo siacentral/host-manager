@@ -1,7 +1,7 @@
 'use strict';
 
 import { autoUpdater } from 'electron-updater';
-import { app, Menu, Tray, protocol, BrowserWindow, shell } from 'electron';
+import { app, Menu, Tray, protocol, BrowserWindow, shell, ipcMain } from 'electron';
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib';
 import path from 'path';
 import log from 'electron-log';
@@ -103,31 +103,14 @@ function createTray() {
 	tray = new Tray(path.join(__static, 'icons/siacentral_white_16.png'));
 
 	tray.on('double-click', () => {
-		if (!win)
-			createWindow();
-
-		if (win.isMinimized())
-			win.restore();
-
-		if (process.platform === 'darwin')
-			app.dock.show();
-
-		win.show();
-		win.focus();
+		openWindow();
 	});
 
 	tray.setContextMenu(menu);
 }
 
 app.on('second-instance', () => {
-	if (!win)
-		return;
-
-	if (win.isMinimized())
-		win.restore();
-
-	win.show();
-	win.focus();
+	openWindow();
 });
 
 // Quit when all windows are closed.
@@ -137,10 +120,7 @@ app.on('window-all-closed', (e) => {
 });
 
 app.on('activate', () => {
-	// On macOS it's common to re-create a window in the app when the
-	// dock icon is clicked and there are no other windows open.
-	if (win === null)
-		createWindow();
+	openWindow();
 });
 
 // This method will be called when Electron has finished
@@ -156,7 +136,7 @@ app.on('ready', async() => {
 		}
 	}
 
-	createWindow();
+	openWindow();
 	createTray();
 });
 
@@ -179,6 +159,10 @@ autoUpdater.on('update-downloaded', info => {
 
 autoUpdater.on('error', (err) => {
 	log.info('Update Error', err);
+});
+
+ipcMain.on('show-window', () => {
+	openWindow();
 });
 
 // Exit cleanly on request from parent process in development mode.

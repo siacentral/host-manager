@@ -41,9 +41,9 @@
 				<div class="item-value">{{ formatPriceString(potentialRevenue, 4) }}</div>
 			</div>
 			<div class="grid-item">
-				<div class="item-title">Average Daily Revenue</div>
+				<div class="item-title">Revenue (Last 30 Days)</div>
 				<div class="item-value">
-					{{ formatPriceString(averageRevenue, 4)  }}
+					{{ formatPriceString(recentRevenue, 4)  }}
 				</div>
 			</div>
 			<div class="grid-item" v-if="splitRevenue">
@@ -101,7 +101,7 @@ export default {
 	},
 	computed: {
 		...mapState('hostContracts', ['contracts', 'successfulContracts',
-			'failedContracts', 'potentialRevenue', 'earnedRevenue', 'lostRevenue', 'averageRevenue']),
+			'failedContracts', 'potentialRevenue', 'earnedRevenue', 'lostRevenue', 'recentRevenue']),
 		filtered() {
 			const contracts = this.contracts.filter(c => c.status === this.filterMode && (this.showUnused || !c.unused));
 

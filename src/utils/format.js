@@ -176,6 +176,9 @@ const supportedCrypto = [
 	];
 
 export function formatDataPriceString(val) {
+	if (!val)
+		val = new BigNumber(0);
+
 	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
 
 	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
@@ -188,6 +191,9 @@ export function formatDataPriceString(val) {
 };
 
 export function formatMonthlyPriceString(val) {
+	if (!val)
+		val = new BigNumber(0);
+
 	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
 
 	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
@@ -200,6 +206,9 @@ export function formatMonthlyPriceString(val) {
 };
 
 export function formatPriceString(val, dec) {
+	if (!val)
+		val = new BigNumber(0);
+
 	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
 
 	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])

@@ -10,6 +10,7 @@ export default {
 		lockedCollateral: new BigNumber(0),
 		burntCollateral: new BigNumber(0),
 		averageRevenue: new BigNumber(0),
+		recentRevenue: new BigNumber(0),
 		ongoingContracts: 0,
 		successfulContracts: 0,
 		failedContracts: 0,
@@ -37,6 +38,9 @@ export default {
 		},
 		setAverageRevenue(state, averageRevenue) {
 			state.averageRevenue = averageRevenue;
+		},
+		setRecentRevenue(state, recentRevenue) {
+			state.recentRevenue = recentRevenue;
 		},
 		setOngoingContracts(state, ongoingContracts) {
 			state.ongoingContracts = ongoingContracts;
@@ -75,6 +79,9 @@ export default {
 		},
 		setAverageRevenue(context, averageRevenue) {
 			context.commit('setAverageRevenue', averageRevenue);
+		},
+		setRecentRevenue(context, recentRevenue) {
+			context.commit('setRecentRevenue', recentRevenue);
 		},
 		setOngoingContracts(context, ongoingContracts) {
 			context.commit('setOngoingContracts', ongoingContracts);

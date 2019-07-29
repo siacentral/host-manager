@@ -1,11 +1,12 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import { ipcRenderer } from 'electron';
 
 import hostConnection from './connection';
 import hostContracts from './contracts';
 import hostConfig from './config';
 import hostDaemon from './daemon';
-import avgConfig from './averageconfig';
+import explorer from './explorer';
 import hostStorage from './storage';
 import hostWallet from './wallet';
 
@@ -13,7 +14,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
 	modules: {
-		avgConfig,
+		explorer,
 		hostConnection,
 		hostContracts,
 		hostConfig,
@@ -68,6 +69,14 @@ export default new Vuex.Store({
 		},
 		pushNotification(state, notification) {
 			state.notifications.push(notification);
+
+			if (document.hidden) {
+				const notify = new Notification(notification.message);
+
+				notify.onclick = () => {
+					ipcRenderer.send('show-window');
+				};
+			}
 		},
 		clearNotification(state) {
 			if (state.notifications.length === 0)

@@ -43,8 +43,9 @@ export async function parseHostContracts() {
 			ongoing_contracts: 0,
 			successful_contracts: 0,
 			failed_contracts: 0
-		};
-	let minDate, maxDate;
+		},
+		startDate = new Date(new Date().setDate(-30));
+	let minDate, maxDate, recentRevenue = new BigNumber(0);
 
 	if (contracts.length === 0)
 		return;
@@ -122,6 +123,12 @@ export async function parseHostContracts() {
 			if (!maxDate || (contract.expiration_timestamp.getTime() !== -62135596800000 && contract.expiration_timestamp > maxDate))
 				maxDate = contract.expiration_timestamp;
 
+			if (contract.expiration_timestamp >= startDate) {
+				recentRevenue = recentRevenue.plus(contract.download_revenue)
+					.plus(contract.storage_revenue)
+					.plus(contract.upload_revenue);
+			}
+
 			break;
 		case 'obligationFailed':
 			totals.failed_contracts++;
@@ -158,6 +165,7 @@ export async function parseHostContracts() {
 	Store.dispatch('hostContracts/setPotentialRevenue', totals.potential_revenue);
 	Store.dispatch('hostContracts/setEarnedRevenue', totals.earned_revenue);
 	Store.dispatch('hostContracts/setLostRevenue', totals.lost_revenue);
+	Store.dispatch('hostContracts/setRecentRevenue', recentRevenue);
 	Store.dispatch('hostContracts/setRiskedCollateral', totals.risked_collateral);
 	Store.dispatch('hostContracts/setLockedCollateral', totals.locked_collateral);
 	Store.dispatch('hostContracts/setBurntCollateral', totals.burnt_collateral);

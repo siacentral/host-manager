@@ -6,6 +6,7 @@ import { refreshHostContracts } from './contracts';
 import { refreshHostStorage } from './storage';
 import { refreshHostWallet } from './wallet';
 import { refreshHostConfig } from './config';
+import { refreshExplorer } from './explorer';
 import { getCoinPrice } from '@/api/siacentral';
 import Store from '@/store';
 import SiaApiClient from '@/api/sia';
@@ -29,6 +30,7 @@ export async function refreshData() {
 		await refreshLastBlock();
 		await Promise.all([
 			refreshBlockHeight(),
+			refreshExplorer(),
 			refreshHostConfig(),
 			refreshHostWallet(),
 			refreshHostContracts(),
@@ -36,6 +38,12 @@ export async function refreshData() {
 		]);
 
 		await refreshHostConnectability();
+
+		Store.dispatch('pushNotification', {
+			message: 'Data refreshed',
+			icon: 'hdd',
+			severity: 'success'
+		});
 
 		Store.dispatch('setLoaded', true);
 
