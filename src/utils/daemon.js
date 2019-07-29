@@ -179,6 +179,9 @@ export function launch(config) {
 					return;
 				}
 
+				if (stderr && stderr.trim().length > 0)
+					log.error(stderr);
+
 				if (Date.now() - startTime < 10000) {
 					Store.dispatch('hostDaemon/setLoaded', false);
 					Store.dispatch('hostDaemon/setManaged', false);
