@@ -14,6 +14,7 @@ export default {
 
 			if (!state.connectable || state.error) {
 				state.alerts = [{
+					icon: 'wifi',
 					severity: state.connectable && !state.error ? 'warning' : 'danger',
 					message: state.error ? state.error : 'Your host does not appear to be connectable. Renters may be unable to access their data'
 				}];
