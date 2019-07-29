@@ -152,7 +152,7 @@ export function formatCurrencyString(val) {
 	if (val.isEqualTo(0) || !Store.state.coinPrice[currency])
 		return formatter.format(0);
 
-	const value = sigDecimalRound(val.dividedBy(1e24).times(Store.state.coinPrice[currency]), 4).toNumber();
+	const value = sigDecimalRound(val.dividedBy(1e24).times(Store.state.coinPrice[currency]), 2).toNumber();
 
 	return formatter.format(value);
 };
