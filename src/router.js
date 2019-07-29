@@ -1,11 +1,11 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import Dashboard from './views/Dashboard.vue';
-import Alerts from './views/Alerts.vue';
-import Storage from './views/Storage.vue';
-import Contracts from './views/Contracts.vue';
-import Config from './views/Config.vue';
+import Dashboard from './views/pages/Dashboard.vue';
+import Alerts from './views/pages/Alerts.vue';
+import Storage from './views/pages/Storage.vue';
+import Contracts from './views/pages/Contracts.vue';
+import Config from './views/pages/Config.vue';
 
 Vue.use(Router);
 

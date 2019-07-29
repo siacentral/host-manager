@@ -4,19 +4,18 @@
 			<sia-central /> SiaCentral
 		</div>
 		<health-status />
-		<router-link class="nav-item" :to="{ name: 'alerts' }">
-			<icon icon="bell" /> Alerts <span class="badge" v-if="alerts.length > 0">{{ alerts.length }}</span>
-		</router-link>
+		<div class="top-nav">
+			<a href="#" class="sub-nav-item" @click.prevent="modal = 'alerts'"><icon icon="bell" /></a>
+			<a href="#" class="sub-nav-item" @click.prevent="modal = 'about'"><icon icon="info" /></a>
+			<a href="#" class="sub-nav-item" @click.prevent="modal = 'settings'"><icon icon="cogs" /></a>
+		</div>
 		<router-link class="nav-item" :to="{ name: 'dashboard' }"><icon icon="chart-pie" /> Dashboard</router-link>
 		<router-link class="nav-item" :to="{ name: 'storage' }"><icon icon="hdd" /> Storage</router-link>
 		<router-link class="nav-item" :to="{ name: 'contracts' }"><icon icon="file-contract" /> Contracts</router-link>
 		<router-link class="nav-item" :to="{ name: 'config' }"><icon icon="wrench" /> Configuration</router-link>
-		<div class="bottom-nav">
-			<a href="#" class="sub-nav-item" @click.prevent="modal = 'about'"><icon icon="info" /></a>
-			<a href="#" class="sub-nav-item" @click.prevent="modal = 'settings'"><icon icon="cogs" /></a>
-		</div>
 		<settings-modal v-if="modal === 'settings'" @close="modal = null" />
 		<about-modal v-if="modal === 'about'" @close="modal = null" />
+		<alerts-panel v-if="modal === 'alerts'" @close="modal = null" />
 	</nav>
 </template>
 
@@ -24,6 +23,7 @@
 import { mapGetters } from 'vuex';
 
 import AboutModal from '@/components/AboutModal';
+import AlertsPanel from '@/components/Alerts';
 import HealthStatus from '@/components/HealthStatus';
 import SettingsModal from '@/components/SettingsModal';
 import SiaCentral from '@/assets/siacentral.svg';
@@ -31,6 +31,7 @@ import SiaCentral from '@/assets/siacentral.svg';
 export default {
 	components: {
 		AboutModal,
+		AlertsPanel,
 		HealthStatus,
 		SettingsModal,
 		SiaCentral
@@ -94,16 +95,13 @@ nav.primary {
 		}
 	}
 
-	.bottom-nav {
-		position: absolute;
+	.top-nav {
 		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 		grid-gap: 5px;
-		left: 0;
-		bottom: 0;
-		right: 0;
-		border-top: 1px solid dark-gray;
+		border-bottom: 1px solid dark-gray;
 		background: #191919;
+		margin-bottom: 15px;
 
 		.sub-nav-item {
 			display: block;
@@ -113,9 +111,13 @@ nav.primary {
 			text-align: center;
 			white-space: nowrap;
 			text-decoration: none;
-			transition: color 0.3s linear;
 			cursor: pointer;
 			border-right: 1px solid dark-gray;
+			transition: color 0.3s linear;
+
+			&:hover, &:focus, &:active {
+				color: primary;
+			}
 
 			&:last-child {
 				border-right: none;

@@ -3,7 +3,7 @@
 		<primary-nav />
 		<div class="app-content">
 			<transition name="fade" appear>
-				<router-view/>
+				<router-view />
 			</transition>
 		</div>
 		<notification-queue />

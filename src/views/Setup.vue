@@ -14,12 +14,12 @@
 <script>
 import log from 'electron-log';
 
-import WelcomeStep from '@/components/setup/WelcomeStep';
-import ImportStep from '@/components/setup/ImportStep';
-import ConsensusLocationStep from '@/components/setup/ConsensusLocationStep';
-import DaemonOverrideStep from '@/components/setup/DaemonOverrideStep';
-import AutoUnlockStep from '@/components/setup/AutoUnlockStep';
-import ReviewStep from '@/components/setup/ReviewStep';
+import WelcomeStep from '@/views/setup/WelcomeStep';
+import ImportStep from '@/views/setup/ImportStep';
+import ConsensusLocationStep from '@/views/setup/ConsensusLocationStep';
+import DaemonOverrideStep from '@/views/setup/DaemonOverrideStep';
+import AutoUnlockStep from '@/views/setup/AutoUnlockStep';
+import ReviewStep from '@/views/setup/ReviewStep';
 import { readSiaUIConfig } from '@/utils';
 
 export default {
