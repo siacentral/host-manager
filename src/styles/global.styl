@@ -4,6 +4,25 @@
 	box-sizing: border-box;
 }
 
+::-webkit-scrollbar {
+	width: 8px;
+	background-color: rgba(0,0,0,0);
+	-webkit-border-radius: 100px;
+
+	&:hover {
+		background-color: rgba(0, 0, 0, 0.09);	
+	}
+}
+
+::-webkit-scrollbar-thumb:vertical {
+	background: rgba(0,0,0,0.5);
+	-webkit-border-radius: 100px;
+}
+::-webkit-scrollbar-thumb:vertical:active {
+	background: rgba(0,0,0,0.61);
+	-webkit-border-radius: 100px;
+}
+
 html, body {
 	width: 100%;
 	height: 100%;
