@@ -56,16 +56,17 @@
 		}
 	}
 
-	textarea, select, input {
+	select, input {
 		display: block;
-		padding: 10px 15px;
+		height: 36px;
+		padding: 0 5px;
 		font-size: 1.2rem;
 		width: 100%;
 		background: transparent;
 		border-radius: 4px;
 		border: 1px solid light-gray;
 		outline: none;
-		appearance: none;
+		line-height: 36px;
 	}
 
 	input[type="checkbox"] {
@@ -106,7 +107,7 @@
 			color: rgba(0, 0, 0, 0.54);
 			font-size: 1rem;
 
-			&:before {
+			&::before {
 				position: absolute;
 				display: inline-block;
 				content: '';
@@ -120,8 +121,10 @@
 		}
 	}
 
-	select option {
-		color: rgba(0, 0, 0, 0.84);
+	select {
+		option {
+			color: rgba(0, 0, 0, 0.84);
+		}
 	}
 }
 
@@ -131,7 +134,7 @@ body.dark {
 		button {
 			border-color: #383838;
     		background: #3d3d3d;
-		}	
+		}
 	}
 
 	div.control {
