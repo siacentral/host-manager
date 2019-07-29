@@ -7,7 +7,11 @@ Second alpha release of Sia Central Desktop.
 + Added total row to contract grid
 + Change currency display to only show a maximum of 2 significant decimals when using Fiat
 + Add host health alerts
-+ Fix issue with donut 
++ Fix issue with donut allowing over 100% groups
++ Remove extra padding near title bar on windows
++ Added About modal for basic information
++ Automatically starts Sia Daemon if it's not already running
++ Add additional host information from Sia Central explorer
 
 #### v0.1.0
 
