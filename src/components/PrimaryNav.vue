@@ -124,6 +124,10 @@ nav.primary {
 	}
 }
 
+body.win32 nav.primary {
+	padding: 0;
+}
+
 body.dark {
 	.title-bar {
 		background: bg-dark-accent;
