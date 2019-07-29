@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js';
 
-import { getAverageSettings, getHost } from '@/api/siacentral';
+import { getAverageSettings, getHost, getConnectability } from '@/api/siacentral';
 import Store from '@/store';
 
 let refreshing = false;
@@ -14,11 +14,18 @@ export async function refreshExplorer() {
 
 		await Promise.all([
 			loadAverageSettings(),
-			loadExplorerHost()
+			loadExplorerHost(),
+			checkHostConnectability()
 		]);
 	} finally {
 		refreshing = false;
 	}
+}
+
+export async function checkHostConnectability() {
+	const resp = await getConnectability(Store.state.netAddress);
+
+	Store.dispatch('hostConnection/setConnectability', resp.body);
 }
 
 async function loadExplorerHost() {

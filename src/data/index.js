@@ -1,7 +1,6 @@
 import log from 'electron-log';
 
 import { refreshBlockHeight, refreshLastBlock } from './consensus';
-import { refreshHostConnectability } from './connection';
 import { refreshHostContracts } from './contracts';
 import { refreshHostStorage } from './storage';
 import { refreshHostWallet } from './wallet';
@@ -30,20 +29,13 @@ export async function refreshData() {
 		await refreshLastBlock();
 		await Promise.all([
 			refreshBlockHeight(),
-			refreshExplorer(),
 			refreshHostConfig(),
 			refreshHostWallet(),
 			refreshHostContracts(),
 			refreshHostStorage()
 		]);
 
-		await refreshHostConnectability();
-
-		Store.dispatch('pushNotification', {
-			message: 'Data refreshed',
-			icon: 'hdd',
-			severity: 'success'
-		});
+		await refreshExplorer();
 
 		Store.dispatch('setLoaded', true);
 
