@@ -123,7 +123,7 @@ export function launch(config) {
 	stdout = '';
 	stderr = '';
 
-	Store.dispatch('hostDaemon/setManaged', true);
+	Store.dispatch('hostDaemon/setManaged', false);
 	Store.dispatch('hostDaemon/setLoaded', false);
 	Store.dispatch('hostDaemon/setLoadPercent', 0);
 	Store.dispatch('hostDaemon/setCurrentModule', '');
@@ -140,6 +140,20 @@ export function launch(config) {
 
 			if (process.geteuid)
 				opts.uid = process.geteuid();
+
+			try {
+				const client = new SiaApiClient(Store.state.config);
+
+				await client.getDaemonVersion();
+
+				log.info('daemon already started not launching');
+				resolve();
+				return;
+			} catch (ex) {
+				console.log(ex.message);
+			}
+
+			Store.dispatch('hostDaemon/setManaged', true);
 
 			siaProcess = spawn(daemonPath, buildArgs(config), opts);
 
@@ -172,12 +186,6 @@ export function launch(config) {
 				Store.dispatch('hostDaemon/setLoaded', false);
 				Store.dispatch('hostDaemon/setLoadPercent', 0);
 				Store.dispatch('hostDaemon/setCurrentModule', '');
-
-				if (stderr.indexOf('bind: address already in use') >= 0) {
-					log.info('daemon already started');
-					resolve();
-					return;
-				}
 
 				if (stderr && stderr.trim().length > 0)
 					log.error(stderr);
