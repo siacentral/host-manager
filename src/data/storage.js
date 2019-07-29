@@ -20,7 +20,8 @@ export async function refreshHostStorage() {
 }
 
 async function loadHostStorage() {
-	const resp = await apiClient.getHostStorage();
+	const resp = await apiClient.getHostStorage(),
+		storageAlerts = [];
 
 	let usedStorage = new BigNumber(0),
 		totalStorage = new BigNumber(0),
@@ -60,8 +61,60 @@ async function loadHostStorage() {
 		failedReads += f.failed_reads;
 		failedWrites += f.failed_writes;
 
+		if (f.failed_reads > 0) {
+			storageAlerts.push({
+				category: 'storage',
+				severity: 'danger',
+				message: `'${f.path}' has ${f.failed_reads > 1 ? f.failed_reads + ' failed reads' : 'a failed read'}. This can cause data corruption and revenue loss`
+			});
+		}
+
+		if (f.failed_writes > 0) {
+			storageAlerts.push({
+				category: 'storage',
+				severity: 'danger',
+				message: `'${f.path}' has ${f.failed_writes > 1 ? f.failed_writes + ' failed writes' : 'a failed write'}. This can cause data corruption and revenue loss`
+			});
+		}
+
 		return f;
 	});
+
+	if (totalStorage.gt(0)) {
+		const usedPct = usedStorage.div(totalStorage);
+
+		if (usedPct.gt(0.9)) {
+			storageAlerts.push({
+				category: 'storage',
+				severity: 'danger',
+				icon: 'hdd',
+				message: 'More than 90% of available storage has been used. You should add more storage soon.'
+			});
+		} else if (usedPct.gt(0.75)) {
+			storageAlerts.push({
+				category: 'storage',
+				severity: 'warning',
+				icon: 'hdd',
+				message: 'More than 75% of available storage has been used. You should add more storage soon.'
+			});
+		}
+
+		if (totalStorage.minus(usedStorage).lt(4e12)) {
+			storageAlerts.push({
+				category: 'storage',
+				severity: 'warning',
+				icon: 'hdd',
+				message: 'Your host has less than 4 TB of available storage. You will receive a small penalty for not enough available space.'
+			});
+		}
+	} else {
+		storageAlerts.push({
+			category: 'storage',
+			severity: 'warning',
+			icon: 'hdd',
+			message: 'No storage has been added. Add storage to start hosting'
+		});
+	}
 
 	if (successfulReads + failedReads > 0)
 		readPct = failedReads / (successfulReads + failedReads);
@@ -74,4 +127,5 @@ async function loadHostStorage() {
 	Store.dispatch('hostStorage/setTotalStorage', totalStorage);
 	Store.dispatch('hostStorage/setReadPercent', readPct);
 	Store.dispatch('hostStorage/setWritePercent', writePct);
+	Store.dispatch('hostStorage/setAlerts', storageAlerts);
 }

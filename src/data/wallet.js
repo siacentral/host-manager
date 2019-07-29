@@ -42,7 +42,8 @@ async function unlockHostWalllet(password) {
 
 async function loadHostWallet() {
 	const config = Store.state.config || {},
-		resp = await apiClient.getWallet();
+		resp = await apiClient.getWallet(),
+		alerts = [];
 
 	if (resp.statusCode !== 200)
 		throw new Error(resp.body.message);
@@ -53,6 +54,15 @@ async function loadHostWallet() {
 		return;
 	}
 
+	if (!resp.body.unlocked) {
+		alerts.push({
+			severity: 'danger',
+			icon: 'wallet',
+			message: 'Wallet is not unlocked. Wallet must be unlocked to form new contracts'
+		});
+	}
+
+	Store.dispatch('hostWallet/setAlerts', alerts);
 	Store.dispatch('hostWallet/setUnlocked', resp.body.unlocked);
 	Store.dispatch('hostWallet/setEncrypted', resp.body.encrypted);
 	Store.dispatch('hostWallet/setRescanning', resp.body.rescanning);

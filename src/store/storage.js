@@ -25,6 +25,9 @@ export default {
 		},
 		setFolders(state, folders) {
 			state.folders = folders;
+		},
+		setAlerts(state, alerts) {
+			state.alerts = alerts;
 		}
 	},
 	actions: {
@@ -42,6 +45,9 @@ export default {
 		},
 		setFolders(context, folders) {
 			context.commit('setFolders', folders);
+		},
+		setAlerts(context, alerts) {
+			context.commit('setAlerts', alerts);
 		}
 	}
 };

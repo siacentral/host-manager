@@ -24,7 +24,7 @@ import Loader from '@/views/Loader';
 import PrimaryView from '@/views/PrimaryView';
 import Setup from '@/views/Setup';
 
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState, mapGetters } from 'vuex';
 import { refreshData } from '@/data';
 import { launch } from '@/utils/daemon';
 import log from 'electron-log';
@@ -87,6 +87,7 @@ export default {
 		this.tryLoad();
 	},
 	computed: {
+		...mapGetters(['alerts']),
 		...mapState({
 			config: state => state.config,
 			dataLoaded: state => state.loaded,

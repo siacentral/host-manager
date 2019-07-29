@@ -17,9 +17,13 @@ export default {
 		maxCollateral: new BigNumber(0),
 		collateralBudget: new BigNumber(0),
 		baseRPCPrice: new BigNumber(0),
-		sectorAccessPrice: new BigNumber(0)
+		sectorAccessPrice: new BigNumber(0),
+		alerts: []
 	},
 	mutations: {
+		setAlerts(state, alerts) {
+			state.alerts = alerts;
+		},
 		setAcceptingContracts(state, value) {
 			state.acceptingContracts = value;
 		},
@@ -67,6 +71,9 @@ export default {
 		}
 	},
 	actions: {
+		setAlerts(context, alerts) {
+			context.commit('setAlerts', alerts);
+		},
 		setAcceptingContracts(context, value) {
 			context.commit('setAcceptingContracts', value);
 		},

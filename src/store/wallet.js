@@ -8,7 +8,8 @@ export default {
 		height: 0,
 		rescanning: false,
 		unlocked: false,
-		encrypted: false
+		encrypted: false,
+		alerts: []
 	},
 	mutations: {
 		setBalance(state, balance) {
@@ -28,6 +29,9 @@ export default {
 		},
 		setRescanning(state, rescanning) {
 			state.rescanning = rescanning;
+		},
+		setAlerts(state, alerts) {
+			state.alerts = alerts;
 		}
 	},
 	actions: {
@@ -48,6 +52,9 @@ export default {
 		},
 		setRescanning(context, rescanning) {
 			context.commit('setRescanning', rescanning);
+		},
+		setAlerts(context, alerts) {
+			context.commit('setAlerts', alerts);
 		}
 	}
 };

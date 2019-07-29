@@ -4,6 +4,9 @@
 			<sia-central /> SiaCentral
 		</div>
 		<health-status />
+		<router-link class="nav-item" :to="{ name: 'alerts' }">
+			<icon icon="bell" /> Alerts <span class="badge" v-if="alerts.length > 0">{{ alerts.length }}</span>
+		</router-link>
 		<router-link class="nav-item" :to="{ name: 'dashboard' }"><icon icon="chart-pie" /> Dashboard</router-link>
 		<router-link class="nav-item" :to="{ name: 'storage' }"><icon icon="hdd" /> Storage</router-link>
 		<router-link class="nav-item" :to="{ name: 'contracts' }"><icon icon="file-contract" /> Contracts</router-link>
@@ -18,6 +21,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 import AboutModal from '@/components/AboutModal';
 import HealthStatus from '@/components/HealthStatus';
 import SettingsModal from '@/components/SettingsModal';
@@ -34,6 +39,9 @@ export default {
 		return {
 			modal: null
 		};
+	},
+	computed: {
+		...mapGetters(['alerts'])
 	}
 };
 </script>

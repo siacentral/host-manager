@@ -3,6 +3,7 @@ import { BigNumber } from 'bignumber.js';
 import Store from '@/store';
 import { apiClient } from './index';
 import { getConfirmedContracts, getBlock } from '@/api/siacentral';
+import { formatPriceString } from '@/utils/format';
 
 async function getLastHeight() {
 	const resp = await getBlock();
@@ -28,6 +29,17 @@ export async function refreshHostContracts() {
 	}
 }
 
+function toFriendlyStatus(status) {
+	switch (status.toLowerCase()) {
+	case 'obligationsucceeded':
+		return 'Successful';
+	case 'obligationfailed':
+		return 'Failed';
+	default:
+		return 'Ongoing';
+	}
+}
+
 export async function parseHostContracts() {
 	const lastHeight = await getLastHeight(),
 		contracts = await loadHostContracts(),
@@ -44,7 +56,9 @@ export async function parseHostContracts() {
 			successful_contracts: 0,
 			failed_contracts: 0
 		},
-		startDate = new Date(new Date().setDate(-30));
+		startDate = new Date(new Date().setDate(-30)),
+		alerts = [],
+		invalidStatusMap = {};
 	let minDate, maxDate, recentRevenue = new BigNumber(0);
 
 	if (contracts.length === 0)
@@ -136,6 +150,7 @@ export async function parseHostContracts() {
 			totals.lost_revenue = totals.lost_revenue.plus(contract.download_revenue)
 				.plus(contract.storage_revenue)
 				.plus(contract.upload_revenue);
+
 			break;
 		default:
 			totals.ongoing_contracts++;
@@ -145,6 +160,15 @@ export async function parseHostContracts() {
 				.plus(contract.storage_revenue)
 				.plus(contract.upload_revenue);
 			break;
+		}
+
+		if (contract.status !== contract.sia_status) {
+			const key = `${contract.status}-${contract.sia_status}`;
+
+			if (!invalidStatusMap[key])
+				invalidStatusMap[key] = 0;
+
+			invalidStatusMap[key] += 1;
 		}
 
 		filtered.push(contract);
@@ -161,6 +185,33 @@ export async function parseHostContracts() {
 		Store.dispatch('hostContracts/setAverageRevenue', totals.earned_revenue.div(revenueDays));
 	}
 
+	if (totals.failed_contracts > 0) {
+		alerts.push({
+			severity: 'danger',
+			message: `${totals.failed_contracts} contracts have failed resulting in ${formatPriceString(totals.lost_revenue.plus(totals.burnt_collateral))} of lost revenue and burnt collateral. Check the contracts page and your logs for more details`,
+			icon: 'file-contract'
+		});
+	}
+
+	for (let key in invalidStatusMap) {
+		const count = invalidStatusMap[key];
+
+		if (isNaN(count) || !isFinite(count) || count <= 0)
+			continue;
+
+		const statuses = key.split('-'),
+			actualStatus = toFriendlyStatus(statuses[0].trim()),
+			siaStatus = toFriendlyStatus(statuses[1].trim());
+
+		alerts.push({
+			category: 'contracts',
+			message: `Sia shows ${count} contracts are ${siaStatus} but should be ${actualStatus}.`,
+			icon: 'file-contract',
+			severity: 'warning'
+		});
+	}
+
+	Store.dispatch('hostContracts/setAlerts', alerts);
 	Store.dispatch('hostContracts/setContracts', filtered);
 	Store.dispatch('hostContracts/setPotentialRevenue', totals.potential_revenue);
 	Store.dispatch('hostContracts/setEarnedRevenue', totals.earned_revenue);

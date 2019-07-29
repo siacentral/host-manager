@@ -33,8 +33,24 @@ export default new Vuex.Store({
 		syncTime: 0,
 		loaded: false,
 		criticalError: null,
-		alerts: [],
 		notifications: []
+	},
+	getters: {
+		alerts(state) {
+			let alerts = state.hostStorage.alerts.concat(state.hostContracts.alerts, state.hostConnection.alerts, state.hostWallet.alerts, state.hostConfig.alerts);
+
+			alerts.sort((a, b) => {
+				if (a.severity === 'danger' && a.severity !== b.severity)
+					return -1;
+
+				if (b.severity === 'danger' && a.severity !== b.severity)
+					return 1;
+
+				return 0;
+			});
+
+			return alerts;
+		}
 	},
 	mutations: {
 		setFirstRun(state, firstRun) {

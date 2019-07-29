@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 
 import Dashboard from './views/Dashboard.vue';
+import Alerts from './views/Alerts.vue';
 import Storage from './views/Storage.vue';
 import Contracts from './views/Contracts.vue';
 import Config from './views/Config.vue';
@@ -16,6 +17,11 @@ const router = new Router({
 			path: '/',
 			name: 'dashboard',
 			component: Dashboard
+		},
+		{
+			path: '/alerts',
+			name: 'alerts',
+			component: Alerts
 		},
 		{
 			path: '/storage',

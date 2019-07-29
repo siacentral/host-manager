@@ -12,12 +12,36 @@ export async function refreshHostConfig() {
 	try {
 		refreshing = true;
 
-		const resp = await apiClient.getHost();
+		const resp = await apiClient.getHost(),
+			alerts = [];
 
 		if (resp.statusCode !== 200)
 			throw new Error(resp.body.message || 'unable to load host config');
 
+		console.log(resp.body);
+
+		if (!resp.body.internalsettings.acceptingcontracts) {
+			alerts.push({
+				severity: 'warning',
+				category: 'configuration',
+				message: 'You are not currently accepting new contracts',
+				icon: 'wrench'
+			});
+		}
+
+		const lockedCollateral = new BigNumber(resp.body.financialmetrics.lockedstoragecollateral),
+			collateralBudget = new BigNumber(resp.body.internalsettings.collateralbudget).times(0.9);
+
+		if (lockedCollateral.gte(collateralBudget)) {
+			alerts.push({
+				severity: 'danger',
+				message: 'Your locked collateral is over your collateral budget. Try restarting your host to clear stale contracts or increase your collateral budget',
+				icon: 'wrench'
+			});
+		}
+
 		Store.dispatch('setNetAddress', resp.body.externalsettings.netaddress);
+		Store.dispatch('hostConfig/setAlerts', alerts);
 		Store.dispatch('hostConfig/setAcceptingContracts', resp.body.internalsettings.acceptingcontracts);
 		Store.dispatch('hostConfig/setNetAddress', resp.body.internalsettings.netaddress);
 		Store.dispatch('hostConfig/setMaxDuration', resp.body.internalsettings.maxduration);
