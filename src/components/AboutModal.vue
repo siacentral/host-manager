@@ -18,6 +18,7 @@
 					around some of stil unresolved bugs in the official clients.</p>
 				<div class="buttons">
 					<button class="btn btn-inline" v-if="daemonManaged" @click="onOpenDataFolder">Open Data Folder</button>
+					<button class="btn btn-inline btn-danger" @click="onOpenDevTools">Open Dev Tools</button>
 					<a class="btn btn-inline" href="https://github.com/siacentral/desktop">GitHub</a>
 					<a class="btn btn-inline" href="https://siacentral.com/desktop">Website</a>
 				</div>
@@ -34,7 +35,8 @@ import log from 'electron-log';
 import SiaCentral from '@/assets/siacentral.svg';
 import Modal from '@/components/Modal';
 
-const appVersion = remote.app.getVersion();
+const appVersion = remote.app.getVersion(),
+	currentWindow = remote.getCurrentWindow();
 
 export default {
 	components: {
@@ -63,6 +65,13 @@ export default {
 					icon: 'info',
 					severity: 'danger'
 				});
+			}
+		},
+		onOpenDevTools() {
+			try {
+				currentWindow.openDevTools();
+			} catch (ex) {
+				log.error(ex);
 			}
 		}
 	}
