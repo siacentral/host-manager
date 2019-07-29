@@ -23,7 +23,6 @@ export default {
 	computed: {
 		...mapGetters(['alerts']),
 		global() {
-			console.log(this.alerts);
 			return this.alerts.filter(a => !a.category || a.category.toLowerCase() === 'global');
 		},
 		grouped() {

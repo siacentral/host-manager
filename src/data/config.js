@@ -18,8 +18,6 @@ export async function refreshHostConfig() {
 		if (resp.statusCode !== 200)
 			throw new Error(resp.body.message || 'unable to load host config');
 
-		console.log(resp.body);
-
 		if (!resp.body.internalsettings.acceptingcontracts) {
 			alerts.push({
 				severity: 'warning',
