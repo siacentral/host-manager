@@ -19,10 +19,11 @@ Sia Central desktop combines information from your Sia node as well as informati
 
 ## Screenshots
 
-![dashboard](https://i.imgur.com/wvbhQS4.png)
-![storage](https://imgur.com/IB5uYLS.png)
-![contracts](https://imgur.com/FaVFDux.png)
-![config](https://imgur.com/bHCJnOh.png)
+![alerts](https://i.imgur.com/IohFl84.png)
+![dashboard](https://i.imgur.com/evpAMad.png)
+![storage](https://i.imgur.com/1lfsmmJ.png)
+![contracts](https://i.imgur.com/UYFPsXT.png)
+![config](https://i.imgur.com/M3Zodn4.png)
 
 ## Project setup
 ```
