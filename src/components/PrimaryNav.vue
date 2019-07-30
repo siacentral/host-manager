@@ -56,7 +56,7 @@ nav.primary {
     width: 200px;
 	padding: 30px 0;
 	background: bg-accent;
-	box-shadow: 1px 0 3px 0px rgba(0, 0, 0, 0.05)
+	box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.22);
 
 	.nav-logo.nav-logo {
 		font-size: 1rem;

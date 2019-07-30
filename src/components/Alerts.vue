@@ -80,9 +80,8 @@ export default {
 	bottom: 0;
 	width: 300px;
 	padding: 45px 15px 15px;
-	background-color: #25272a;
-	background-image: linear-gradient(225deg, #25272a 0%, #1d1e21 100%);
-	box-shadow: 0 2px 11px rgba(0, 0, 0, 0.5);
+	background-color: bg-dark-accent;
+	box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.22);
 
 	.close-button {
 		position: absolute;
