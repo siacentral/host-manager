@@ -4,7 +4,9 @@ import path from 'path';
 import process from 'process';
 import { remote } from 'electron';
 
-const app = remote.app;
+const app = remote.app,
+	dialog = remote.dialog,
+	window = remote.getCurrentWindow();
 
 export function getDefaultSiaPath() {
 	switch (process.platform) {
@@ -166,6 +168,14 @@ export function concatUint8Array() {
 	return array;
 };
 
+export function showSaveDialogAsync(opts) {
+	return new Promise(resolve => {
+		dialog.showSaveDialog(window, opts, filename => {
+			resolve(filename);
+		});
+	});
+}
+
 /**
  * Splits a Uint8Array into equal segments of n length
  * @param {Uint8Array} arr the array to split
@@ -214,33 +224,6 @@ export function debounce(fn, delay) {
 			timeouts[fn] = null;
 		}, delay);
 	};
-}
-
-export function formatSeconds(seconds) {
-	const denoms = [31536000, 2628000, 86400, 3600, 60, 1],
-		len = denoms.length;
-
-	let time = seconds, str = [];
-
-	for (let i = 0; i < len; i++) {
-		const d = denoms[i];
-
-		if (time < d) {
-			str.push('00');
-			continue;
-		}
-
-		const amt = Math.floor(time / d);
-
-		time = time % d;
-
-		str.push(amt < 10 ? `0${amt}` : amt.toString());
-	}
-
-	while (str[0] === '00' && str.length > 3)
-		str.shift();
-
-	return str.join(':');
 }
 
 export function blobToDataURI(blob) {

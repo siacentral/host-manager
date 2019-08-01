@@ -5,43 +5,69 @@
 			<import-step v-else-if="stepActive('import')" key="import" :import="imported" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<consensus-location-step v-else-if="stepActive('consensus')" key="consensus" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<daemon-override-step v-else-if="stepActive('settings')" key="settings" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
-			<auto-unlock-step v-else-if="stepActive('unlock')" key="unlock" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<review-step v-else-if="stepActive('review')" key="review" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
+			<create-wallet-step v-else-if="stepActive('create-wallet')" key="create-wallet" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
+			<auto-unlock-step v-else-if="stepActive('auto-unlock')" key="auto-unlock" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 		</transition>
 	</div>
 </template>
 
 <script>
 import log from 'electron-log';
+import { mapActions } from 'vuex';
 
 import WelcomeStep from '@/views/setup/WelcomeStep';
 import ImportStep from '@/views/setup/ImportStep';
 import ConsensusLocationStep from '@/views/setup/ConsensusLocationStep';
 import DaemonOverrideStep from '@/views/setup/DaemonOverrideStep';
-import AutoUnlockStep from '@/views/setup/AutoUnlockStep';
 import ReviewStep from '@/views/setup/ReviewStep';
-import { readSiaUIConfig } from '@/utils';
+import CreateWalletStep from '@/views/setup/CreateWalletStep';
+import AutoUnlockStep from '@/views/setup/AutoUnlockStep';
+import { readSiaUIConfig, writeConfig } from '@/utils';
 
 export default {
-	data() {
-		return {
-			loaded: false,
-			step: 0,
-			showAdvanced: false,
-			config: {
-				dark_mode: true,
-				siad_api_addr: null
-			},
-			imported: null
-		};
-	},
 	components: {
 		WelcomeStep,
 		ImportStep,
 		ConsensusLocationStep,
 		DaemonOverrideStep,
-		AutoUnlockStep,
-		ReviewStep
+		ReviewStep,
+		CreateWalletStep,
+		AutoUnlockStep
+	},
+	data() {
+		return {
+			loaded: false,
+			step: 0,
+			showAdvanced: false,
+			createWallet: false,
+			config: {
+				dark_mode: true
+			},
+			imported: null
+		};
+	},
+	computed: {
+		steps() {
+			const steps = ['welcome'];
+
+			if (this.imported)
+				steps.push('import');
+
+			steps.push('consensus');
+
+			if (this.showAdvanced)
+				steps.push('settings');
+
+			steps.push('review');
+
+			if (this.createWallet)
+				steps.push('create-wallet');
+			else
+				steps.push('auto-unlock');
+
+			return steps;
+		}
 	},
 	async beforeMount() {
 		try {
@@ -55,27 +81,24 @@ export default {
 		}
 	},
 	methods: {
+		...mapActions(['setFirstRun']),
 		stepActive(name) {
-			const steps = ['welcome'];
-
-			if (this.imported)
-				steps.push('import');
-
-			steps.push('consensus');
-
-			if (this.showAdvanced)
-				steps.push('settings');
-
-			steps.push('unlock', 'review');
-
-			return this.loaded && this.step === steps.indexOf(name.toLowerCase());
+			return this.loaded && this.step === this.steps.indexOf(name.toLowerCase());
 		},
-		onStepComplete(data) {
+		async onStepComplete(data) {
 			this.config = data.config ? { ...this.config, ...data.config } : this.config;
 			this.step += data.inc;
 
 			if (typeof data.showAdvanced === 'boolean')
 				this.showAdvanced = data.showAdvanced;
+
+			if (typeof data.createWallet === 'boolean')
+				this.createWallet = data.createWallet;
+
+			if (this.step >= this.steps.length) {
+				this.setFirstRun(false);
+				await writeConfig(this.config);
+			}
 		}
 	}
 };
@@ -86,5 +109,6 @@ export default {
 		position: relative;
 		width: 100%;
 		height: 100%;
+		overflow: hidden;
 	}
 </style>

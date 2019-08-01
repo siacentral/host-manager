@@ -17,8 +17,6 @@ export async function refreshExplorer() {
 			loadExplorerHost(),
 			checkHostConnectability()
 		]);
-
-		console.log('finished explorer');
 	} finally {
 		refreshing = false;
 	}
@@ -59,7 +57,7 @@ async function loadExplorerHost() {
 			upload_price: new BigNumber(resp.body.host.settings.upload_price)
 		};
 	}
-	console.log(resp.body.host);
+
 	Store.dispatch('explorer/setHost', resp.body.host);
 }
 

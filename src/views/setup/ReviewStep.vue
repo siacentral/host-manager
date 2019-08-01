@@ -10,12 +10,13 @@
 			</transition>
 			<transition mode="out-in" appear>
 				<p class="text-center error" v-if="error" key="error"> We were unable to validate your config. Go back and check what you entered:<br/>{{ error }}</p>
+				<p class="text-center" v-else-if="daemonManaged && !daemonLoaded" key="daemon">Loading Sia...</p>
 				<p class="text-center" v-else key="success">We're getting everything setup, please wait a moment...</p>
 			</transition>
 		</template>
 
 		<template v-slot:controls>
-			<transition appear>
+			<transition mode="out-in" name="fade" appear>
 				<button v-if="error" class="btn btn-success btn-inline" @click="$emit('done', { inc: -1 })">Go Back</button>
 			</transition>
 		</template>
@@ -23,9 +24,8 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 import log from 'electron-log';
-import { writeConfig } from '@/utils';
 import { refreshData } from '@/data/index';
 import { launch } from '@/utils/daemon';
 import SiaApiClient from '@/api/sia';
@@ -43,6 +43,16 @@ export default {
 		config: Object,
 		fresh: Boolean
 	},
+	computed: {
+		...mapState({
+			walletEncrypted: state => state.hostWallet.encrypted,
+			walletUnlocked: state => state.hostWallet.unlocked,
+			daemonLoaded: state => state.hostDaemon.loaded,
+			daemonLoadingModule: state => state.hostDaemon.currentModule,
+			daemonLoadPercent: state => state.hostDaemon.loadPercent,
+			daemonManaged: state => state.hostDaemon.managed
+		})
+	},
 	data() {
 		return {
 			error: null
@@ -59,13 +69,12 @@ export default {
 				throw new Error('Unable to authenticate check API address or password');
 
 			this.setConfig(this.config);
-			log.info('refreshing data');
 			await refreshData();
-			log.info('writing config');
-			await writeConfig(this.config);
-			log.info('changing page');
-			this.$nextTick(() => this.$router.push({ name: 'dashboard' }));
-			this.setFirstRun(false);
+
+			this.$emit('done', {
+				inc: 1,
+				createWallet: !this.walletEncrypted && !this.walletUnlocked
+			});
 		} catch (ex) {
 			log.error(ex.message);
 			this.error = ex.message;

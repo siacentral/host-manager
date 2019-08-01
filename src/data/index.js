@@ -38,7 +38,6 @@ export async function refreshData() {
 		await refreshExplorer();
 
 		Store.dispatch('setLoaded', true);
-		console.log('set loaded');
 
 		refreshTimeout = setTimeout(refreshData, 1000 * 60 * 5);
 	} finally {

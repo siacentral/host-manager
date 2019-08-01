@@ -6,17 +6,14 @@
 				<router-view />
 			</transition>
 		</div>
-		<notification-queue />
 	</div>
 </template>
 
 <script>
-import NotificationQueue from '@/components/NotificationQueue';
 import PrimaryNav from '@/components/PrimaryNav';
 
 export default {
 	components: {
-		NotificationQueue,
 		PrimaryNav
 	}
 };

@@ -46,9 +46,6 @@ export default {
 			announcing: false
 		};
 	},
-	mounted() {
-		console.log(this.host);
-	},
 	methods: {
 		...mapActions(['pushNotification']),
 		async onAnnounceHost() {

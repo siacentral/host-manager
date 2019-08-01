@@ -13,15 +13,19 @@
 		</div>
 		<transition name="fade" mode="out-in" appear>
 			<setup v-if="firstRun && animationComplete" key="setup" />
+			<unlock-wallet v-else-if="animationComplete && !walletUnlocked" key="unlock" />
 			<loader v-else-if="showLoader" key="loader" @animated="animationComplete = true" :progress="loaderProgress" :text="loaderText" :severity="loaderSeverity" :subText="loaderSubtext" />
 			<primary-view v-else key="primary" />
 		</transition>
+		<notification-queue />
 	</div>
 </template>
 <script>
 import { remote } from 'electron';
 import Loader from '@/views/Loader';
+import NotificationQueue from '@/components/NotificationQueue';
 import PrimaryView from '@/views/PrimaryView';
+import UnlockWallet from '@/views/UnlockWallet';
 import Setup from '@/views/Setup';
 
 import { mapActions, mapState, mapGetters } from 'vuex';
@@ -32,8 +36,10 @@ import log from 'electron-log';
 export default {
 	components: {
 		Loader,
+		NotificationQueue,
 		PrimaryView,
-		Setup
+		Setup,
+		UnlockWallet
 	},
 	methods: {
 		...mapActions(['setConfig', 'setCriticalError']),
@@ -94,7 +100,6 @@ export default {
 			firstRun: state => state.firstRun,
 			criticalError: state => state.criticalError,
 			walletUnlocked: state => state.hostWallet.unlocked,
-			walletEncrypted: state => state.hostWallet.encrypted,
 			daemonLoaded: state => state.hostDaemon.loaded,
 			daemonLoadingModule: state => state.hostDaemon.currentModule,
 			daemonLoadPercent: state => state.hostDaemon.loadPercent,

@@ -7,12 +7,12 @@ import store from './store';
 import { readConfig } from '@/utils';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
+import { faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
 	faChartPie, faHdd, faFileContract, faWrench, faCogs, faSearch,
 	faUnlock, faDatabase, faPlus, faExpand, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome';
 
-library.add(faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes, faChartPie,
+library.add(faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes, faChartPie,
 	faHdd, faFileContract, faWrench, faCogs, faSearch, faUnlock,
 	faDatabase, faPlus, faExpand, faTrash, faSync);
 

@@ -10,7 +10,7 @@
 			<div class="wallet-step">
 				<div class="control">
 					<label>Encryption Password</label>
-					<input type="text" v-model="password" />
+					<input type="password" v-model="password" />
 					<label class="error" v-if="error">{{ error }}</label>
 				</div>
 				<div class="buttons">

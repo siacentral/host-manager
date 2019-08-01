@@ -150,7 +150,7 @@ export function launch(config) {
 				resolve();
 				return;
 			} catch (ex) {
-				console.log(ex.message);
+				console.log(ex);
 			}
 
 			Store.dispatch('hostDaemon/setManaged', true);
