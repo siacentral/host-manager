@@ -1,11 +1,11 @@
 <template>
 	<nav class="primary">
 		<div class="nav-logo">
-			<sia-central /> SiaCentral
+			<sia-central /> Sia Central
 		</div>
 		<health-status />
 		<div class="top-nav">
-			<a href="#" class="sub-nav-item" @click.prevent="modal = 'alerts'"><icon icon="bell" /></a>
+			<a href="#" class="sub-nav-item" @click.prevent="modal = 'alerts'"><icon icon="bell" /> <span class="badge">{{ alerts.length >= 10 ? '+' : alerts.length }}</span></a>
 			<a href="#" class="sub-nav-item" @click.prevent="modal = 'about'"><icon icon="info" /></a>
 			<a href="#" class="sub-nav-item" @click.prevent="modal = 'settings'"><icon icon="cogs" /></a>
 		</div>
@@ -104,6 +104,7 @@ nav.primary {
 		margin-bottom: 15px;
 
 		.sub-nav-item {
+			position: relative;
 			display: block;
 			padding: 15px;
 			color: rgba(255, 255, 255, 0.54);
@@ -114,6 +115,22 @@ nav.primary {
 			cursor: pointer;
 			border-right: 1px solid dark-gray;
 			transition: color 0.3s linear;
+
+			span.badge {
+				position: absolute;
+				transform: translateY(9px) translateX(-5px);
+				background: negative-accent;
+				width: 14px;
+				height: 14px;
+				border-radius: 100%;
+				line-height: 14px;
+				font-size: 0.7rem;
+			}
+
+			svg.svg-inline--fa {
+				width: 16px;
+				height: 16px;
+			}
 
 			&:hover, &:focus, &:active {
 				color: primary;
