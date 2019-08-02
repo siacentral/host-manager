@@ -18,7 +18,10 @@ export default {
 					severity: state.connectable && !state.error ? 'warning' : 'danger',
 					message: state.error ? state.error : 'Your host does not appear to be connectable. Renters may be unable to access their data'
 				}];
+				return;
 			}
+
+			state.alerts = [];
 		}
 	},
 	actions: {

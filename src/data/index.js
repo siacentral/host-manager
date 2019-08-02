@@ -36,7 +36,6 @@ async function shortRefresh() {
 		await Promise.all([
 			refreshDaemonVersion(),
 			refreshBlockHeight(),
-			refreshHostConfig(),
 			refreshHostWallet(),
 			refreshHostStorage()
 		]);
@@ -58,10 +57,11 @@ async function longRefresh() {
 		clearTimeout(longTimeout);
 
 		await Promise.all([
-			refreshLastBlock(),
-			refreshExplorer()
+			refreshHostConfig(),
+			refreshLastBlock()
 		]);
 
+		await refreshExplorer();
 		await refreshHostContracts();
 	} catch (ex) {
 		log.error('data refresh - long', ex.message);

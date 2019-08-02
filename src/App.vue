@@ -121,7 +121,7 @@ export default {
 			daemonManaged: state => state.hostDaemon.managed
 		}),
 		showLoader() {
-			return this.criticalError || (!this.daemonLoaded && this.daemonManaged) || this.walletScanning || !this.animationComplete;
+			return !this.dataLoaded || this.criticalError || (!this.daemonLoaded && this.daemonManaged) || this.walletScanning || !this.animationComplete;
 		},
 		loaderText() {
 			if (this.criticalError && !this.firstRun)

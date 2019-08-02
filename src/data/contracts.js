@@ -27,9 +27,13 @@ function toFriendlyStatus(status) {
 		return 'Successful';
 	case 'obligationfailed':
 		return 'Failed';
+	case 'obligationrejected':
+		return 'Rejected';
 	case 'obligationunresolved':
 		return 'Ongoing';
 	}
+
+	return status;
 }
 
 export async function parseHostContracts() {
@@ -102,6 +106,13 @@ export async function parseHostContracts() {
 			contract.tags.push({
 				severity: 'normal',
 				text: 'Unused'
+			});
+		}
+
+		if (contract.status !== contract.sia_status) {
+			contract.tags.push({
+				severity: 'warning',
+				text: 'Status Mismatch'
 			});
 		}
 
@@ -178,9 +189,16 @@ export async function parseHostContracts() {
 	}
 
 	if (totals.failed_contracts > 0) {
+		let prefix;
+
+		if (totals.failed_contracts === 1)
+			prefix = `${totals.failed_contracts} contract has`;
+		else
+			prefix = `${totals.failed_contracts} contracts have`;
+
 		alerts.push({
 			severity: 'danger',
-			message: `${totals.failed_contracts} contracts have failed resulting in ${formatPriceString(totals.lost_revenue.plus(totals.burnt_collateral))} of lost revenue and burnt collateral. Check the contracts page and your logs for more details`,
+			message: `${prefix} failed resulting in ${formatPriceString(totals.lost_revenue.plus(totals.burnt_collateral))} of lost revenue and burnt collateral. Check the contracts page and your logs for more details`,
 			icon: 'file-contract'
 		});
 	}
@@ -194,10 +212,16 @@ export async function parseHostContracts() {
 		const statuses = key.split('-'),
 			actualStatus = toFriendlyStatus(statuses[0].trim()),
 			siaStatus = toFriendlyStatus(statuses[1].trim());
+		let prefix;
+
+		if (count === 1)
+			prefix = `${count} contract is`;
+		else
+			prefix = `${count} contracts are`;
 
 		alerts.push({
 			category: 'contracts',
-			message: `Sia shows ${count} contracts are ${siaStatus} but should be ${actualStatus}.`,
+			message: `Sia shows ${prefix} ${siaStatus} but should be ${actualStatus}.`,
 			icon: 'file-contract',
 			severity: 'warning'
 		});
