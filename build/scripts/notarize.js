@@ -1,10 +1,6 @@
-/**
- * Cannot notarize app until after this issue is fixed. Included siad binary is not compatible with new apple notarization
- * https://github.com/golang/go/issues/30488
- */
-import { notarize } from 'electron-notarize';
+const { notarize } = require('electron-notarize');
 
-export default function notarizing(context) {
+module.exports = function notarizing(context) {
 	const { electronPlatformName, appOutDir } = context;
 
 	if (electronPlatformName !== 'darwin')
