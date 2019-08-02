@@ -13,3 +13,8 @@
 #### Bugs
 
 + Fix issue when Sia is running but not fully loaded throwing exceptions
+
+#### Clean up
+
++ Unit tests
++ Refactor data store
