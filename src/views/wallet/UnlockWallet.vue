@@ -6,12 +6,17 @@
 			</div>
 			<h3>Wallet is locked</h3>
 			<p>Host wallets always need to be unlocked to form new contracts and submit storage proofs.
-				Enter your encryption password below to unlock your wallet.</p>
+				Enter your encryption password below to unlock your wallet. Sia Central can handle
+				this automatically in the future.</p>
 			<div class="wallet-step">
 				<div class="control">
 					<label>Encryption Password</label>
 					<input type="password" v-model="password" />
 					<label class="error" v-if="error">{{ error }}</label>
+				</div>
+				<div class="control">
+					<input type="checkbox" v-model="autoUnlock" id="chk-auto-unlock-setup" />
+					<label for="chk-auto-unlock-setup">Automatically Unlock Wallet</label>
 				</div>
 				<div class="buttons">
 					<button class="btn btn-success btn-inline" :disabled="unlocking" @click="onUnlock">Unlock</button>
@@ -22,15 +27,15 @@
 </template>
 
 <script>
-import log from 'electron-log';
-
 import { mapActions, mapState } from 'vuex';
+import { writeConfig } from '@/utils';
 import SiaApiClient from '@/api/sia';
-import { refreshData } from '@/data';
+import { refreshHostWallet } from '@/data/wallet';
 
 export default {
 	data() {
 		return {
+			autoUnlock: false,
 			password: null,
 			unlocking: false,
 			error: null
@@ -40,7 +45,7 @@ export default {
 		...mapState(['config'])
 	},
 	methods: {
-		...mapActions(['pushNotification']),
+		...mapActions(['pushNotification', 'setConfig']),
 		async onUnlock() {
 			if (this.unlocking)
 				return;
@@ -53,6 +58,13 @@ export default {
 					return;
 				}
 
+				if (this.autoUnlock) {
+					const newConf = { ...this.config, siad_api_password: this.password };
+
+					this.setConfig(newConf);
+					await writeConfig(newConf);
+				}
+
 				const client = new SiaApiClient(this.config),
 					resp = await client.unlockWallet(this.password);
 
@@ -63,9 +75,7 @@ export default {
 					throw new Error(resp.body.message || 'Error unlocking wallet');
 				}
 
-				log.info('unlocked');
-
-				refreshData();
+				refreshHostWallet();
 			} catch (ex) {
 				this.error = ex.message;
 			} finally {

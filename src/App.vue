@@ -57,6 +57,8 @@ export default {
 				// nexttick so the store should be completely committed
 				await sleep(1);
 
+				console.log(this.walletUnlocked, this.walletEncrypted, this.walletScanning);
+
 				// wallet has not been initialized we need to run setup
 				if (!this.walletUnlocked && !this.walletEncrypted && !this.walletScanning) {
 					this.setFirstRun(true);
@@ -110,6 +112,7 @@ export default {
 			firstRun: state => state.firstRun,
 			criticalError: state => state.criticalError,
 			walletUnlocked: state => state.hostWallet.unlocked,
+			walletEncrypted: state => state.hostWallet.encrypted,
 			walletScanning: state => state.hostWallet.rescanning,
 			scanHeight: state => state.hostWallet.height,
 			syncedHeight: state => state.blockHeight,
