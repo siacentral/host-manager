@@ -76,7 +76,7 @@ export default {
 
 			this.imported = importConfig;
 		} catch (ex) {
-			log.error(ex.message);
+			log.error('setup beforeMount', ex.message);
 		} finally {
 			this.loaded = true;
 		}

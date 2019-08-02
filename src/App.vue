@@ -57,8 +57,6 @@ export default {
 				// nexttick so the store should be completely committed
 				await sleep(1);
 
-				console.log(this.walletUnlocked, this.walletEncrypted, this.walletScanning);
-
 				// wallet has not been initialized we need to run setup
 				if (!this.walletUnlocked && !this.walletEncrypted && !this.walletScanning) {
 					this.setFirstRun(true);
@@ -67,7 +65,7 @@ export default {
 
 				this.setCriticalError(null);
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('try load', ex.message);
 				this.setCriticalError(ex.message);
 			}
 		},
@@ -76,14 +74,15 @@ export default {
 				const window = remote.getCurrentWindow();
 				window.minimize();
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('minimize window', ex.message);
 			}
 		},
 		onMaxWindow() {
 			try {
-
+				const window = remote.getCurrentWindow();
+				window.maximize();
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('maximize window', ex.message);
 			}
 		},
 		onCloseWindow() {
@@ -91,7 +90,7 @@ export default {
 				const window = remote.getCurrentWindow();
 				window.close();
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('close window', ex.message);
 			}
 		}
 	},
@@ -173,15 +172,6 @@ export default {
 				document.body.classList.add('dark');
 			else
 				document.body.classList.remove('dark');
-		},
-		walletUnlocked() {
-			console.log(this.walletUnlocked, this.walletScanning, this.scanHeight);
-		},
-		walletScanning() {
-			console.log(this.walletUnlocked, this.walletScanning, this.scanHeight);
-		},
-		scanHeight() {
-			console.log(this.walletUnlocked, this.walletScanning, this.scanHeight);
 		}
 	}
 };

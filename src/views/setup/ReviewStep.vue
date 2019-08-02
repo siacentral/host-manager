@@ -80,7 +80,7 @@ export default {
 				createWallet: !this.walletEncrypted && !this.walletUnlocked
 			});
 		} catch (ex) {
-			log.error(ex.message);
+			log.error('review step mounted', ex.message);
 			this.error = ex.message;
 		}
 	},

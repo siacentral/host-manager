@@ -61,7 +61,7 @@ export default {
 		try {
 			this.updateConfig();
 		} catch (ex) {
-			log.error(ex.message);
+			log.error('settings beforeMount', ex.message);
 		}
 	},
 	computed: {
@@ -99,7 +99,7 @@ export default {
 				await writeConfig(this.config);
 				this.$emit('close');
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('settings update', ex.message);
 			}
 		}
 	}

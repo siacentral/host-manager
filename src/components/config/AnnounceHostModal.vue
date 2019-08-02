@@ -74,7 +74,7 @@ export default {
 
 				this.$emit('close');
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('announce host', ex.message);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'bullhorn',

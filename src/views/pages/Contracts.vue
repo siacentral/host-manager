@@ -89,7 +89,7 @@ export default {
 		try {
 			await refreshHostContracts();
 		} catch (ex) {
-			log.error(ex.message);
+			log.error('contracts beforeMount', ex.message);
 		}
 	},
 	data() {

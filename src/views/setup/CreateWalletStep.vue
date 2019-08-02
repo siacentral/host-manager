@@ -160,7 +160,7 @@ export default {
 					break;
 				}
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('create wallet step on click', ex.message);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'wallet',
@@ -192,7 +192,7 @@ export default {
 
 				await writeFileAsync(filePath, this.seed);
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('create wallet on save seed click', ex.message);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'save',
@@ -201,21 +201,6 @@ export default {
 			} finally {
 				this.saving = false;
 			}
-		},
-		async unlockWallet() {
-			try {
-				const client = new SiaApiClient(this.appConfig),
-					resp = await client.unlockWallet(this.unlockPassword);
-
-				if (resp.statusCode !== 200)
-					throw new Error(resp.body.message || 'error unlocking wallet');
-
-				return true;
-			} catch (ex) {
-				log.error(ex.message);
-			}
-
-			return false;
 		},
 		async createWallet() {
 			const client = new SiaApiClient(this.appConfig),

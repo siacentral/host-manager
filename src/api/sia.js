@@ -1,3 +1,5 @@
+import log from 'electron-log';
+
 import { getDefaultAPIPassword } from '@/utils';
 import { sendJSONRequest } from './common';
 
@@ -20,10 +22,8 @@ export default class SiaApiClient {
 
 			if (resp.body.message && resp.body.message.indexOf('wallet must be unlocked before it can be used') >= 0)
 				return true;
-
-			console.log(resp.body.message);
 		} catch (ex) {
-			console.log(ex.message);
+			log.error('checking credentials', ex.message);
 		}
 
 		return false;

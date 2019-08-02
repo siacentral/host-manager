@@ -147,6 +147,7 @@ export function launch(config) {
 				resolve();
 				return;
 			} catch (ex) {
+				// useful debug message will be removed when packaged
 				console.log(ex);
 			}
 
@@ -157,6 +158,7 @@ export function launch(config) {
 			siaProcess.stdout.on('data', data => {
 				stdout += decode(data);
 
+				// useful debug message will be removed when packaged
 				console.log(stdout);
 
 				parseStdOut(stdout);
@@ -172,7 +174,8 @@ export function launch(config) {
 			siaProcess.stderr.on('data', data => {
 				stderr += decode(data);
 
-				console.log(stderr);
+				// useful debug message will be removed when packaged
+				console.error(stderr);
 
 				Store.dispatch('hostDaemon/setError', stderr);
 			});

@@ -48,7 +48,7 @@ export default {
 			this.sizeValue = this.folder.total_capacity;
 			this.sizeStr = formatByteString(this.folder.total_capacity, 2);
 		} catch (ex) {
-			log.error(ex.message);
+			log.error('resize folder beforeMount', ex.message);
 		}
 	},
 	computed: {
@@ -81,7 +81,7 @@ export default {
 				});
 				this.$emit('close');
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('resize folder', ex.message);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'hdd',

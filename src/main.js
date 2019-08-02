@@ -65,7 +65,7 @@ async function init() {
 
 		store.dispatch('setFirstRun', false);
 	} catch (ex) {
-		log.error(ex.message);
+		log.error('main init', ex.message);
 	}
 
 	new Vue({

@@ -41,7 +41,7 @@ async function shortRefresh() {
 			refreshHostStorage()
 		]);
 	} catch (ex) {
-		log.error(ex.message);
+		log.error('data refresh - short', ex.message);
 	} finally {
 		loadingShort = false;
 		shortTimeout = setTimeout(shortRefresh, 5000);
@@ -64,7 +64,7 @@ async function longRefresh() {
 
 		await refreshHostContracts();
 	} catch (ex) {
-		log.error(ex.message);
+		log.error('data refresh - long', ex.message);
 	} finally {
 		loadingLong = false;
 		longTimeout = setTimeout(longRefresh, 300000);
@@ -82,7 +82,7 @@ async function refreshCoinPrice() {
 
 		Store.dispatch('setCoinPrice', resp.body.market_data.current_price);
 	} catch (ex) {
-		log.error(ex.message);
+		log.error('coingecko refresh', ex.message);
 	} finally {
 		priceTimeout = setTimeout(refreshCoinPrice, 1000 * 60 * 30);
 	}

@@ -21,7 +21,7 @@ async function unlockHostWalllet(password) {
 
 		return true;
 	} catch (ex) {
-		log.error(ex.message);
+		log.error('data unlock wallet', ex.message);
 
 		return false;
 	}
@@ -41,8 +41,6 @@ async function loadHostWallet(disableUnlock) {
 		await loadHostWallet(true);
 		return;
 	}
-
-	console.log(resp.body);
 
 	if (!resp.body.unlocked) {
 		alerts.push({

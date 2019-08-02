@@ -57,7 +57,7 @@ export default {
 			try {
 				shell.openItem(this.config.siad_data_path);
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('open data folder', ex.message);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'info',

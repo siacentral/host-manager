@@ -78,7 +78,7 @@ export default {
 				});
 				this.$emit('close');
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('remove folder', ex.message);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'hdd',

@@ -58,7 +58,7 @@ export default {
 
 				this.path = paths ? paths[0] : null;
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('add folder browse', ex.message);
 			}
 		},
 		async onCreateFolder() {
@@ -86,7 +86,7 @@ export default {
 				});
 				this.$emit('close');
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('add folder create', ex.message);
 				this.pushNotification({
 					message: ex.message,
 					icon: 'hdd',

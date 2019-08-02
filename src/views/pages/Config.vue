@@ -196,7 +196,7 @@ export default {
 
 				await refreshHostConfig();
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('config modal close', ex.message);
 			} finally {
 				this.updating = false;
 			}
@@ -263,7 +263,7 @@ export default {
 				this.config[key] = parseCurrencyString(value).toFixed(0).toString(10);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('config modal price change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -276,7 +276,7 @@ export default {
 				this.config[key] = val.div(1e12).div(4320).toFixed(0).toString(10);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('config modal monthly price change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -287,7 +287,7 @@ export default {
 				this.config[key] = parseCurrencyString(value).div(1e12).toFixed(0).toString(10);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('config modal data price change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -298,7 +298,7 @@ export default {
 				this.config[key] = parseBlockTimeString(value);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('config modal time change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -309,7 +309,7 @@ export default {
 				this.config[key] = parseByteString(value).toString(10);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error(ex.message);
+				log.error('config modal data change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		}
