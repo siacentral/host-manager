@@ -26,18 +26,24 @@ Sia Central desktop combines information from your Sia node as well as informati
 ![config](https://i.imgur.com/TDkSetv.png)
 
 ## Project setup
+
+Installs dependencies using `npm`
+
 ```
 npm install
 ```
 
 ### Development
 
-1. Starts the http server, hot-reloading, and electron
+Starts the http server, hot-reloading, and electron
+
 ```
 npm run serve
 ```
 
 ### Build and Package
+
+Builds and packages the app for the current platform
 
 ```
 npm run build
