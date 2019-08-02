@@ -9,7 +9,8 @@ export default {
 		rescanning: false,
 		unlocked: false,
 		encrypted: false,
-		alerts: []
+		alerts: [],
+		newAlertsCount: 0
 	},
 	mutations: {
 		setBalance(state, balance) {
@@ -31,6 +32,15 @@ export default {
 			state.rescanning = rescanning;
 		},
 		setAlerts(state, alerts) {
+			state.newAlertsCount = alerts.reduce((val, alert) => {
+				const match = state.alerts.find(existing => existing.message === alert.message);
+
+				if (match)
+					return val;
+
+				return val + 1;
+			}, state.newAlertsCount);
+
 			state.alerts = alerts;
 		}
 	},

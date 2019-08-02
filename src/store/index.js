@@ -50,6 +50,11 @@ export default new Vuex.Store({
 			});
 
 			return alerts;
+		},
+		newAlertsCount(state) {
+			return state.hostStorage.newAlertsCount + state.hostContracts.newAlertsCount +
+				state.hostConnection.newAlertsCount + state.hostWallet.newAlertsCount +
+				state.hostConfig.newAlertsCount;
 		}
 	},
 	mutations: {
@@ -99,6 +104,13 @@ export default new Vuex.Store({
 				return;
 
 			state.notifications.shift();
+		},
+		clearNewAlerts(state) {
+			state.hostStorage.newAlertsCount = 0;
+			state.hostContracts.newAlertsCount = 0;
+			state.hostConnection.newAlertsCount = 0;
+			state.hostWallet.newAlertsCount = 0;
+			state.hostConfig.newAlertsCount = 0;
 		}
 	},
 	actions: {
@@ -137,6 +149,9 @@ export default new Vuex.Store({
 		},
 		clearNotification(context) {
 			context.commit('clearNotification');
+		},
+		clearNewAlerts(context) {
+			context.commit('clearNewAlerts');
 		}
 	}
 });

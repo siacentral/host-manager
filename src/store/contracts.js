@@ -15,7 +15,8 @@ export default {
 		successfulContracts: 0,
 		failedContracts: 0,
 		contracts: [],
-		alerts: []
+		alerts: [],
+		newAlertsCount: 0
 	},
 	mutations: {
 		setPotentialRevenue(state, potentialRevenue) {
@@ -55,6 +56,15 @@ export default {
 			state.contracts = contracts;
 		},
 		setAlerts(state, alerts) {
+			state.newAlertsCount = alerts.reduce((val, alert) => {
+				const match = state.alerts.find(existing => existing.message === alert.message);
+
+				if (match)
+					return val;
+
+				return val + 1;
+			}, state.newAlertsCount);
+
 			state.alerts = alerts;
 		}
 	},

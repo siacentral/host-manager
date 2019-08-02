@@ -8,7 +8,8 @@ export default {
 		readPercent: 0,
 		writePercent: 0,
 		folders: [],
-		alerts: []
+		alerts: [],
+		newAlertsCount: 0
 	},
 	mutations: {
 		setUsedStorage(state, storage) {
@@ -27,6 +28,15 @@ export default {
 			state.folders = folders;
 		},
 		setAlerts(state, alerts) {
+			state.newAlertsCount = alerts.reduce((val, alert) => {
+				const match = state.alerts.find(existing => existing.message === alert.message);
+
+				if (match)
+					return val;
+
+				return val + 1;
+			}, state.newAlertsCount);
+
 			state.alerts = alerts;
 		}
 	},

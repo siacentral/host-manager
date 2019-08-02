@@ -5,7 +5,12 @@
 		</div>
 		<health-status />
 		<div class="top-nav">
-			<a href="#" class="sub-nav-item" @click.prevent="modal = 'alerts'"><icon icon="bell" /> <span class="badge">{{ alerts.length >= 10 ? '+' : alerts.length }}</span></a>
+			<a href="#" class="sub-nav-item" @click.prevent="onClickAlerts">
+				<icon icon="bell" />
+				<transition name="fade" appear>
+					<span class="badge" v-if="newAlertsCount && newAlertsCount > 0">{{ newAlertsCount >= 10 ? '+' : newAlertsCount }}</span>
+				</transition>
+			</a>
 			<a href="#" class="sub-nav-item" @click.prevent="modal = 'about'"><icon icon="info" /></a>
 			<a href="#" class="sub-nav-item" @click.prevent="modal = 'settings'"><icon icon="cogs" /></a>
 		</div>
@@ -20,7 +25,8 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import log from 'electron-log';
+import { mapGetters, mapActions } from 'vuex';
 
 import AboutModal from '@/components/AboutModal';
 import AlertsPanel from '@/components/Alerts';
@@ -42,7 +48,18 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters(['alerts'])
+		...mapGetters(['newAlertsCount'])
+	},
+	methods: {
+		...mapActions(['clearNewAlerts']),
+		onClickAlerts() {
+			try {
+				this.clearNewAlerts();
+				this.modal = 'alerts';
+			} catch (ex) {
+				log.error('alerts menu item click', ex.message);
+			}
+		}
 	}
 };
 </script>
@@ -125,6 +142,7 @@ nav.primary {
 				border-radius: 100%;
 				line-height: 14px;
 				font-size: 0.7rem;
+				color: rgba(255, 255, 255, 0.84);
 			}
 
 			svg.svg-inline--fa {

@@ -18,10 +18,20 @@ export default {
 		collateralBudget: new BigNumber(0),
 		baseRPCPrice: new BigNumber(0),
 		sectorAccessPrice: new BigNumber(0),
-		alerts: []
+		alerts: [],
+		newAlertsCount: 0
 	},
 	mutations: {
 		setAlerts(state, alerts) {
+			state.newAlertsCount = alerts.reduce((val, alert) => {
+				const match = state.alerts.find(existing => existing.message === alert.message);
+
+				if (match)
+					return val;
+
+				return val + 1;
+			}, state.newAlertsCount);
+
 			state.alerts = alerts;
 		},
 		setAcceptingContracts(state, value) {
