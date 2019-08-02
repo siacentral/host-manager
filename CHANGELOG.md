@@ -1,5 +1,16 @@
 ### July 2019:
 
+#### v0.1.2
+
+Third alpha release of Sia Central Desktop. All functionality implemented
+
++ Fix look of scrollbars on windows
++ Pull in additional host data from Sia Central explorer
++ Add wallet creation and recovery
++ Add wallet unlock
++ Add automatic wallet unlock
++ Add friendly status `Rejected` for contract status of `obligationRejected`
+
 #### v0.1.1
 
 Second alpha release of Sia Central Desktop.
