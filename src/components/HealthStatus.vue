@@ -4,7 +4,7 @@
 			<div :class="connectionSeverity">
 				<icon icon="wifi" />
 			</div>
-			<div class="sia-status-title">{{ connectable ? (error ? 'Config Issue' : 'Working') : 'Connection Issue' }}</div>
+			<div class="sia-status-title">{{ connection.connectable ? (connection.message ? 'Config Issue' : 'Working') : 'Connection Issue' }}</div>
 			<div class="sia-status-text">Connectivity</div>
 		</a>
 		<div class="sia-status-item">
@@ -40,8 +40,7 @@ export default {
 			synced: state => state.synced,
 			syncTime: state => state.syncTime,
 			balance: state => state.hostWallet.balance,
-			connectable: state => state.hostConnection.connectable,
-			error: state => state.hostConnection.error
+			connection: state => state.explorer.report
 		}),
 		statusText() {
 			if (this.synced)
@@ -58,9 +57,9 @@ export default {
 		connectionSeverity() {
 			const classes = { 'sia-status-icon': true };
 
-			if (!this.connectable)
+			if (!this.connection.connectable)
 				classes['status-danger'] = true;
-			else if (!this.connectable && this.error)
+			else if (this.connection.message)
 				classes['status-warning'] = true;
 
 			return classes;

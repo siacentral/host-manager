@@ -17,7 +17,34 @@ export async function refreshExplorer() {
 export async function checkHostConnectability() {
 	const resp = await getConnectability(Store.state.netAddress);
 
-	Store.dispatch('hostConnection/setConnectability', resp.body);
+	if (!resp.body)
+		return;
+
+	const alerts = [],
+		report = resp.body,
+		connectable = report.connected && report.exists_in_hostdb && report.settings_scanned;
+
+	report.message = report.message === 'success' ? null : report.message;
+	report.connectable = connectable;
+
+	if (!connectable) {
+		alerts.push({
+			category: 'connection',
+			icon: 'wifi',
+			severity: 'danger',
+			message: report.message ? report.message : 'Your host does not appear to be connectable. Renters may be unable to access their data'
+		});
+	} else if (report.message) {
+		alerts.push({
+			category: 'connection',
+			icon: 'wifi',
+			severity: 'warning',
+			message: report.message ? report.message : 'Your host does not appear to be connectable. Renters may be unable to access their data'
+		});
+	}
+
+	Store.dispatch('explorer/setAlerts', alerts);
+	Store.dispatch('explorer/setConnectionReport', report);
 }
 
 async function loadExplorerHost() {

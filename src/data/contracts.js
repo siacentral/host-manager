@@ -198,6 +198,7 @@ export async function parseHostContracts() {
 
 		alerts.push({
 			severity: 'danger',
+			category: 'contracts',
 			message: `${prefix} failed resulting in ${formatPriceString(totals.lost_revenue.plus(totals.burnt_collateral))} of lost revenue and burnt collateral. Check the contracts page and your logs for more details`,
 			icon: 'file-contract'
 		});

@@ -44,6 +44,7 @@ async function loadHostWallet(disableUnlock) {
 
 	if (!resp.body.unlocked) {
 		alerts.push({
+			category: 'wallet',
 			severity: 'danger',
 			icon: 'wallet',
 			message: 'Wallet is not unlocked. Wallet must be unlocked to form new contracts'

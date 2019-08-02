@@ -28,6 +28,7 @@ export async function refreshHostConfig() {
 	if (lockedCollateral.gte(collateralBudget)) {
 		alerts.push({
 			severity: 'danger',
+			category: 'configuration',
 			message: 'Your locked collateral is over your collateral budget. Try restarting your host to clear stale contracts or increase your collateral budget',
 			icon: 'wrench'
 		});

@@ -3,12 +3,6 @@
 	<div class="alerts-wrapper" @mousedown.self="$emit('close')">
 			<div class="panel panel-alerts">
 				<a href="#" class="close-button" @click.prevent="$emit('close')"><icon icon="times" /></a>
-				<div class="alert-group">
-					<div :class="getAlertClasses(alert)" v-for="alert in global" :key="alert.message">
-						<div class="alert-icon"><icon :icon="alert.icon" /></div>
-						<div class="alert-message">{{ alert.message }}</div>
-					</div>
-				</div>
 				<div class="alert-group" v-for="group in grouped" :key="group.category">
 					<div class="group-title">{{ group.category }}</div>
 					<div :class="getAlertClasses(alert)" v-for="alert in group.alerts" :key="alert.message">
@@ -27,9 +21,6 @@ import { mapGetters } from 'vuex';
 export default {
 	computed: {
 		...mapGetters(['alerts']),
-		global() {
-			return this.alerts.filter(a => !a.category || a.category.toLowerCase() === 'global');
-		},
 		grouped() {
 			return this.alerts.reduce((groups, a) => {
 				if (!a.category || a.category.toLowerCase() === 'global')

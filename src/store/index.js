@@ -2,7 +2,6 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import { ipcRenderer } from 'electron';
 
-import hostConnection from './connection';
 import hostContracts from './contracts';
 import hostConfig from './config';
 import hostDaemon from './daemon';
@@ -15,7 +14,6 @@ Vue.use(Vuex);
 export default new Vuex.Store({
 	modules: {
 		explorer,
-		hostConnection,
 		hostContracts,
 		hostConfig,
 		hostDaemon,
@@ -37,7 +35,9 @@ export default new Vuex.Store({
 	},
 	getters: {
 		alerts(state) {
-			let alerts = state.hostStorage.alerts.concat(state.hostContracts.alerts, state.hostConnection.alerts, state.hostWallet.alerts, state.hostConfig.alerts);
+			let alerts = state.hostStorage.alerts.concat(state.hostContracts.alerts,
+				state.hostWallet.alerts, state.hostConfig.alerts,
+				state.explorer.alerts);
 
 			alerts.sort((a, b) => {
 				if (a.severity === 'danger' && a.severity !== b.severity)
@@ -53,8 +53,8 @@ export default new Vuex.Store({
 		},
 		newAlertsCount(state) {
 			return state.hostStorage.newAlertsCount + state.hostContracts.newAlertsCount +
-				state.hostConnection.newAlertsCount + state.hostWallet.newAlertsCount +
-				state.hostConfig.newAlertsCount;
+				state.hostWallet.newAlertsCount + state.hostConfig.newAlertsCount +
+				state.explorer.newAlertsCount;
 		}
 	},
 	mutations: {
@@ -108,9 +108,9 @@ export default new Vuex.Store({
 		clearNewAlerts(state) {
 			state.hostStorage.newAlertsCount = 0;
 			state.hostContracts.newAlertsCount = 0;
-			state.hostConnection.newAlertsCount = 0;
 			state.hostWallet.newAlertsCount = 0;
 			state.hostConfig.newAlertsCount = 0;
+			state.explorer.newAlertsCount = 0;
 		}
 	},
 	actions: {
