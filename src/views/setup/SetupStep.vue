@@ -17,6 +17,8 @@
 </template>
 
 <style lang="stylus">
+/** Not scoped, be careful */
+
 .setup-step {
 	display: grid;
 	width: 100%;

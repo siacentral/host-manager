@@ -2,45 +2,32 @@ import { BigNumber } from 'bignumber.js';
 import log from 'electron-log';
 
 import { apiClient } from './index';
+import { sleep } from '@/utils';
 import Store from '@/store';
 
-let refreshing = false, unlocking = false, disableUnlock = false;
-
 export async function refreshHostWallet() {
-	if (refreshing)
-		return;
-
-	try {
-		refreshing = true;
-
-		await loadHostWallet();
-	} finally {
-		refreshing = false;
-	}
+	log.debug('refreshing host wallet');
+	await loadHostWallet();
+	log.debug('refreshed host wallet');
 }
 
 async function unlockHostWalllet(password) {
-	if (unlocking || disableUnlock)
-		return;
-
 	try {
-		unlocking = true;
-
+		log.info('attempting wallet unlock');
 		const resp = await apiClient.unlockWallet(password);
 
 		if (resp.statusCode !== 200)
 			throw new Error(resp.body.message);
 
-		log.info('unlocked wallet');
+		return true;
 	} catch (ex) {
 		log.error(ex.message);
-		disableUnlock = true;
-	} finally {
-		unlocking = false;
+
+		return false;
 	}
 }
 
-async function loadHostWallet() {
+async function loadHostWallet(disableUnlock) {
 	const config = Store.state.config || {},
 		resp = await apiClient.getWallet(),
 		alerts = [];
@@ -49,16 +36,28 @@ async function loadHostWallet() {
 		throw new Error(resp.body.message);
 
 	if (!resp.body.unlocked && resp.body.encrypted && !resp.body.rescanning && config.siad_wallet_password && !disableUnlock) {
-		await unlockHostWalllet(config.siad_wallet_password);
-		await loadHostWallet();
+		unlockHostWalllet(config.siad_wallet_password);
+		await sleep(1);
+		await loadHostWallet(true);
 		return;
 	}
+
+	console.log(resp.body);
 
 	if (!resp.body.unlocked) {
 		alerts.push({
 			severity: 'danger',
 			icon: 'wallet',
 			message: 'Wallet is not unlocked. Wallet must be unlocked to form new contracts'
+		});
+	}
+
+	if (resp.body.rescanning) {
+		alerts.push({
+			category: 'wallet',
+			severity: 'warning',
+			icon: 'wallet',
+			message: 'Wallet is rescanning. Host will not be able to form contracts until completed'
 		});
 	}
 

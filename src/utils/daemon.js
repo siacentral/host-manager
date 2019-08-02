@@ -85,10 +85,7 @@ function parseStdOut(output) {
 			loadDenom = lineFrac[1];
 	});
 
-	if (loadDenom <= 0)
-		loadDenom = 1;
-
-	Store.dispatch('hostDaemon/setLoadPercent', loadNum / loadDenom);
+	Store.dispatch('hostDaemon/setLoadPercent', loadNum / (loadDenom + 1));
 	Store.dispatch('hostDaemon/setCurrentModule', loadModule);
 }
 
@@ -160,6 +157,8 @@ export function launch(config) {
 			siaProcess.stdout.on('data', data => {
 				stdout += decode(data);
 
+				console.log(stdout);
+
 				parseStdOut(stdout);
 
 				if (stdout.indexOf('Finished loading in') >= 0) {
@@ -172,6 +171,8 @@ export function launch(config) {
 
 			siaProcess.stderr.on('data', data => {
 				stderr += decode(data);
+
+				console.log(stderr);
 
 				Store.dispatch('hostDaemon/setError', stderr);
 			});

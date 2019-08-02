@@ -1,6 +1,6 @@
 import log from 'electron-log';
 
-import { refreshBlockHeight, refreshLastBlock } from './consensus';
+import { refreshBlockHeight, refreshLastBlock, refreshDaemonVersion } from './consensus';
 import { refreshHostContracts } from './contracts';
 import { refreshHostStorage } from './storage';
 import { refreshHostWallet } from './wallet';
@@ -10,38 +10,64 @@ import { getCoinPrice } from '@/api/siacentral';
 import Store from '@/store';
 import SiaApiClient from '@/api/sia';
 
-let refreshTimeout, loadingData, priceTimeout;
+let longTimeout, shortTimeout, loadingLong, loadingShort, priceTimeout;
 
 export const apiClient = new SiaApiClient(Store.state.config);
 
 export async function refreshData() {
-	if (loadingData)
+	if (!(await apiClient.checkCredentials()))
+		throw new Error('API credentials invalid');
+
+	await longRefresh();
+	await shortRefresh();
+
+	Store.dispatch('setLoaded', true);
+}
+
+async function shortRefresh() {
+	if (loadingShort)
 		return;
 
 	try {
-		loadingData = true;
+		loadingShort = true;
 
-		clearTimeout(refreshTimeout);
+		clearTimeout(shortTimeout);
 
-		if (!(await apiClient.checkCredentials()))
-			throw new Error('API credentials invalid');
-
-		await refreshLastBlock();
 		await Promise.all([
+			refreshDaemonVersion(),
 			refreshBlockHeight(),
 			refreshHostConfig(),
 			refreshHostWallet(),
-			refreshHostContracts(),
 			refreshHostStorage()
 		]);
-
-		await refreshExplorer();
-
-		Store.dispatch('setLoaded', true);
-
-		refreshTimeout = setTimeout(refreshData, 1000 * 60 * 5);
+	} catch (ex) {
+		log.error(ex.message);
 	} finally {
-		loadingData = false;
+		loadingShort = false;
+		shortTimeout = setTimeout(shortRefresh, 5000);
+	}
+}
+
+async function longRefresh() {
+	if (loadingLong)
+		return;
+
+	try {
+		loadingLong = true;
+
+		clearTimeout(longTimeout);
+
+		await Promise.all([
+			refreshLastBlock(),
+			refreshExplorer()
+		]);
+
+		await refreshHostContracts();
+	} catch (ex) {
+		log.error(ex.message);
+	} finally {
+		loadingLong = false;
+		longTimeout = setTimeout(longRefresh, 300000);
 	}
 }
 

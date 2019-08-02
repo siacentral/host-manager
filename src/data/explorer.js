@@ -1,25 +1,17 @@
+import log from 'electron-log';
 import { BigNumber } from 'bignumber.js';
 
 import { getAverageSettings, getHost, getConnectability } from '@/api/siacentral';
 import Store from '@/store';
 
-let refreshing = false;
-
 export async function refreshExplorer() {
-	if (refreshing)
-		return;
-
-	try {
-		refreshing = true;
-
-		await Promise.all([
-			loadAverageSettings(),
-			loadExplorerHost(),
-			checkHostConnectability()
-		]);
-	} finally {
-		refreshing = false;
-	}
+	log.debug('refreshing explorer');
+	await Promise.all([
+		loadAverageSettings(),
+		loadExplorerHost(),
+		checkHostConnectability()
+	]);
+	log.debug('refreshed explorer');
 }
 
 export async function checkHostConnectability() {

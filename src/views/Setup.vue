@@ -23,7 +23,8 @@ import DaemonOverrideStep from '@/views/setup/DaemonOverrideStep';
 import ReviewStep from '@/views/setup/ReviewStep';
 import CreateWalletStep from '@/views/setup/CreateWalletStep';
 import AutoUnlockStep from '@/views/setup/AutoUnlockStep';
-import { readSiaUIConfig, writeConfig } from '@/utils';
+import { readSiaUIConfig, writeConfig, sleep } from '@/utils';
+import { refreshHostWallet } from '@/data/wallet';
 
 export default {
 	components: {
@@ -81,7 +82,7 @@ export default {
 		}
 	},
 	methods: {
-		...mapActions(['setFirstRun']),
+		...mapActions(['setFirstRun', 'setLoaded', 'setConfig']),
 		stepActive(name) {
 			return this.loaded && this.step === this.steps.indexOf(name.toLowerCase());
 		},
@@ -96,8 +97,15 @@ export default {
 				this.createWallet = data.createWallet;
 
 			if (this.step >= this.steps.length) {
+				this.setConfig(this.config);
+
+				await sleep(3);
+				await refreshHostWallet();
+
+				this.setLoaded(false);
 				this.setFirstRun(false);
-				await writeConfig(this.config);
+
+				writeConfig(this.config);
 			}
 		}
 	}

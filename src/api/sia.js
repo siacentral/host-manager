@@ -20,7 +20,11 @@ export default class SiaApiClient {
 
 			if (resp.body.message && resp.body.message.indexOf('wallet must be unlocked before it can be used') >= 0)
 				return true;
-		} catch (ex) {}
+
+			console.log(resp.body.message);
+		} catch (ex) {
+			console.log(ex.message);
+		}
 
 		return false;
 	}

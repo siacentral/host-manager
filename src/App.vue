@@ -13,8 +13,8 @@
 		</div>
 		<transition name="fade" mode="out-in" appear>
 			<setup v-if="firstRun && animationComplete" key="setup" />
-			<unlock-wallet v-else-if="animationComplete && !walletUnlocked" key="unlock" />
 			<loader v-else-if="showLoader" key="loader" @animated="animationComplete = true" :progress="loaderProgress" :text="loaderText" :severity="loaderSeverity" :subText="loaderSubtext" />
+			<unlock-wallet v-else-if="animationComplete && !walletUnlocked && !walletScanning" key="unlock" />
 			<primary-view v-else key="primary" />
 		</transition>
 		<notification-queue />
@@ -25,12 +25,13 @@ import { remote } from 'electron';
 import Loader from '@/views/Loader';
 import NotificationQueue from '@/components/NotificationQueue';
 import PrimaryView from '@/views/PrimaryView';
-import UnlockWallet from '@/views/UnlockWallet';
+import UnlockWallet from '@/views/wallet/UnlockWallet';
 import Setup from '@/views/Setup';
 
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { refreshData } from '@/data';
 import { launch } from '@/utils/daemon';
+import { sleep } from '@/utils';
 import log from 'electron-log';
 
 export default {
@@ -42,7 +43,7 @@ export default {
 		UnlockWallet
 	},
 	methods: {
-		...mapActions(['setConfig', 'setCriticalError']),
+		...mapActions(['setConfig', 'setLoaded', 'setFirstRun', 'setCriticalError']),
 		async tryLoad() {
 			try {
 				this.$router.replace({ name: 'dashboard' });
@@ -53,7 +54,16 @@ export default {
 				await launch(this.config);
 				await refreshData();
 
-				this.createWallet = !this.walletUnlocked && !this.walletEncrypted;
+				// nexttick so the store should be completely committed
+				await sleep(1);
+
+				// wallet has not been initialized we need to run setup
+				if (!this.walletUnlocked && !this.walletEncrypted && !this.walletScanning) {
+					this.setFirstRun(true);
+					this.setLoaded(false);
+				}
+
+				this.setCriticalError(null);
 			} catch (ex) {
 				log.error(ex.message);
 				this.setCriticalError(ex.message);
@@ -100,23 +110,29 @@ export default {
 			firstRun: state => state.firstRun,
 			criticalError: state => state.criticalError,
 			walletUnlocked: state => state.hostWallet.unlocked,
+			walletScanning: state => state.hostWallet.rescanning,
+			scanHeight: state => state.hostWallet.height,
+			syncedHeight: state => state.blockHeight,
 			daemonLoaded: state => state.hostDaemon.loaded,
 			daemonLoadingModule: state => state.hostDaemon.currentModule,
 			daemonLoadPercent: state => state.hostDaemon.loadPercent,
 			daemonManaged: state => state.hostDaemon.managed
 		}),
 		showLoader() {
-			return this.criticalError || (!this.daemonLoaded && this.daemonManaged) || !this.animationComplete;
+			return this.criticalError || (!this.daemonLoaded && this.daemonManaged) || this.walletScanning || !this.animationComplete;
 		},
 		loaderText() {
 			if (this.criticalError && !this.firstRun)
 				return 'Uh Oh! We\'ve run into a problem.';
 
 			if (!this.daemonLoaded && this.daemonManaged)
-				return 'Loading daemon';
+				return 'Loading daemon...';
 
 			if (this.firstRun)
 				return 'Welcome to Sia Central Desktop!';
+
+			if (this.walletScanning)
+				return 'Your wallet is scanning...';
 
 			return 'Getting things started...';
 		},
@@ -127,14 +143,20 @@ export default {
 			return 'success';
 		},
 		loaderProgress() {
+			if (this.walletScanning)
+				return this.scanHeight / (this.syncedHeight + 5);
+
 			if (!this.daemonLoaded && this.daemonManaged)
-				return Math.ceil(this.daemonLoadPercent * 100) || 0;
+				return this.daemonLoadPercent || 0;
 
 			return 0;
 		},
 		loaderSubtext() {
 			if (this.criticalError)
 				return this.criticalError;
+
+			if (this.walletScanning)
+				return `Scanned to ${this.scanHeight}`;
 
 			if (!this.daemonLoaded && this.daemonManaged && this.daemonLoadingModule)
 				return this.daemonLoadingModule;
@@ -148,11 +170,21 @@ export default {
 				document.body.classList.add('dark');
 			else
 				document.body.classList.remove('dark');
+		},
+		walletUnlocked() {
+			console.log(this.walletUnlocked, this.walletScanning, this.scanHeight);
+		},
+		walletScanning() {
+			console.log(this.walletUnlocked, this.walletScanning, this.scanHeight);
+		},
+		scanHeight() {
+			console.log(this.walletUnlocked, this.walletScanning, this.scanHeight);
 		}
 	}
 };
 </script>
 <style lang="stylus">
+/** Not scoped, be careful */
 @require "./styles/global";
 
 .titlebar {

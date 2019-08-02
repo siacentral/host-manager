@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import { BigNumber } from 'bignumber.js';
 
 import Store from '@/store';
@@ -14,19 +15,10 @@ async function getLastHeight() {
 	return new BigNumber(resp.body.height);
 }
 
-let refreshing = false;
-
 export async function refreshHostContracts() {
-	if (refreshing)
-		return;
-
-	try {
-		refreshing = true;
-
-		await parseHostContracts();
-	} finally {
-		refreshing = false;
-	}
+	log.debug('refreshing host contracts');
+	await parseHostContracts();
+	log.debug('refreshed host contracts');
 }
 
 function toFriendlyStatus(status) {
@@ -35,7 +27,7 @@ function toFriendlyStatus(status) {
 		return 'Successful';
 	case 'obligationfailed':
 		return 'Failed';
-	default:
+	case 'obligationunresolved':
 		return 'Ongoing';
 	}
 }

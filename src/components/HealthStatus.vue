@@ -34,10 +34,15 @@ import { formatFriendlyDuration, formatPriceString } from '@/utils/format';
 
 export default {
 	computed: {
-		...mapState(['netAddress']),
-		...mapState(['blockHeight', 'synced', 'syncTime']),
-		...mapState('hostWallet', ['balance']),
-		...mapState('hostConnection', ['connectable', 'error']),
+		...mapState({
+			netAddress: state => state.netAddress,
+			blockHeight: state => state.blockHeight,
+			synced: state => state.synced,
+			syncTime: state => state.syncTime,
+			balance: state => state.hostWallet.balance,
+			connectable: state => state.hostConnection.connectable,
+			error: state => state.hostConnection.error
+		}),
 		statusText() {
 			if (this.synced)
 				return 'Synced';

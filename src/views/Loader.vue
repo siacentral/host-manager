@@ -14,9 +14,7 @@
 					</div>
 				</transition>
 				<transition name="fade" appear>
-					<div class="loader-progress" v-if="progress && progress > 0">
-						<div class="progress-bar" :style="{ width: `${progress}%` }"></div>
-					</div>
+					<progress-bar v-if="progress && progress > 0" :progress="progress * 100" />
 				</transition>
 				<transition name="fade" mode="out-in" appear>
 					<div class="loader-text" :key="text" v-if="text">{{ text }}</div>
@@ -30,7 +28,12 @@
 </template>
 
 <script>
+import ProgressBar from '@/components/ProgressBar';
+
 export default {
+	components: {
+		ProgressBar
+	},
 	props: {
 		text: String,
 		subText: String,
@@ -88,19 +91,6 @@ export default {
 		grid-gap: 30px;
 		text-align: center;
 		align-items: center;
-	}
-
-	.loader-progress {
-		height: 4px;
-		border-radius: 4px;
-		background: bg-dark-accent;
-		overflow: hidden;
-
-		.progress-bar {
-			height: 100%;
-			background: primary;
-			transition: width 0.3s ease;
-		}
 	}
 
 	.loader-text {

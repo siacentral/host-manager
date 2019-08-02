@@ -8,13 +8,15 @@
 				<h1 key="error" v-if="error">Uh oh!</h1>
 				<h1 key="success" v-else>Thank you!</h1>
 			</transition>
-			<transition mode="out-in" appear>
-				<p class="text-center error" v-if="error" key="error"> We were unable to validate your config. Go back and check what you entered:<br/>{{ error }}</p>
-				<p class="text-center" v-else-if="daemonManaged && !daemonLoaded" key="daemon">Loading Sia...</p>
-				<p class="text-center" v-else key="success">We're getting everything setup, please wait a moment...</p>
-			</transition>
 		</template>
-
+		<transition mode="out-in" appear>
+			<p class="text-center error" v-if="error" key="error"> We were unable to validate your config. Go back and check what you entered:<br/>{{ error }}</p>
+			<div class="loading" v-else-if="daemonManaged && !daemonLoaded" key="daemon">
+				<p class="text-center">Loading {{ daemonLoadingModule || 'Sia' }}...</p>
+				<progress-bar :progress="daemonLoadPercent * 100" />
+			</div>
+			<p class="text-center" v-else key="success">We're getting everything setup, please wait a moment...</p>
+		</transition>
 		<template v-slot:controls>
 			<transition mode="out-in" name="fade" appear>
 				<button v-if="error" class="btn btn-success btn-inline" @click="$emit('done', { inc: -1 })">Go Back</button>
@@ -29,6 +31,7 @@ import log from 'electron-log';
 import { refreshData } from '@/data/index';
 import { launch } from '@/utils/daemon';
 import SiaApiClient from '@/api/sia';
+import ProgressBar from '@/components/ProgressBar';
 
 import SetupStep from './SetupStep';
 import SiaCentral from '@/assets/siacentral.svg';
@@ -36,6 +39,7 @@ import SiaCentral from '@/assets/siacentral.svg';
 export default {
 	name: 'review-step',
 	components: {
+		ProgressBar,
 		SetupStep,
 		SiaCentral
 	},

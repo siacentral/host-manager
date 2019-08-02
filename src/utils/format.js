@@ -107,6 +107,8 @@ export function formatFriendlyDuration(sec, short) {
 
 		return `${amt} ${amt > 1 && !short ? label + 's' : label}`;
 	}
+
+	return `< 1 m`;
 }
 
 export function formatByteString(val, dec) {

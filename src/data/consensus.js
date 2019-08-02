@@ -47,14 +47,3 @@ export async function refreshLastBlock() {
 
 	Store.dispatch('setLastBlock', height);
 }
-
-setInterval(async() => {
-	try {
-		await Promise.all([
-			refreshDaemonVersion(),
-			refreshBlockHeight()
-		]);
-	} catch (ex) {
-		Store.dispatch('setCriticalError', ex.message);
-	}
-}, 15 * 1000);

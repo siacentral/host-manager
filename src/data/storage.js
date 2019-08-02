@@ -1,22 +1,14 @@
+import log from 'electron-log';
 import { BigNumber } from 'bignumber.js';
 import Decimal from 'decimal.js-light';
 
 import { apiClient } from './index';
 import Store from '@/store';
 
-let refreshing = false;
-
 export async function refreshHostStorage() {
-	if (refreshing)
-		return;
-
-	try {
-		refreshing = true;
-
-		await loadHostStorage();
-	} finally {
-		refreshing = false;
-	}
+	log.debug('refreshing storage');
+	await loadHostStorage();
+	log.debug('refreshed storage');
 }
 
 async function loadHostStorage() {

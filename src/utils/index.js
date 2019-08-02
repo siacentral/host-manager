@@ -136,6 +136,19 @@ export function fileExistsAsync(path) {
 	});
 };
 
+export function dirExistsAsync(path) {
+	return new Promise(resolve => {
+		fs.stat(path, (err, stat) => {
+			if (err) {
+				resolve(false);
+				return;
+			}
+
+			resolve(stat.isDirectory());
+		});
+	});
+};
+
 export function getLastItems(arr, n) {
 	const len = arr.length,
 		min = Math.min(len, n),

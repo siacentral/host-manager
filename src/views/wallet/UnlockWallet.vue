@@ -76,7 +76,7 @@ export default {
 };
 </script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 .create-wallet {
 	position: fixed;
 	display: grid;

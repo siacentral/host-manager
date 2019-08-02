@@ -78,7 +78,6 @@ import log from 'electron-log';
 import { mapState, mapActions } from 'vuex';
 
 import SiaApiClient from '@/api/sia';
-import { refreshData } from '@/data';
 import { showSaveDialogAsync, writeFileAsync } from '@/utils';
 
 import SetupStep from './SetupStep';
@@ -117,7 +116,6 @@ export default {
 			}
 		},
 		walletDisabled() {
-			console.log(this.creating, this.mode);
 			if (this.creating)
 				return true;
 
@@ -145,11 +143,9 @@ export default {
 				switch (this.mode) {
 				case 'create-wallet':
 					await this.createWallet();
-					await refreshData();
 					break;
 				case 'recover-wallet':
 					await this.recoverWallet();
-					await refreshData();
 					break;
 				case 'review':
 					const config = {};
@@ -205,6 +201,21 @@ export default {
 			} finally {
 				this.saving = false;
 			}
+		},
+		async unlockWallet() {
+			try {
+				const client = new SiaApiClient(this.appConfig),
+					resp = await client.unlockWallet(this.unlockPassword);
+
+				if (resp.statusCode !== 200)
+					throw new Error(resp.body.message || 'error unlocking wallet');
+
+				return true;
+			} catch (ex) {
+				log.error(ex.message);
+			}
+
+			return false;
 		},
 		async createWallet() {
 			const client = new SiaApiClient(this.appConfig),
