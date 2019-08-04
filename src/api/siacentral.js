@@ -37,7 +37,7 @@ export function getBlock(height) {
 export function getHost(netaddress) {
 	netaddress = encodeURIComponent(netaddress);
 
-	return sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/explorer/hosts/search?query=${netaddress}`, {
+	return sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/explorer/hosts/search?net_address=${netaddress}`, {
 		method: 'GET'
 	});
 }
