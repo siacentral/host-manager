@@ -102,16 +102,12 @@ function createTray() {
 	]);
 	tray = new Tray(path.join(__static, 'icons/siacentral_white_16.png'));
 
-	tray.on('double-click', () => {
-		openWindow();
-	});
+	tray.on('double-click', openWindow);
 
 	tray.setContextMenu(menu);
 }
 
-app.on('second-instance', () => {
-	openWindow();
-});
+app.on('second-instance', openWindow);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', (e) => {
@@ -119,9 +115,7 @@ app.on('window-all-closed', (e) => {
 	return false;
 });
 
-app.on('activate', () => {
-	openWindow();
-});
+app.on('activate', openWindow);
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
