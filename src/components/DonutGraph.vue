@@ -50,7 +50,7 @@ export default {
 			let offset = 0;
 
 			const segments = this.data.reduce((segments, seg, i) => {
-				let perc = Math.round(seg.value * 100),
+				let perc = seg.value * 100,
 					segmentOffset = 100 - offset;
 
 				if (perc === 0)

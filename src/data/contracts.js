@@ -129,7 +129,9 @@ export async function parseHostContracts() {
 
 		switch (contract.status) {
 		case 'obligationSucceeded':
-			totals.successful_contracts++;
+			if (!contract.unused)
+				totals.successful_contracts++;
+
 			totals.earned_revenue = totals.earned_revenue.plus(contract.download_revenue)
 				.plus(contract.storage_revenue)
 				.plus(contract.upload_revenue);
@@ -148,7 +150,9 @@ export async function parseHostContracts() {
 
 			break;
 		case 'obligationFailed':
-			totals.failed_contracts++;
+			if (!contract.unused)
+				totals.failed_contracts++;
+
 			totals.burnt_collateral = totals.burnt_collateral.plus(contract.missed_proof_outputs[2].value);
 			totals.lost_revenue = totals.lost_revenue.plus(contract.download_revenue)
 				.plus(contract.storage_revenue)
@@ -156,7 +160,9 @@ export async function parseHostContracts() {
 
 			break;
 		default:
-			totals.ongoing_contracts++;
+			if (!contract.unused)
+				totals.ongoing_contracts++;
+
 			totals.risked_collateral = totals.risked_collateral.plus(contract.risked_collateral);
 			totals.locked_collateral = totals.locked_collateral.plus(contract.locked_collateral);
 			totals.potential_revenue = totals.potential_revenue.plus(contract.download_revenue)
