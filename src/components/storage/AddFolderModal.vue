@@ -12,7 +12,7 @@
 			<label class="error" v-if="errors['size']">{{ errors['size'] }}</label>
 		</div>
 		<transition name="fade" appear>
-			<div class="advanced">
+			<div class="advanced" v-if="sizeValue.gte(4e12)">
 				<p class="text-warning">It is recommended to create folders less than 4TB.
 					Resizing or removing folders greater than 4TB can cause your host to lock up for a
 					long time. You can split them into equally sized subdirectories in your target folder for easier management.</p>
@@ -30,7 +30,7 @@
 					<input type="number" min="1" increment="1" v-model.number="splitCount" />
 					<label class="error" v-if="errors['splitcount']">{{ errors['splitcount'] }}</label>
 				</div>
-				<progress-bar :progress="splitCount / createdCount" v-if="splitFolders && creating" />
+				<progress-bar :progress="createdCount / splitCount" v-if="splitFolders && creating" />
 			</div>
 		</transition>
 		<p v-if="valid">{{ creationText }}</p>
