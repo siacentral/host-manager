@@ -73,6 +73,7 @@ import RemoveFolderModal from '@/components/storage/RemoveFolderModal';
 import EmptyState from '@/components/EmptyState';
 
 import { mapState } from 'vuex';
+import path from 'path';
 import { formatByteString } from '@/utils/format';
 import { refreshHostStorage } from '@/data/storage';
 
@@ -103,16 +104,43 @@ export default {
 			const folders = this.folders.slice();
 
 			folders.sort((a, b) => {
+				const alpha = /[0-9]/g,
+					num = /[^0-9]/g;
+
 				if (a.progress > 0 && b.progress <= 0)
 					return -1;
 
 				if (a.progress <= 0 && b.progress > 0)
 					return 1;
 
-				if (a.path < b.path)
+				const pathA = a.path.split(path.sep),
+					pathB = b.path.split(path.sep),
+					dirA = path.join(...pathA.slice(0, pathA.length - 1)),
+					dirB = path.join(...pathB.slice(0, pathB.length - 1)),
+					fileA = pathA[pathA.length - 1],
+					fileB = pathB[pathB.length - 1],
+					alphaA = pathA[pathA.length - 1].replace(alpha, ''),
+					alphaB = pathB[pathB.length - 1].replace(alpha, '');
+
+				if (dirA < dirB)
 					return -1;
 
-				if (a.path > b.path)
+				if (dirA > dirB)
+					return 1;
+
+				if (alphaA < alphaB)
+					return -1;
+
+				if (alphaA > alphaB)
+					return 1;
+
+				const numA = parseInt(fileA.replace(num, ''), 10),
+					numB = parseInt(fileB.replace(num, ''), 10);
+
+				if (numA < numB)
+					return -1;
+
+				if (numA > numB)
 					return 1;
 
 				return 0;

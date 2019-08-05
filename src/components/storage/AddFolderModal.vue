@@ -12,7 +12,7 @@
 			<label class="error" v-if="errors['size']">{{ errors['size'] }}</label>
 		</div>
 		<transition name="fade" appear>
-			<div class="advanced" v-if="sizeValue.gte(4e12)">
+			<div class="advanced">
 				<p class="text-warning">It is recommended to create folders less than 4TB.
 					Resizing or removing folders greater than 4TB can cause your host to lock up for a
 					long time. You can split them into equally sized subdirectories in your target folder for easier management.</p>
