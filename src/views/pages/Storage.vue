@@ -146,7 +146,7 @@ export default {
 <style lang="stylus" scoped>
 .page-storage {
 	display: grid;
-	grid-template-rows: auto auto 1fr;
+	grid-template-rows: auto auto minmax(0, 1fr);
 	overflow: hidden;
 }
 
