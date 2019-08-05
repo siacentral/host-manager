@@ -43,7 +43,7 @@ export default {
 		UnlockWallet
 	},
 	methods: {
-		...mapActions(['setConfig', 'setLoaded', 'setFirstRun', 'setCriticalError']),
+		...mapActions(['setConfig', 'pushNotification', 'setLoaded', 'setFirstRun', 'setCriticalError']),
 		async tryLoad() {
 			try {
 				this.$router.replace({ name: 'dashboard' });
@@ -172,6 +172,23 @@ export default {
 				document.body.classList.add('dark');
 			else
 				document.body.classList.remove('dark');
+		},
+		alerts(newAlerts, oldAlerts) {
+			if (!this.loaded)
+				return;
+
+			const sendPush = newAlerts.filter(a => {
+				const existing = oldAlerts.find(existing => a.message === existing.message);
+
+				return !existing && a.severity === 'danger';
+			});
+
+			if (sendPush.length === 0)
+				return;
+
+			sendPush.forEach(a => {
+				this.pushNotification(a);
+			});
 		}
 	}
 };

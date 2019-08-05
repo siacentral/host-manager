@@ -11,6 +11,21 @@
 			<input type="text" v-model="sizeStr" />
 			<label class="error" v-if="errors['size']">{{ errors['size'] }}</label>
 		</div>
+		<transition name="fade" appear>
+			<div class="advanced" v-if="sizeValue.gte(4e12)">
+				<p class="text-warning">It is recommended to create folders less than 4TB.
+					Resizing or removing folders greater than 4TB can cause your host to lock up for a
+					long time.</p>
+				<div class="control">
+					<input type="checkbox" v-model="splitFolders" id="chk-split-new-folders" />
+					<label for="chk-split-new-folders">Split Folders</label>
+				</div>
+				<div class="control" v-if="splitFolders">
+					<label>Number of Folders</label>
+					<input type="number" v-model.number="splitCount" />
+				</div>
+			</div>
+		</transition>
 		<div class="controls">
 			<button class="btn btn-default btn-inline" @click="$emit('close')">Cancel</button>
 			<button class="btn btn-success btn-inline" @click="onCreateFolder" :disabled="!valid">Add Folder</button>
@@ -42,6 +57,7 @@ export default {
 			sizeValue: new BigNumber(0),
 			errors: {},
 			valid: false,
+			splitFolders: false,
 			creating: false
 		};
 	},

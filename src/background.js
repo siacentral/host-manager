@@ -1,7 +1,7 @@
 'use strict';
 
 import { autoUpdater } from 'electron-updater';
-import { app, Menu, Tray, protocol, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, Menu, Tray, protocol, BrowserWindow, shell, ipcMain, powerSaveBlocker } from 'electron';
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib';
 import path from 'path';
 import log from 'electron-log';
@@ -13,7 +13,7 @@ if (!app.requestSingleInstanceLock())
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win, tray;
+let win, tray, powerSaveID;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
@@ -92,6 +92,7 @@ function openWindow() {
 }
 
 function forceExit() {
+	powerSaveBlocker.stop(powerSaveID);
 	app.exit();
 }
 
@@ -132,6 +133,8 @@ app.on('ready', async() => {
 
 	openWindow();
 	createTray();
+
+	powerSaveID = powerSaveBlocker.start('prevent-app-suspension');
 });
 
 app.on('ready', () => {
