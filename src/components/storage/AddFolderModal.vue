@@ -15,20 +15,28 @@
 			<div class="advanced" v-if="sizeValue.gte(4e12)">
 				<p class="text-warning">It is recommended to create folders less than 4TB.
 					Resizing or removing folders greater than 4TB can cause your host to lock up for a
-					long time.</p>
+					long time. You can split them into equally sized subdirectories in your target folder for easier management.</p>
 				<div class="control">
 					<input type="checkbox" v-model="splitFolders" id="chk-split-new-folders" />
 					<label for="chk-split-new-folders">Split Folders</label>
 				</div>
 				<div class="control" v-if="splitFolders">
-					<label>Number of Folders</label>
-					<input type="number" v-model.number="splitCount" />
+					<label>Subdirectory Name</label>
+					<input type="text" v-model="subName" />
+					<label class="error" v-if="errors['subdirectory']">{{ errors['subdirectory'] }}</label>
 				</div>
+				<div class="control" v-if="splitFolders">
+					<label>Number of Folders</label>
+					<input type="number" min="1" increment="1" v-model.number="splitCount" />
+					<label class="error" v-if="errors['splitcount']">{{ errors['splitcount'] }}</label>
+				</div>
+				<progress-bar :progress="splitCount / createdCount" v-if="splitFolders && creating" />
 			</div>
 		</transition>
+		<p v-if="valid">{{ creationText }}</p>
 		<div class="controls">
 			<button class="btn btn-default btn-inline" @click="$emit('close')">Cancel</button>
-			<button class="btn btn-success btn-inline" @click="onCreateFolder" :disabled="!valid">Add Folder</button>
+			<button class="btn btn-success btn-inline" @click="onCreateFolder" :disabled="!valid || creating">Add Folder</button>
 		</div>
 	</modal>
 </template>
@@ -37,18 +45,29 @@
 import log from 'electron-log';
 
 import Modal from '@/components/Modal';
+import ProgressBar from '@/components/ProgressBar';
 import { BigNumber } from 'bignumber.js';
+import { mkdirAsync, dirExistsAsync } from '@/utils';
 import { parseByteString } from '@/utils/parse';
+import { formatByteString } from '@/utils/format';
 import SiaApiClient from '@/api/sia';
 import { refreshHostStorage } from '@/data/storage';
 import { remote } from 'electron';
 import { mapActions, mapState } from 'vuex';
+import path from 'path';
 
 const dialog = remote.dialog;
 
+const sectorSize = 1 << 22,
+	minSectors = 1 << 6,
+	granularity = 64,
+	minStorageSize = Math.floor(minSectors * sectorSize / granularity) * granularity,
+	minSizeStr = formatByteString(minStorageSize);
+
 export default {
 	components: {
-		Modal
+		Modal,
+		ProgressBar
 	},
 	data() {
 		return {
@@ -58,11 +77,21 @@ export default {
 			errors: {},
 			valid: false,
 			splitFolders: false,
+			splitCount: 1,
+			createdCount: 0,
+			subName: '',
 			creating: false
 		};
 	},
 	computed: {
-		...mapState(['config'])
+		...mapState(['config']),
+		creationText() {
+			const folderSize = this.sizeValue.div(this.splitFolders ? this.splitCount : 1),
+				actualSize = new BigNumber(Math.floor(folderSize.div(sectorSize * granularity)
+					.toNumber())).times(sectorSize * granularity);
+
+			return `Adding ${this.splitFolders && this.splitCount > 1 ? this.splitCount + ' folders' : '1 folder'} of size ${formatByteString(actualSize)}`;
+		}
 	},
 	methods: {
 		...mapActions(['pushNotification']),
@@ -88,11 +117,20 @@ export default {
 				if (!this.valid)
 					return;
 
-				const client = new SiaApiClient(this.config),
-					resp = await client.addStorageFolder(this.path, this.sizeValue);
+				this.createdCount = 0;
 
-				if (resp.statusCode !== 200)
-					throw new Error(resp.body.message || 'Unable to create storage folder');
+				if (this.splitFolders) {
+					const size = this.sizeValue.div(this.splitCount);
+
+					for (let i = 1; i < this.splitCount + 1; i++) {
+						const subPath = path.join(this.path, `${this.subName}${i}`);
+
+						await this.createFolder(subPath, size);
+
+						this.createdCount++;
+					}
+				} else
+					await this.createFolder(this.path, this.sizeValue);
 
 				await refreshHostStorage();
 
@@ -112,6 +150,19 @@ export default {
 				this.creating = false;
 			}
 		},
+		async createFolder(path, size) {
+			if (!(await dirExistsAsync(path)))
+				await mkdirAsync(path);
+
+			// all folders must be a factor of 64 sectors
+			size = new BigNumber(Math.floor(size.div(sectorSize * granularity).toNumber())).times(sectorSize * granularity);
+
+			const client = new SiaApiClient(this.config),
+				resp = await client.addStorageFolder(path, size);
+
+			if (resp.statusCode !== 200)
+				throw new Error(resp.body.message || 'Unable to create storage folder');
+		},
 		validate() {
 			let errors = {};
 
@@ -123,8 +174,26 @@ export default {
 
 				if (!this.sizeValue || this.sizeValue.eq(0))
 					errors['size'] = 'Size must be greater than 0';
+
+				if (this.sizeValue.lte(minStorageSize))
+					errors['size'] = `Size must be greater than ${minSizeStr}`;
 			} catch (ex) {
 				errors['size'] = ex.message;
+			}
+
+			if (this.splitFolders) {
+				if (!this.subName || this.subName.trim().length === 0)
+					errors['subdirectory'] = 'Name is required';
+
+				console.log(this.sizeValue.div(this.splitCount).toString(10), minStorageSize);
+
+				if (this.splitCount <= 0)
+					errors['splitcount'] = 'Must be greater than 0';
+				else if (this.sizeValue.div(this.splitCount).lte(minStorageSize)) {
+					const maxSplit = Math.floor(this.sizeValue.div(minStorageSize).toNumber());
+
+					errors['splitcount'] = `Split count must be less than ${maxSplit}`;
+				}
 			}
 
 			this.valid = Object.keys(errors).length === 0;
@@ -136,6 +205,15 @@ export default {
 			this.validate();
 		},
 		path() {
+			this.validate();
+		},
+		subName() {
+			this.validate();
+		},
+		splitCount() {
+			this.validate();
+		},
+		splitFolders() {
 			this.validate();
 		}
 	}

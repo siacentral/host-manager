@@ -108,7 +108,7 @@ export function writeFileAsync(path, data) {
  * Async Promise wrapper around fs.mkdir
  * @param {string} dirPath the path of the directory to create
  */
-function mkdirAsync(dirPath) {
+export function mkdirAsync(dirPath) {
 	return new Promise((resolve, reject) => {
 		fs.mkdir(dirPath, {
 			recursive: true

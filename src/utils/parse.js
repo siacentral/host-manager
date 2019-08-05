@@ -7,6 +7,9 @@ export function parseNumberString(str, mul, units) {
 	let num = new BigNumber(str.replace(/[^0-9.]/g, ''), 10),
 		found = false;
 
+	if (num.isNaN())
+		num = new BigNumber(0);
+
 	if (isNaN(num) || !isFinite(num))
 		num = 0;
 
