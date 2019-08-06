@@ -29,16 +29,15 @@ async function updatePinnedPricing(existingConfig) {
 
 	for (let pin in Store.state.config.host_pricing_pins) {
 		try {
-			const newValue = getSCValue(pin, Store.state.config.host_pricing_pins[pin]),
-				currentValue = new BigNumber(existingConfig[pin]),
-				diff = currentValue.minus(newValue).abs().div(currentValue);
+			const newValue = getSCValue(pin, Store.state.config.host_pricing_pins[pin]).toFixed(0),
+				currentValue = existingConfig[pin];
 
-			if (diff.lt(0.05))
+			if (newValue === currentValue)
 				continue;
 
-			log.debug('updated', pin, 'to', newValue.toFixed(0));
+			log.debug('updated', pin, 'from', currentValue, 'to', newValue);
 
-			newConfig[pin] = newValue.toFixed(0);
+			newConfig[pin] = newValue;
 			changed = true;
 		} catch (ex) {
 			log.error('unable to set pricing for', pin, ex.message);

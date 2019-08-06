@@ -54,8 +54,10 @@ export function parseSiacoinString(str) {
 	return parseNumberString(str, 1000, ['pSC', 'nSC', 'uSC', 'mSC', 'SC', 'KSC', 'MSC', 'GSC', 'TSC']).times(1e12);
 }
 
-export function parseCurrencyString(str) {
-	const price = Store.state.coinPrice[Store.state.config.currency];
+export function parseCurrencyString(str, currency) {
+	currency = !currency || !Store.state.coinPrice[currency] ? Store.state.config.currency : currency;
+
+	const price = Store.state.coinPrice[currency];
 
 	if (price) {
 		str = (str || '').replace(/[^0-9.]/gi, '');
