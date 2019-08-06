@@ -1,4 +1,3 @@
-import log from 'electron-log';
 import { BigNumber } from 'bignumber.js';
 import Decimal from 'decimal.js-light';
 
@@ -6,9 +5,7 @@ import { apiClient } from './index';
 import Store from '@/store';
 
 export async function refreshHostStorage() {
-	log.debug('refreshing storage');
 	await loadHostStorage();
-	log.debug('refreshed storage');
 }
 
 async function loadHostStorage() {

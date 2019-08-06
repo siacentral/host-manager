@@ -18,6 +18,7 @@ export async function refreshData() {
 	if (!(await apiClient.checkCredentials()))
 		throw new Error('API credentials invalid');
 
+	await refreshCoinPrice();
 	await longRefresh();
 	await shortRefresh();
 
@@ -87,5 +88,3 @@ async function refreshCoinPrice() {
 		priceTimeout = setTimeout(refreshCoinPrice, 1000 * 60 * 30);
 	}
 }
-
-refreshCoinPrice();

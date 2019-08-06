@@ -6,9 +6,7 @@ import { sleep } from '@/utils';
 import Store from '@/store';
 
 export async function refreshHostWallet() {
-	log.debug('refreshing host wallet');
 	await loadHostWallet();
-	log.debug('refreshed host wallet');
 }
 
 async function unlockHostWalllet(password) {
