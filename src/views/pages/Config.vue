@@ -15,6 +15,8 @@
 			<div class="config-header">Financials</div>
 			<config-item title="Contract Price"
 				configKey="mincontractprice"
+				:showPin="true"
+				:pinned="(appConfig.host_pricing_pins && appConfig.host_pricing_pins['mincontractprice'])"
 				:value="currentConfig.contractPrice"
 				:avgValue="formatPriceString(averageSettings.contract_price, 2)"
 				:error="errors['mincontractprice']"
@@ -23,6 +25,8 @@
 				@change="onChangePrice" />
 			<config-item title="Storage Price"
 				configKey="minstorageprice"
+				:showPin="true"
+				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['minstorageprice'])"
 				:value="currentConfig.storagePrice"
 				:avgValue="formatPriceString(averageSettings.storage_price.times(1e12).times(4320), 2)"
 				sublabel="per tb/month"
@@ -33,6 +37,8 @@
 				@change="onChangeMonthlyPrice" />
 			<config-item title="Download Price"
 				configKey="mindownloadbandwidthprice"
+				:showPin="true"
+				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['mindownloadbandwidthprice'])"
 				:value="currentConfig.downloadPrice"
 				:avgValue="formatPriceString(averageSettings.download_price.times(1e12), 2)"
 				sublabel="per tb/month"
@@ -43,6 +49,8 @@
 				@change="onChangeDataPrice" />
 			<config-item title="Upload Price"
 				configKey="minuploadbandwidthprice"
+				:showPin="true"
+				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['minuploadbandwidthprice'])"
 				:value="currentConfig.uploadPrice"
 				:avgValue="formatPriceString(averageSettings.upload_price.times(1e12), 2)"
 				sublabel="per tb/month"
@@ -53,6 +61,8 @@
 				@change="onChangeDataPrice" />
 			<config-item title="Base RPC Price"
 				configKey="minbaserpcprice"
+				:showPin="true"
+				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['minbaserpcprice'])"
 				:value="currentConfig.baseRPCPrice"
 				:avgValue="formatPriceString(averageSettings.base_rpc_price, 2)"
 				sublabel="per request"
@@ -62,6 +72,8 @@
 				@change="onChangePrice" />
 			<config-item title="Sector Access Price"
 				configKey="minsectoraccessprice"
+				:showPin="true"
+				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['minsectoraccessprice'])"
 				:value="currentConfig.sectorAccessPrice"
 				:avgValue="formatPriceString(averageSettings.sector_access_price, 2)"
 				sublabel="per sector"
@@ -74,6 +86,8 @@
 			<div class="config-header">Collateral</div>
 			<config-item title="Collateral Budget"
 				configKey="collateralbudget"
+				:showPin="true"
+				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['collateralbudget'])"
 				:value="currentConfig.collateralBudget"
 				:error="errors['collateralbudget']"
 				description="The maximum amount of collateral
@@ -82,6 +96,8 @@
 				@change="onChangePrice" />
 			<config-item title="Max Collateral"
 				configKey="maxcollateral"
+				:showPin="true"
+				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['maxcollateral'])"
 				:value="currentConfig.maxCollateral"
 				:avgValue="formatPriceString(averageSettings.max_collateral, 2)"
 				sublabel="per contract"
@@ -92,6 +108,8 @@
 				@change="onChangePrice" />
 			<config-item title="Collateral"
 				configKey="collateral"
+				:showPin="true"
+				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['collateral'])"
 				:value="currentConfig.collateral"
 				:avgValue="formatPriceString(averageSettings.collateral.times(1e12).times(4320), 2)"
 				sublabel="per tb/month"
@@ -138,7 +156,7 @@
 				@change="onChangeBytes" />
 		</div>
 		<div class="controls">
-			<button class="btn btn-success btn-inline" @click="onClickUpdate" :disabled="updating">Update Configuration</button>
+			<button class="btn btn-success btn-inline" @click="onClickUpdate" :disabled="!changed || updating">Update Configuration</button>
 		</div>
 		<announce-host-modal v-if="modal === 'announce'" @close="onModalClose" />
 	</div>
@@ -148,6 +166,7 @@
 import log from 'electron-log';
 
 import { mapState, mapActions } from 'vuex';
+import { writeConfig } from '@/utils';
 import { formatByteString, formatPriceString, formatBlockTimeString } from '@/utils/format';
 import { parseCurrencyString, parseByteString, parseBlockTimeString } from '@/utils/parse';
 import SiaApiClient from '@/api/sia';
@@ -177,7 +196,9 @@ export default {
 			errors: {},
 			config: {},
 			currentConfig: {},
+			pinned: {},
 			updating: false,
+			changed: false,
 			modal: null
 		};
 	},
@@ -185,7 +206,7 @@ export default {
 		this.updateConfig();
 	},
 	methods: {
-		...mapActions(['pushNotification']),
+		...mapActions(['pushNotification', 'setConfig']),
 		formatBlockTimeString,
 		formatByteString,
 		formatPriceString,
@@ -238,8 +259,20 @@ export default {
 					return;
 				}
 
+				const configPins = {};
+
+				for (let pin in this.pinned) {
+					if (!pin || !this.pinned[pin] || !this.pinned[pin].currency || !this.pinned[pin].value)
+						continue;
+
+					configPins[pin] = this.pinned[pin];
+				}
+
+				this.setConfig({ host_pricing_pins: configPins });
+
 				await refreshHostConfig();
 				this.updateConfig();
+				await writeConfig(this.appConfig);
 
 				this.pushNotification({
 					message: 'Host Configuration Updated',
@@ -254,13 +287,27 @@ export default {
 				});
 			} finally {
 				this.updating = false;
+				this.changed = false;
 			}
 		},
 		onChangePrice(obj) {
-			const { key, value } = obj;
+			const { key, value, pinned } = obj;
 
 			try {
-				this.config[key] = parseCurrencyString(value).toFixed(0).toString(10);
+				const val = parseCurrencyString(value);
+				let pin = null;
+
+				this.config[key] = val.toFixed(0).toString(10);
+
+				if (pinned) {
+					pin = {
+						currency: this.appConfig.currency,
+						value: value
+					};
+				}
+
+				this.changed = true;
+				this.$set(this.pinned, key, pin);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
 				log.error('config modal price change', key, value, ex.message);
@@ -268,12 +315,23 @@ export default {
 			}
 		},
 		onChangeMonthlyPrice(obj) {
-			const { key, value } = obj;
+			const { key, value, pinned } = obj;
 
 			try {
 				const val = parseCurrencyString(value);
+				let pin = null;
 
 				this.config[key] = val.div(1e12).div(4320).toFixed(0).toString(10);
+
+				if (pinned) {
+					pin = {
+						currency: this.appConfig.currency,
+						value: value
+					};
+				}
+
+				this.changed = true;
+				this.$set(this.pinned, key, pin);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
 				log.error('config modal monthly price change', key, value, ex.message);
@@ -281,10 +339,23 @@ export default {
 			}
 		},
 		onChangeDataPrice(obj) {
-			const { key, value } = obj;
+			const { key, value, pinned } = obj;
 
 			try {
-				this.config[key] = parseCurrencyString(value).div(1e12).toFixed(0).toString(10);
+				const val = parseCurrencyString(value);
+				let pin = null;
+
+				this.config[key] = val.div(1e12).toFixed(0).toString(10);
+
+				if (pinned) {
+					pin = {
+						currency: this.appConfig.currency,
+						value: value
+					};
+				}
+
+				this.changed = true;
+				this.$set(this.pinned, key, pin);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
 				log.error('config modal data price change', key, value, ex.message);
@@ -297,6 +368,8 @@ export default {
 			try {
 				this.config[key] = parseBlockTimeString(value);
 				this.$set(this.errors, key, null);
+
+				this.changed = true;
 			} catch (ex) {
 				log.error('config modal time change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
@@ -308,6 +381,8 @@ export default {
 			try {
 				this.config[key] = parseByteString(value).toString(10);
 				this.$set(this.errors, key, null);
+
+				this.changed = true;
 			} catch (ex) {
 				log.error('config modal data change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);

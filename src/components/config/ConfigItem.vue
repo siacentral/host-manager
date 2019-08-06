@@ -1,6 +1,12 @@
 <template>
 	<div class="config-item">
-		<div class="config-title">{{ title }}</div>
+		<div class="config-title">
+			{{ title }}
+			<div class="control control-inline" v-if="pinVisible">
+				<input type="checkbox" :id="checkboxID" v-model="pinPrice" />
+				<label :for="checkboxID">Pin to {{ config.currency.toUpperCase() }}</label>
+			</div>
+		</div>
 		<div class="config-error" v-if="error">{{ error }}</div>
 		<div class="new-value">
 			<div class="control">
@@ -19,6 +25,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
 	props: {
 		title: String,
@@ -27,16 +35,35 @@ export default {
 		error: String,
 		value: String,
 		description: String,
-		avgValue: String
+		avgValue: String,
+		showPin: Boolean,
+		pinned: Boolean
+	},
+	data() {
+		return {
+			pinPrice: false
+		};
+	},
+	computed: {
+		...mapState(['config']),
+		checkboxID() {
+			return `chk-lock-price-${this._uid}`;
+		},
+		pinVisible() {
+			return this.showPin && this.config &&
+				this.config.currency && this.config.currency.toLowerCase() !== 'siacoin';
+		}
 	},
 	mounted() {
 		this.$refs.input.value = this.value;
+		this.pinPrice = this.pinned;
 	},
 	methods: {
 		onChangeValue() {
 			this.$emit('change', {
 				key: this.configKey,
-				value: this.$refs.input.value
+				value: this.$refs.input.value,
+				pinned: this.showPin && this.pinPrice
 			});
 		}
 	},
@@ -44,6 +71,16 @@ export default {
 		value(val) {
 			if (this.$refs.input.value !== val)
 				this.$refs.input.value = val;
+		},
+		pinPrice() {
+			this.onChangeValue();
+		},
+		pinned(val, old) {
+			if (val === old || val === this.pinPrice)
+				return;
+
+			this.pinPrice = val;
+			this.onChangeValue();
 		}
 	}
 };
@@ -62,6 +99,10 @@ export default {
 	.config-title, .config-description {
 		padding: 0 15px;
 		grid-area: auto / 1 / auto / span 2;
+
+		.control {
+			float: right;
+		}
 	}
 
 	.control {

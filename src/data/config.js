@@ -2,16 +2,81 @@ import log from 'electron-log';
 import { BigNumber } from 'bignumber.js';
 
 import { apiClient } from './index';
+import { parseCurrencyString } from '@/utils/parse';
 import Store from '@/store';
 
-export async function refreshHostConfig() {
-	log.debug('refreshing config');
+function getSCValue(key, pin) {
+	const { value, currency } = pin;
 
+	switch (key) {
+	// per tb / month
+	case 'minstorageprice':
+	case 'collateral':
+		return parseCurrencyString(value, currency).div(1e12).div(4320);
+	// per tb
+	case 'mindownloadbandwidthprice':
+	case 'minuploadbandwidthprice':
+		return parseCurrencyString(value, currency).div(1e12);
+	// sc
+	default:
+		return parseCurrencyString(value, currency);
+	}
+}
+
+async function updatePinnedPricing(existingConfig) {
+	let changed = false,
+		newConfig = {};
+
+	for (let pin in Store.state.config.host_pricing_pins) {
+		try {
+			const newValue = getSCValue(pin, Store.state.config.host_pricing_pins[pin]),
+				currentValue = new BigNumber(existingConfig[pin]),
+				diff = currentValue.minus(newValue).abs().div(currentValue);
+
+			if (diff.lt(0.05))
+				continue;
+
+			log.debug('updated', pin, 'to', newValue.toFixed(0));
+
+			newConfig[pin] = newValue.toFixed(0);
+			changed = true;
+		} catch (ex) {
+			log.error('unable to set pricing for', pin, ex.message);
+			throw new Error(`unable to set pricing for ${pin}. Check error logs for more information.`);
+		}
+	}
+
+	if (!changed)
+		return true;
+
+	const resp = await apiClient.updateHost(newConfig);
+
+	if (resp.statusCode !== 200)
+		throw new Error(resp.body.message || 'unable to set pinned pricing');
+}
+
+export async function refreshHostConfig(skipPins) {
 	const resp = await apiClient.getHost(),
 		alerts = [];
 
 	if (resp.statusCode !== 200)
 		throw new Error(resp.body.message || 'unable to load host config');
+
+	if (Store.state.config.host_pricing_pins && !skipPins) {
+		try {
+			await updatePinnedPricing(resp.body.internalsettings);
+		} catch (ex) {
+			alerts.push({
+				severity: 'danger',
+				category: 'configuration',
+				message: ex.message,
+				icon: 'wrench'
+			});
+		}
+
+		await refreshHostConfig(true);
+		return;
+	}
 
 	if (!resp.body.internalsettings.acceptingcontracts) {
 		alerts.push({
@@ -51,6 +116,4 @@ export async function refreshHostConfig() {
 	Store.dispatch('hostConfig/setCollateralBudget', new BigNumber(resp.body.internalsettings.collateralbudget));
 	Store.dispatch('hostConfig/setBaseRPCPrice', new BigNumber(resp.body.internalsettings.minbaserpcprice));
 	Store.dispatch('hostConfig/setSectorAccessPrice', new BigNumber(resp.body.internalsettings.minsectoraccessprice));
-
-	log.debug('refreshed config');
 }
