@@ -14,16 +14,17 @@ Sia Central desktop combines information from your Sia node as well as informati
 + Monitors connection status
 + Add, remove and resize storage folders
 + Get detailed information about ongoing, completed, and failed storage obligations
-+ Change all host settings
-+ Display financials in different Fiat or Cryptocurrencies.
++ Change host configuration
++ Pin configuration prices to fiat or cryptocurrencies
++ Display financials in different fiat or cryptocurrencies
 
 ## Screenshots
 
-![alerts](https://i.imgur.com/8Cbl0NE.png)
-![dashboard](https://i.imgur.com/f1PKhJ1.png)
-![storage](https://i.imgur.com/NUigmuH.png)
-![contracts](https://i.imgur.com/BeJWCcr.png)
-![config](https://i.imgur.com/TDkSetv.png)
+![alerts](https://siacentral-public.s3.us-east-2.amazonaws.com/res/alerts.png)
+![dashboard](https://siacentral-public.s3.us-east-2.amazonaws.com/res/dashboard.png)
+![storage](https://siacentral-public.s3.us-east-2.amazonaws.com/res/storage.png)
+![contracts](https://siacentral-public.s3.us-east-2.amazonaws.com/res/contracts.png)
+![config](https://siacentral-public.s3.us-east-2.amazonaws.com/res/config.png)
 
 ## Project setup
 
