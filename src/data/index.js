@@ -57,13 +57,14 @@ async function longRefresh() {
 
 		clearTimeout(longTimeout);
 
-		await refreshLastBlock();
-
 		await Promise.all([
+			refreshLastBlock(),
 			refreshHostConfig(),
-			refreshExplorer(),
 			refreshHostContracts()
 		]);
+
+		// refresh explorer relies on host config call being completed
+		await refreshExplorer();
 	} catch (ex) {
 		log.error('data refresh - long', ex.message);
 	} finally {
