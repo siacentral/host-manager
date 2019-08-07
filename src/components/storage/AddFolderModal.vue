@@ -185,8 +185,6 @@ export default {
 				if (!this.subName || this.subName.trim().length === 0)
 					errors['subdirectory'] = 'Name is required';
 
-				console.log(this.sizeValue.div(this.splitCount).toString(10), minStorageSize);
-
 				if (this.splitCount <= 0)
 					errors['splitcount'] = 'Must be greater than 0';
 				else if (this.sizeValue.div(this.splitCount).lte(minStorageSize)) {

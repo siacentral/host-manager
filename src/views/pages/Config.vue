@@ -257,8 +257,6 @@ export default {
 					return;
 				}
 
-				console.debug('updated host config', this.config);
-
 				const configPins = { ...this.appConfig.host_pricing_pins };
 
 				for (let pin in this.pinned) {
@@ -273,8 +271,6 @@ export default {
 					configPins[pin] = this.pinned[pin];
 				}
 
-				console.debug('updated pins', configPins);
-
 				this.setConfig({ host_pricing_pins: configPins });
 
 				await refreshHostConfig();
@@ -285,10 +281,6 @@ export default {
 					message: 'Host Configuration Updated',
 					icon: 'cogs',
 					style: 'success'
-				});
-
-				this.$nextTick(() => {
-					console.log('CONFIG', this.appConfig);
 				});
 			} catch (ex) {
 				this.pushNotification({
@@ -366,7 +358,6 @@ export default {
 				}
 
 				this.changed = true;
-				console.log('changing', key, 'to', value);
 				this.$set(this.pinned, key, pin);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
@@ -382,7 +373,6 @@ export default {
 				this.$set(this.errors, key, null);
 
 				this.changed = true;
-				console.log('changing', key, 'to', value);
 			} catch (ex) {
 				log.error('config modal time change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
@@ -396,7 +386,6 @@ export default {
 				this.$set(this.errors, key, null);
 
 				this.changed = true;
-				console.log('changing', key, 'to', value);
 			} catch (ex) {
 				log.error('config modal data change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
