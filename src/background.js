@@ -20,23 +20,29 @@ protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: tru
 
 function createWindow() {
 	const opts = {
-		width: 1000,
-		height: 800,
-		minWidth: 800,
-		minHeight: 600,
-		title: 'Sia Central Desktop',
-		icon: path.join(__static, 'icon.png'),
-		titleBarStyle: 'hiddenInset',
-		autoHideMenuBar: true,
-		backgroundColor: '#1d1e21',
-		show: false,
-		webPreferences: {
-			nodeIntegration: true
-		}
+		...{
+			width: 1000,
+			height: 800,
+			minWidth: 800,
+			minHeight: 600,
+			title: 'Sia Central Desktop',
+			icon: path.join(__static, 'icon.png'),
+			autoHideMenuBar: true,
+			backgroundColor: '#1d1e21',
+			show: false,
+			webPreferences: {
+				nodeIntegration: true
+			}
+		},
+		// darwin overrides
+		...(process.platform === 'darwin' ? {
+			titleBarStyle: 'hiddenInset'
+		} : {}),
+		// windows overrides
+		...(process.platform === 'win32' ? {
+			frame: false
+		} : {})
 	};
-
-	if (process.platform !== 'darwin')
-		opts.frame = false;
 
 	// Create the browser window.
 	win = new BrowserWindow(opts);
