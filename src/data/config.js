@@ -29,6 +29,10 @@ async function updatePinnedPricing(existingConfig) {
 
 	for (let pin in Store.state.config.host_pricing_pins) {
 		try {
+			if (!Store.state.config.host_pricing_pins || !Store.state.config.host_pricing_pins[pin] ||
+				typeof Store.state.config.host_pricing_pins[pin].value !== 'string')
+				continue;
+
 			const newValue = getSCValue(pin, Store.state.config.host_pricing_pins[pin]).toFixed(0),
 				currentValue = existingConfig[pin];
 
