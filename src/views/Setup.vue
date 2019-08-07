@@ -23,8 +23,8 @@ import DaemonOverrideStep from '@/views/setup/DaemonOverrideStep';
 import ReviewStep from '@/views/setup/ReviewStep';
 import CreateWalletStep from '@/views/setup/CreateWalletStep';
 import AutoUnlockStep from '@/views/setup/AutoUnlockStep';
-import { readSiaUIConfig, writeConfig, sleep } from '@/utils';
-import { refreshHostWallet } from '@/data/wallet';
+import { readSiaUIConfig, writeConfig } from '@/utils';
+import { refreshData } from '@/data';
 
 export default {
 	components: {
@@ -99,10 +99,8 @@ export default {
 			if (this.step >= this.steps.length) {
 				this.setConfig(this.config);
 
-				await sleep(3);
-				await refreshHostWallet();
+				await refreshData();
 
-				this.setLoaded(false);
 				this.setFirstRun(false);
 
 				writeConfig(this.config);

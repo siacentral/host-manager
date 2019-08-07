@@ -12,7 +12,7 @@
 		<transition mode="out-in" appear>
 			<p class="text-center error" v-if="error" key="error"> We were unable to validate your config. Go back and check what you entered:<br/>{{ error }}</p>
 			<div class="loading" v-else-if="daemonManaged && !daemonLoaded" key="daemon">
-				<p class="text-center">Loading {{ daemonLoadingModule || 'Sia' }}...</p>
+				<p class="text-center">{{ daemonLoadingModule || 'Loading Sia' }}...</p>
 				<progress-bar :progress="daemonLoadPercent * 100" />
 			</div>
 			<p class="text-center" v-else key="success">We're getting everything setup, please wait a moment...</p>
