@@ -1,6 +1,25 @@
-### July 2019:
+## August 2019
 
-#### v0.1.2
+### v0.1.3
+
+Fourth alpha release of Sia Central.
+
+#### Features
+
++ When setting host configuration you can now pin currency to Fiat or Crypto exchange rates.
++ When adding storage locations you can now split folders over 4TB into smaller folders automatically for easier management.
+
+#### Bug Fixes
+
++ Change default font to be system font on all platforms
++ Fixed an issue with scrollbar not appearing on storage page
++ Fixed sorting of the storage page to be alphabetical and numerical instead of just alphabetical
++ Changed dashboard contract graph to only include used contracts
++ Fixed an issue with the configuration page update button being enabled before any values had changed
+
+## July 2019
+
+### v0.1.2
 
 Third alpha release of Sia Central Desktop. All functionality implemented
 
@@ -11,7 +30,7 @@ Third alpha release of Sia Central Desktop. All functionality implemented
 + Add automatic wallet unlock
 + Add friendly status `Rejected` for contract status of `obligationRejected`
 
-#### v0.1.1
+### v0.1.1
 
 Second alpha release of Sia Central Desktop.
 
@@ -24,7 +43,7 @@ Second alpha release of Sia Central Desktop.
 + Automatically starts Sia Daemon if it's not already running
 + Add additional host information from Sia Central explorer
 
-#### v0.1.0
+### v0.1.0
 
 Initial alpha release of Sia Central Desktop. Most of the main features have been completed and tested.
 
