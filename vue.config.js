@@ -28,7 +28,7 @@ module.exports = {
 			outputDir: 'dist',
 			builderOptions: {
 				appId: 'com.siacentral.desktop',
-				productName: 'Sia Central Desktop',
+				productName: 'Sia Central',
 				copyright: '2019 Sia Central',
 				afterSign: 'build/scripts/notarize.js',
 				extraResources: [
