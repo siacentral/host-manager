@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import { BigNumber } from 'bignumber.js';
 
 import Store from '@/store';
@@ -15,7 +16,11 @@ async function getLastHeight() {
 }
 
 export async function refreshHostContracts() {
-	await parseHostContracts();
+	try {
+		await parseHostContracts();
+	} catch (ex) {
+		log.error('refreshHostContracts', ex.message);
+	}
 }
 
 function toFriendlyStatus(status) {
