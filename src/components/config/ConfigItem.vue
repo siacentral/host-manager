@@ -41,7 +41,8 @@ export default {
 	},
 	data() {
 		return {
-			pinPrice: false
+			pinPrice: false,
+			loaded: false
 		};
 	},
 	computed: {
@@ -57,6 +58,9 @@ export default {
 	mounted() {
 		this.$refs.input.value = this.value;
 		this.pinPrice = this.pinned;
+		this.$nextTick(() => {
+			this.loaded = true;
+		});
 	},
 	methods: {
 		onChangeValue() {
@@ -72,14 +76,10 @@ export default {
 			if (this.$refs.input.value !== val)
 				this.$refs.input.value = val;
 		},
-		pinPrice() {
-			this.onChangeValue();
-		},
-		pinned(val, old) {
-			if (val === old || val === this.pinPrice)
+		pinPrice(val, old) {
+			if (val === old || !this.loaded)
 				return;
 
-			this.pinPrice = val;
 			this.onChangeValue();
 		}
 	}
