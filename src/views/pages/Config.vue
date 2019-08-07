@@ -16,7 +16,7 @@
 			<config-item title="Contract Price"
 				configKey="mincontractprice"
 				:showPin="true"
-				:pinned="(appConfig.host_pricing_pins && appConfig.host_pricing_pins['mincontractprice'])"
+				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['mincontractprice'] != null"
 				:value="currentConfig.contractPrice"
 				:avgValue="formatPriceString(averageSettings.contract_price, 2)"
 				:error="errors['mincontractprice']"
@@ -26,7 +26,7 @@
 			<config-item title="Storage Price"
 				configKey="minstorageprice"
 				:showPin="true"
-				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['minstorageprice'])"
+				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['minstorageprice'] != null"
 				:value="currentConfig.storagePrice"
 				:avgValue="formatPriceString(averageSettings.storage_price.times(1e12).times(4320), 2)"
 				sublabel="per tb/month"
@@ -38,7 +38,7 @@
 			<config-item title="Download Price"
 				configKey="mindownloadbandwidthprice"
 				:showPin="true"
-				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['mindownloadbandwidthprice'])"
+				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['mindownloadbandwidthprice'] != null"
 				:value="currentConfig.downloadPrice"
 				:avgValue="formatPriceString(averageSettings.download_price.times(1e12), 2)"
 				sublabel="per tb/month"
@@ -50,7 +50,7 @@
 			<config-item title="Upload Price"
 				configKey="minuploadbandwidthprice"
 				:showPin="true"
-				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['minuploadbandwidthprice'])"
+				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['minuploadbandwidthprice'] != null"
 				:value="currentConfig.uploadPrice"
 				:avgValue="formatPriceString(averageSettings.upload_price.times(1e12), 2)"
 				sublabel="per tb/month"
@@ -62,7 +62,7 @@
 			<config-item title="Base RPC Price"
 				configKey="minbaserpcprice"
 				:showPin="true"
-				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['minbaserpcprice'])"
+				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['minbaserpcprice'] != null"
 				:value="currentConfig.baseRPCPrice"
 				:avgValue="formatPriceString(averageSettings.base_rpc_price, 2)"
 				sublabel="per request"
@@ -73,7 +73,7 @@
 			<config-item title="Sector Access Price"
 				configKey="minsectoraccessprice"
 				:showPin="true"
-				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['minsectoraccessprice'])"
+				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['minsectoraccessprice'] != null"
 				:value="currentConfig.sectorAccessPrice"
 				:avgValue="formatPriceString(averageSettings.sector_access_price, 2)"
 				sublabel="per sector"
@@ -87,7 +87,7 @@
 			<config-item title="Collateral Budget"
 				configKey="collateralbudget"
 				:showPin="true"
-				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['collateralbudget'])"
+				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['collateralbudget'] != null"
 				:value="currentConfig.collateralBudget"
 				:error="errors['collateralbudget']"
 				description="The maximum amount of collateral
@@ -97,7 +97,7 @@
 			<config-item title="Max Collateral"
 				configKey="maxcollateral"
 				:showPin="true"
-				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['maxcollateral'])"
+				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['maxcollateral'] != null"
 				:value="currentConfig.maxCollateral"
 				:avgValue="formatPriceString(averageSettings.max_collateral, 2)"
 				sublabel="per contract"
@@ -109,7 +109,7 @@
 			<config-item title="Collateral"
 				configKey="collateral"
 				:showPin="true"
-				:pinned="!!~(appConfig.host_pricing_pins && appConfig.host_pricing_pins['collateral'])"
+				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['collateral'] != null"
 				:value="currentConfig.collateral"
 				:avgValue="formatPriceString(averageSettings.collateral.times(1e12).times(4320), 2)"
 				sublabel="per tb/month"
@@ -220,7 +220,7 @@ export default {
 			}
 		},
 		updateConfig() {
-			this.acceptContracts = this.hostConfig.acceptcontracts;
+			this.acceptContracts = this.hostConfig.acceptingcontracts;
 
 			this.currentConfig = {
 				contractPrice: formatPriceString(this.hostConfig.mincontractprice, 2),
@@ -257,14 +257,23 @@ export default {
 					return;
 				}
 
-				const configPins = {};
+				console.debug('updated host config', this.config);
+
+				const configPins = { ...this.appConfig.host_pricing_pins };
 
 				for (let pin in this.pinned) {
-					if (!pin || !this.pinned[pin] || !this.pinned[pin].currency || !this.pinned[pin].value)
+					if (!pin)
 						continue;
+
+					if (this.pinned[pin] === false) {
+						configPins[pin] = null;
+						continue;
+					}
 
 					configPins[pin] = this.pinned[pin];
 				}
+
+				console.debug('updated pins', configPins);
 
 				this.setConfig({ host_pricing_pins: configPins });
 
@@ -276,6 +285,10 @@ export default {
 					message: 'Host Configuration Updated',
 					icon: 'cogs',
 					style: 'success'
+				});
+
+				this.$nextTick(() => {
+					console.log('CONFIG', this.appConfig);
 				});
 			} catch (ex) {
 				this.pushNotification({
@@ -353,6 +366,7 @@ export default {
 				}
 
 				this.changed = true;
+				console.log('changing', key, 'to', value);
 				this.$set(this.pinned, key, pin);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
@@ -368,6 +382,7 @@ export default {
 				this.$set(this.errors, key, null);
 
 				this.changed = true;
+				console.log('changing', key, 'to', value);
 			} catch (ex) {
 				log.error('config modal time change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
@@ -381,6 +396,7 @@ export default {
 				this.$set(this.errors, key, null);
 
 				this.changed = true;
+				console.log('changing', key, 'to', value);
 			} catch (ex) {
 				log.error('config modal data change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
