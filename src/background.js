@@ -20,19 +20,17 @@ protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: tru
 
 function createWindow() {
 	const opts = {
-		...{
-			width: 1000,
-			height: 800,
-			minWidth: 800,
-			minHeight: 600,
-			title: 'Sia Central Desktop',
-			icon: path.join(__static, 'icon.png'),
-			autoHideMenuBar: true,
-			backgroundColor: '#1d1e21',
-			show: false,
-			webPreferences: {
-				nodeIntegration: true
-			}
+		width: 1000,
+		height: 800,
+		minWidth: 800,
+		minHeight: 600,
+		title: 'Sia Central Desktop',
+		icon: path.join(__static, 'icon.png'),
+		autoHideMenuBar: true,
+		backgroundColor: '#1d1e21',
+		show: false,
+		webPreferences: {
+			nodeIntegration: true
 		},
 		// darwin overrides
 		...(process.platform === 'darwin' ? {
