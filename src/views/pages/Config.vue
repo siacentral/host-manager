@@ -182,13 +182,10 @@ export default {
 	},
 	computed: {
 		...mapState({
-			appConfig: state => state.config
-		}),
-		...mapState('hostConfig', ['acceptingContracts', 'netaddress', 'maxDuration',
-			'maxReviseSize', 'maxDownloadSize', 'windowSize', 'contractPrice', 'downloadPrice',
-			'uploadPrice', 'storagePrice', 'collateral', 'maxCollateral',
-			'collateralBudget', 'baseRPCPrice', 'sectorAccessPrice']),
-		...mapState('explorer', ['averageSettings'])
+			appConfig: state => state.config,
+			hostConfig: state => state.hostConfig.config,
+			averageSettings: state => state.explorer.averageSettings
+		})
 	},
 	data() {
 		return {
@@ -223,21 +220,22 @@ export default {
 			}
 		},
 		updateConfig() {
-			this.acceptContracts = this.acceptingContracts;
+			this.acceptContracts = this.hostConfig.acceptcontracts;
+
 			this.currentConfig = {
-				contractPrice: formatPriceString(this.contractPrice, 2),
-				storagePrice: formatPriceString(this.storagePrice.times(1e12).times(4320), 2),
-				downloadPrice: formatPriceString(this.downloadPrice.times(1e12), 2),
-				uploadPrice: formatPriceString(this.uploadPrice.times(1e12), 2),
-				collateralBudget: formatPriceString(this.collateralBudget, 2),
-				baseRPCPrice: formatPriceString(this.baseRPCPrice, 2),
-				sectorAccessPrice: formatPriceString(this.sectorAccessPrice, 2),
-				maxCollateral: formatPriceString(this.maxCollateral, 2),
-				collateral: formatPriceString(this.collateral.times(1e12).times(4320), 2),
-				maxDuration: formatBlockTimeString(this.maxDuration),
-				windowSize: formatBlockTimeString(this.windowSize),
-				maxDownloadSize: formatByteString(this.maxDownloadSize, 2),
-				maxReviseSize: formatByteString(this.maxReviseSize, 2)
+				contractPrice: formatPriceString(this.hostConfig.mincontractprice, 2),
+				storagePrice: formatPriceString(this.hostConfig.minstorageprice.times(1e12).times(4320), 2),
+				downloadPrice: formatPriceString(this.hostConfig.mindownloadbandwidthprice.times(1e12), 2),
+				uploadPrice: formatPriceString(this.hostConfig.minuploadbandwidthprice.times(1e12), 2),
+				collateralBudget: formatPriceString(this.hostConfig.collateralbudget, 2),
+				baseRPCPrice: formatPriceString(this.hostConfig.minbaserpcprice, 2),
+				sectorAccessPrice: formatPriceString(this.hostConfig.minsectoraccessprice, 2),
+				maxCollateral: formatPriceString(this.hostConfig.maxcollateral, 2),
+				collateral: formatPriceString(this.hostConfig.collateral.times(1e12).times(4320), 2),
+				maxDuration: formatBlockTimeString(this.hostConfig.maxduration),
+				windowSize: formatBlockTimeString(this.hostConfig.windowsize),
+				maxDownloadSize: formatByteString(this.hostConfig.maxdownloadbatchsize, 2),
+				maxReviseSize: formatByteString(this.hostConfig.maxrevisebatchsize, 2)
 			};
 		},
 		async onClickUpdate() {

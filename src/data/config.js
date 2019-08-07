@@ -100,19 +100,21 @@ export async function refreshHostConfig(skipPins) {
 
 	Store.dispatch('setNetAddress', resp.body.externalsettings.netaddress);
 	Store.dispatch('hostConfig/setAlerts', alerts);
-	Store.dispatch('hostConfig/setAcceptingContracts', resp.body.internalsettings.acceptingcontracts);
-	Store.dispatch('hostConfig/setNetAddress', resp.body.internalsettings.netaddress);
-	Store.dispatch('hostConfig/setMaxDuration', resp.body.internalsettings.maxduration);
-	Store.dispatch('hostConfig/setWindowSize', resp.body.internalsettings.windowsize);
-	Store.dispatch('hostConfig/setMaxReviseSize', new BigNumber(resp.body.internalsettings.maxrevisebatchsize));
-	Store.dispatch('hostConfig/setMaxDownloadSize', new BigNumber(resp.body.internalsettings.maxdownloadbatchsize));
-	Store.dispatch('hostConfig/setContractPrice', new BigNumber(resp.body.internalsettings.mincontractprice));
-	Store.dispatch('hostConfig/setDownloadPrice', new BigNumber(resp.body.internalsettings.mindownloadbandwidthprice));
-	Store.dispatch('hostConfig/setUploadPrice', new BigNumber(resp.body.internalsettings.minuploadbandwidthprice));
-	Store.dispatch('hostConfig/setStoragePrice', new BigNumber(resp.body.internalsettings.minstorageprice));
-	Store.dispatch('hostConfig/setCollateral', new BigNumber(resp.body.internalsettings.collateral));
-	Store.dispatch('hostConfig/setMaxCollateral', new BigNumber(resp.body.internalsettings.maxcollateral));
-	Store.dispatch('hostConfig/setCollateralBudget', new BigNumber(resp.body.internalsettings.collateralbudget));
-	Store.dispatch('hostConfig/setBaseRPCPrice', new BigNumber(resp.body.internalsettings.minbaserpcprice));
-	Store.dispatch('hostConfig/setSectorAccessPrice', new BigNumber(resp.body.internalsettings.minsectoraccessprice));
+	Store.dispatch('hostConfig/setConfig', {
+		acceptingcontracts: resp.body.internalsettings.acceptingcontracts,
+		netaddress: resp.body.internalsettings.netaddress,
+		maxduration: resp.body.internalsettings.maxduration,
+		windowsize: resp.body.internalsettings.windowsize,
+		maxrevisebatchsize: new BigNumber(resp.body.internalsettings.maxrevisebatchsize),
+		maxdownloadbatchsize: new BigNumber(resp.body.internalsettings.maxdownloadbatchsize),
+		mincontractprice: new BigNumber(resp.body.internalsettings.mincontractprice),
+		mindownloadbandwidthprice: new BigNumber(resp.body.internalsettings.mindownloadbandwidthprice),
+		minuploadbandwidthprice: new BigNumber(resp.body.internalsettings.minuploadbandwidthprice),
+		minstorageprice: new BigNumber(resp.body.internalsettings.minstorageprice),
+		collateral: new BigNumber(resp.body.internalsettings.collateral),
+		maxcollateral: new BigNumber(resp.body.internalsettings.maxcollateral),
+		collateralbudget: new BigNumber(resp.body.internalsettings.collateralbudget),
+		minbaserpcprice: new BigNumber(resp.body.internalsettings.minbaserpcprice),
+		minsectoraccessprice: new BigNumber(resp.body.internalsettings.minsectoraccessprice)
+	});
 }
