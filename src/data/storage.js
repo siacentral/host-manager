@@ -77,7 +77,14 @@ async function loadHostStorage() {
 	if (totalStorage.gt(0)) {
 		const usedPct = usedStorage.div(totalStorage);
 
-		if (usedPct.gt(0.9)) {
+		if (usedPct.gte(1)) {
+			storageAlerts.push({
+				category: 'storage',
+				severity: 'danger',
+				icon: 'hdd',
+				message: 'All of your available storage is utilized no more contracts will form.'
+			});
+		} else if (usedPct.gt(0.9)) {
 			storageAlerts.push({
 				category: 'storage',
 				severity: 'danger',
