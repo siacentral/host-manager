@@ -205,6 +205,7 @@ export async function parseHostContracts() {
 			prefix = `${totals.failed_contracts} contracts have`;
 
 		alerts.push({
+			id: `${prefix}_failed_contracts`,
 			severity: 'danger',
 			category: 'contracts',
 			message: `${prefix} failed resulting in ${formatPriceString(totals.lost_revenue.plus(totals.burnt_collateral))} of lost revenue and burnt collateral. Check the contracts page and your logs for more details`,

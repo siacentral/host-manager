@@ -57,7 +57,7 @@ export default {
 		},
 		setAlerts(state, alerts) {
 			state.newAlertsCount = alerts.reduce((val, alert) => {
-				const match = state.alerts.find(existing => existing.message === alert.message);
+				const match = state.alerts.find(existing => existing.id ? existing.id === alert.id : existing.message === alert.message);
 
 				if (match)
 					return val;
