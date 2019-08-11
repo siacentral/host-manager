@@ -35,7 +35,7 @@ export default {
 					return val;
 
 				return val + 1;
-			}, state.newAlertsCount);
+			}, 0);
 
 			state.alerts = alerts;
 		}
