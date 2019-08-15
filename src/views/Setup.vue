@@ -87,23 +87,27 @@ export default {
 			return this.loaded && this.step === this.steps.indexOf(name.toLowerCase());
 		},
 		async onStepComplete(data) {
-			this.config = data.config ? { ...this.config, ...data.config } : this.config;
-			this.step += data.inc;
+			try {
+				this.config = data.config ? { ...this.config, ...data.config } : this.config;
+				this.step += data.inc;
 
-			if (typeof data.showAdvanced === 'boolean')
-				this.showAdvanced = data.showAdvanced;
+				if (typeof data.showAdvanced === 'boolean')
+					this.showAdvanced = data.showAdvanced;
 
-			if (typeof data.createWallet === 'boolean')
-				this.createWallet = data.createWallet;
+				if (typeof data.createWallet === 'boolean')
+					this.createWallet = data.createWallet;
 
-			if (this.step >= this.steps.length) {
-				this.setConfig(this.config);
+				if (this.step >= this.steps.length) {
+					this.setConfig(this.config);
 
-				await refreshData();
+					await refreshData();
 
-				this.setFirstRun(false);
+					this.setFirstRun(false);
 
-				writeConfig(this.config);
+					writeConfig(this.config);
+				}
+			} catch (ex) {
+				log.error('onStepComplete', ex.message);
 			}
 		}
 	}
