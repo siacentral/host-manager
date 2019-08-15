@@ -3,7 +3,7 @@ import request from 'request';
 export async function sendJSONRequest(url, opts) {
 	opts = {
 		method: 'GET',
-		timeout: 15000,
+		timeout: 60000,
 		...(opts || {})
 	};
 
