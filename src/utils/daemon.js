@@ -165,7 +165,8 @@ export function launch(config) {
 
 				if (stdout.indexOf('Finished loading in') >= 0) {
 					Store.dispatch('hostDaemon/setLoaded', true);
-					resolve();
+
+					setTimeout(resolve, 300);
 				}
 
 				Store.dispatch('hostDaemon/setOutput', stdout);
