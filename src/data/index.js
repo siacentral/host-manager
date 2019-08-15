@@ -19,6 +19,8 @@ export async function refreshData() {
 	if (!(await apiClient.checkCredentials()))
 		throw new Error('API credentials invalid');
 
+	console.log('refreshData called');
+
 	await longRefresh().then(() => {
 		console.log('long refresh complete');
 	});
@@ -41,18 +43,20 @@ async function shortRefresh() {
 
 		clearTimeout(shortTimeout);
 
+		console.log('shortRefresh started');
+
 		await Promise.all([
 			refreshDaemonVersion().then(() => {
-				console.debug('refreshDaemonVersion complete');
+				console.log('refreshDaemonVersion complete');
 			}),
 			refreshBlockHeight().then(() => {
-				console.debug('refreshBlockHeight complete');
+				console.log('refreshBlockHeight complete');
 			}),
 			refreshHostWallet().then(() => {
-				console.debug('refreshHostWallet complete');
+				console.log('refreshHostWallet complete');
 			}),
 			refreshHostStorage().then(() => {
-				console.debug('refreshHostStorage complete');
+				console.log('refreshHostStorage complete');
 			})
 		]);
 	} catch (ex) {
@@ -72,15 +76,17 @@ async function longRefresh() {
 
 		clearTimeout(longTimeout);
 
+		console.log('longRefresh started');
+
 		await Promise.all([
 			refreshLastBlock().then(() => {
-				console.debug('refreshLastBlock complete');
+				console.log('refreshLastBlock complete');
 			}),
 			refreshHostConfig().then(() => {
-				console.debug('refreshHostConfig complete');
+				console.log('refreshHostConfig complete');
 			}),
 			refreshHostContracts().then(() => {
-				console.debug('refreshHostContracts complete');
+				console.log('refreshHostContracts complete');
 			})
 		]);
 

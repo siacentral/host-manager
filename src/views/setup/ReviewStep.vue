@@ -75,7 +75,7 @@ export default {
 			this.setConfig(this.config);
 			await refreshData();
 
-			console.debug('review data refreshed');
+			console.log('review data refreshed');
 
 			this.$emit('done', {
 				inc: 1,
