@@ -398,6 +398,7 @@ export default {
 				return;
 
 			this.config['acceptingcontracts'] = value;
+			this.changed = true;
 		}
 	}
 };
