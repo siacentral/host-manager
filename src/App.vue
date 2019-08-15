@@ -115,6 +115,7 @@ export default {
 			walletScanning: state => state.hostWallet.rescanning,
 			scanHeight: state => state.hostWallet.height,
 			syncedHeight: state => state.blockHeight,
+			lastBlock: state => state.lastBlock,
 			daemonLoaded: state => state.hostDaemon.loaded,
 			daemonLoadingModule: state => state.hostDaemon.currentModule,
 			daemonLoadPercent: state => state.hostDaemon.loadPercent,
@@ -146,7 +147,7 @@ export default {
 		},
 		loaderProgress() {
 			if (this.walletScanning)
-				return this.scanHeight / (this.syncedHeight + 5);
+				return this.scanHeight / (this.lastBlock + 5);
 
 			if (!this.daemonLoaded && this.daemonManaged)
 				return this.daemonLoadPercent || 0;
