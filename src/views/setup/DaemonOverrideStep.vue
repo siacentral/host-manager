@@ -34,7 +34,6 @@
 import SetupStep from './SetupStep';
 
 export default {
-	name: 'daemon-overide-step',
 	components: {
 		SetupStep
 	},

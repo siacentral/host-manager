@@ -25,7 +25,6 @@ import { remote } from 'electron';
 const dialog = remote.dialog;
 
 export default {
-	name: 'consensus-location-step',
 	components: {
 		SetupStep
 	},

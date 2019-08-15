@@ -83,7 +83,6 @@ import { showSaveDialogAsync, writeFileAsync } from '@/utils';
 import SetupStep from './SetupStep';
 
 export default {
-	name: 'auto-unlock-step',
 	components: {
 		SetupStep
 	},

@@ -22,7 +22,6 @@ import SetupStep from './SetupStep';
 import SiaCentralSia from '@/assets/siacentral+sia.svg';
 
 export default {
-	name: 'welcome-step',
 	props: {
 		config: Object,
 		import: Object

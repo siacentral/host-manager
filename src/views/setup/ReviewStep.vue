@@ -37,7 +37,6 @@ import SetupStep from './SetupStep';
 import SiaCentral from '@/assets/siacentral.svg';
 
 export default {
-	name: 'review-step',
 	components: {
 		ProgressBar,
 		SetupStep,
