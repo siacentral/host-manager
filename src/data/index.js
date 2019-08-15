@@ -35,12 +35,10 @@ async function shortRefresh() {
 
 		clearTimeout(shortTimeout);
 
-		await Promise.all([
-			refreshDaemonVersion(),
-			refreshBlockHeight(),
-			refreshHostWallet(),
-			refreshHostStorage()
-		]);
+		await refreshDaemonVersion();
+		await refreshBlockHeight();
+		await refreshHostWallet();
+		await refreshHostStorage();
 	} catch (ex) {
 		log.error('data refresh - short', ex.message);
 	} finally {
@@ -58,11 +56,9 @@ async function longRefresh() {
 
 		clearTimeout(longTimeout);
 
-		await Promise.all([
-			refreshLastBlock(),
-			refreshHostConfig(),
-			refreshHostContracts()
-		]);
+		await refreshLastBlock();
+		await refreshHostConfig();
+		await refreshHostContracts();
 
 		// refresh explorer relies on host config call being completed
 		await refreshExplorer();

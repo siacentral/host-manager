@@ -6,11 +6,9 @@ import Store from '@/store';
 
 export async function refreshExplorer() {
 	try {
-		await Promise.all([
-			loadAverageSettings(),
-			loadExplorerHost(),
-			checkHostConnectability()
-		]);
+		await loadAverageSettings();
+		await loadExplorerHost();
+		await checkHostConnectability();
 	} catch (ex) {
 		log.error('refreshExplorer', ex.message);
 	}
