@@ -23,10 +23,10 @@ function buildArgs(config) {
 		args.push('--agent', config.siad_api_agent);
 
 	if (config.siad_host_port && config.siad_host_port.length > 0)
-		args.push('--host-port', config.siad_host_port);
+		args.push('--host-addr', config.siad_host_port);
 
 	if (config.siad_rpc_port && config.siad_rpc_port.length > 0)
-		args.push('--rpc-port', config.siad_rpc_port);
+		args.push('--rpc-addr', config.siad_rpc_port);
 
 	if (config.siad_api_addr && config.siad_api_addr.length > 0)
 		args.push('--api-addr', config.siad_api_addr);
