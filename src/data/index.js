@@ -16,7 +16,11 @@ let longTimeout, shortTimeout, loadingLong, loadingShort, priceTimeout;
 export const apiClient = new SiaApiClient(Store.state.config);
 
 export async function refreshData() {
-	if (!(await apiClient.checkCredentials()))
+	const credentialsValid = await apiClient.checkCredentials();
+
+	console.log('credential call complete');
+
+	if (!credentialsValid)
 		throw new Error('API credentials invalid');
 
 	await longRefresh();
@@ -35,10 +39,12 @@ async function shortRefresh() {
 
 		clearTimeout(shortTimeout);
 
-		await refreshDaemonVersion();
-		await refreshBlockHeight();
-		await refreshHostWallet();
-		await refreshHostStorage();
+		await Promise.all([
+			refreshDaemonVersion(),
+			refreshBlockHeight(),
+			refreshHostWallet(),
+			refreshHostStorage()
+		]);
 	} catch (ex) {
 		log.error('data refresh - short', ex.message);
 	} finally {
@@ -56,9 +62,13 @@ async function longRefresh() {
 
 		clearTimeout(longTimeout);
 
-		await refreshLastBlock();
-		await refreshHostConfig();
-		await refreshHostContracts();
+		await Promise.all([
+			refreshLastBlock(),
+			refreshHostConfig(),
+			refreshHostContracts()
+		]);
+
+		// refresh explorer relies on host config call being completed
 		await refreshExplorer();
 	} catch (ex) {
 		log.error('data refresh - long', ex.message);
