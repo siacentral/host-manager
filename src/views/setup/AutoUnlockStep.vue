@@ -7,7 +7,7 @@
 			<h3>Is Your Wallet Setup to Automatically Unlock?</h3>
 			<p>To host on the Sia network and form contracts your wallet needs to be unlocked while your Daemon is running.
 				Most hosts set up their wallet to auto unlock by adding the <span class="text-primary">"SIA_WALLET_PASSWORD"</span> environment variable.
-				SiaCentral can automatically unlock your wallet on start up instead.</p>
+				Sia Central can automatically unlock your wallet on start up instead.</p>
 		</template>
 		<div class="control">
 			<label>Password to Automatically Unlock Wallet</label>

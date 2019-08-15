@@ -4,7 +4,7 @@
 			<SiaCentralSia />
 		</div>
 		<h1>Welcome to Sia Central Desktop</h1>
-		<p>SiaCentral Desktop provides complete control over all aspects of your host as well as additional insights into the health of your host.</p>
+		<p>Sia Central provides complete control over all aspects of your host as well as additional insights into the health of your host.</p>
 		<p>We need to ask you some questions about your host before we get started.</p>
 
 		<template v-slot:controls>
