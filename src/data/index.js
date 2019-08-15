@@ -7,6 +7,7 @@ import { refreshHostWallet } from './wallet';
 import { refreshHostConfig } from './config';
 import { refreshExplorer } from './explorer';
 import { getCoinPrice } from '@/api/siacentral';
+import { parseCurrencyString } from '@/utils/parse';
 import Store from '@/store';
 import SiaApiClient from '@/api/sia';
 
@@ -18,9 +19,9 @@ export async function refreshData() {
 	if (!(await apiClient.checkCredentials()))
 		throw new Error('API credentials invalid');
 
-	await refreshCoinPrice();
 	await longRefresh();
 	await shortRefresh();
+	await refreshCoinPrice();
 
 	Store.dispatch('setLoaded', true);
 }
@@ -73,6 +74,68 @@ async function longRefresh() {
 	}
 }
 
+function getSCValue(key, pin) {
+	const { value, currency } = pin;
+
+	switch (key) {
+	// per tb / month
+	case 'minstorageprice':
+	case 'collateral':
+		return parseCurrencyString(value, currency).div(1e12).div(4320);
+	// per tb
+	case 'mindownloadbandwidthprice':
+	case 'minuploadbandwidthprice':
+		return parseCurrencyString(value, currency).div(1e12);
+	// sc
+	default:
+		return parseCurrencyString(value, currency);
+	}
+}
+
+async function updatePinnedPricing() {
+	try {
+		if (!Store.state.config.host_pricing_pins)
+			return;
+
+		let changed = false,
+			newConfig = {};
+
+		for (let pin in Store.state.config.host_pricing_pins) {
+			try {
+				if (!Store.state.config.host_pricing_pins || !Store.state.config.host_pricing_pins[pin] ||
+					typeof Store.state.config.host_pricing_pins[pin].value !== 'string')
+					continue;
+
+				const newValue = getSCValue(pin, Store.state.config.host_pricing_pins[pin]).toFixed(0),
+					currentValue = Store.state.hostConfig.config[pin];
+
+				if (currentValue === undefined || newValue === undefined || newValue === currentValue)
+					continue;
+
+				log.debug('updated', pin, 'from', currentValue, 'to', newValue);
+
+				newConfig[pin] = newValue;
+				changed = true;
+			} catch (ex) {
+				log.error('unable to set pricing for', pin, ex.message);
+				throw new Error(`unable to set pricing for ${pin}. Check error logs for more information.`);
+			}
+		}
+
+		if (!changed)
+			return true;
+
+		const resp = await apiClient.updateHost(newConfig);
+
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message || 'unable to set pinned pricing');
+
+		await refreshHostConfig();
+	} catch (ex) {
+		log.error('update pinned pricing', ex.message);
+	}
+}
+
 async function refreshCoinPrice() {
 	try {
 		clearTimeout(priceTimeout);
@@ -83,9 +146,11 @@ async function refreshCoinPrice() {
 			return;
 
 		Store.dispatch('setCoinPrice', resp.body.market_data.current_price);
+
+		await updatePinnedPricing(Store.state.hostConfig.config);
 	} catch (ex) {
 		log.error('coingecko refresh', ex.message);
 	} finally {
-		priceTimeout = setTimeout(refreshCoinPrice, 1000 * 60 * 30);
+		priceTimeout = setTimeout(refreshCoinPrice, 1000 * 60 * 15);
 	}
 }
