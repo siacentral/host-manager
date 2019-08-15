@@ -107,7 +107,7 @@ async function updatePinnedPricing() {
 					continue;
 
 				const newValue = getSCValue(pin, Store.state.config.host_pricing_pins[pin]).toFixed(0),
-					currentValue = Store.state.hostConfig.config[pin];
+					currentValue = Store.state.hostConfig.config[pin].toFixed(0);
 
 				if (currentValue === undefined || newValue === undefined || newValue === currentValue)
 					continue;
