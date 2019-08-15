@@ -35,10 +35,12 @@ async function shortRefresh() {
 
 		clearTimeout(shortTimeout);
 
-		await refreshDaemonVersion();
-		await refreshBlockHeight();
-		await refreshHostWallet();
-		await refreshHostStorage();
+		await Promise.all([
+			refreshDaemonVersion().catch(ex => log.error('refreshDaemonVersion', ex.message)),
+			refreshBlockHeight().catch(ex => log.error('refreshBlockHeight', ex.message)),
+			refreshHostWallet().catch(ex => log.error('refreshHostWallet', ex.message)),
+			refreshHostStorage().catch(ex => log.error('refreshHostStorage', ex.message))
+		]);
 	} catch (ex) {
 		log.error('data refresh - short', ex.message);
 	} finally {
@@ -56,9 +58,11 @@ async function longRefresh() {
 
 		clearTimeout(longTimeout);
 
-		await refreshLastBlock();
-		await refreshHostConfig();
-		await refreshHostContracts();
+		await Promise.all([
+			refreshLastBlock().catch(ex => log.error('refreshLastBlock', ex.message)),
+			refreshHostConfig().catch(ex => log.error('refreshHostConfig', ex.message)),
+			refreshHostContracts().catch(ex => log.error('refreshHostContracts', ex.message))
+		]);
 
 		// refresh explorer relies on host config call being completed
 		await refreshExplorer();
