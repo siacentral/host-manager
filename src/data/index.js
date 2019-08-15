@@ -19,17 +19,9 @@ export async function refreshData() {
 	if (!(await apiClient.checkCredentials()))
 		throw new Error('API credentials invalid');
 
-	console.log('refreshData called');
-
-	await longRefresh().then(() => {
-		console.log('long refresh complete');
-	});
-	await shortRefresh().then(() => {
-		console.log('short refresh complete');
-	});
-	await refreshCoinPrice().then(() => {
-		console.log('coin price complete');
-	});
+	await longRefresh();
+	await shortRefresh();
+	await refreshCoinPrice();
 
 	Store.dispatch('setLoaded', true);
 }
@@ -43,21 +35,11 @@ async function shortRefresh() {
 
 		clearTimeout(shortTimeout);
 
-		console.log('shortRefresh started');
-
 		await Promise.all([
-			refreshDaemonVersion().then(() => {
-				console.log('refreshDaemonVersion complete');
-			}),
-			refreshBlockHeight().then(() => {
-				console.log('refreshBlockHeight complete');
-			}),
-			refreshHostWallet().then(() => {
-				console.log('refreshHostWallet complete');
-			}),
-			refreshHostStorage().then(() => {
-				console.log('refreshHostStorage complete');
-			})
+			refreshDaemonVersion(),
+			refreshBlockHeight(),
+			refreshHostWallet(),
+			refreshHostStorage()
 		]);
 	} catch (ex) {
 		log.error('data refresh - short', ex.message);
@@ -76,18 +58,10 @@ async function longRefresh() {
 
 		clearTimeout(longTimeout);
 
-		console.log('longRefresh started');
-
 		await Promise.all([
-			refreshLastBlock().then(() => {
-				console.log('refreshLastBlock complete');
-			}),
-			refreshHostConfig().then(() => {
-				console.log('refreshHostConfig complete');
-			}),
-			refreshHostContracts().then(() => {
-				console.log('refreshHostContracts complete');
-			})
+			refreshLastBlock(),
+			refreshHostConfig(),
+			refreshHostContracts()
 		]);
 
 		// refresh explorer relies on host config call being completed

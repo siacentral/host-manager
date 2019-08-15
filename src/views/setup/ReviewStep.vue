@@ -74,8 +74,6 @@ export default {
 			this.setConfig(this.config);
 			await refreshData();
 
-			console.log('review data refreshed');
-
 			this.$emit('done', {
 				inc: 1,
 				createWallet: !this.walletEncrypted && !this.walletUnlocked
