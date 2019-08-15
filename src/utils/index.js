@@ -45,7 +45,7 @@ export async function writeConfig(config) {
 	return writeFileAsync(path.join(siacentralPath, 'config.json'), JSON.stringify(config, null, '\t'));
 }
 
-let config, defaultApiPassword;
+let config;
 
 export async function getConfig() {
 	if (config)
@@ -54,24 +54,6 @@ export async function getConfig() {
 	config = await readConfig();
 
 	return config;
-}
-
-export async function getDefaultAPIPassword() {
-	if (defaultApiPassword)
-		return defaultApiPassword;
-
-	if (process.env.SIA_API_PASSWORD && process.env.SIA_API_PASSWORD.length > 0) {
-		defaultApiPassword = process.env.SIA_API_PASSWORD;
-
-		return defaultApiPassword;
-	}
-
-	const passwordFile = path.join(getDefaultSiaPath(), 'apipassword'),
-		data = decode(await readFileAsync(passwordFile)).trim();
-
-	defaultApiPassword = data;
-
-	return defaultApiPassword;
 }
 
 export async function readConfig() {
