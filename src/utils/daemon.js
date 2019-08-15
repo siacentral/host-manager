@@ -66,7 +66,7 @@ function parseStdOut(output) {
 		if (!lineModule || lineModule.length === 0)
 			lineModule = '';
 		else
-			lineModule = `${lineModule[0].trim()}...`;
+			lineModule = lineModule[0].trim();
 
 		if (!lineFrac || lineFrac.length === 0)
 			return;
