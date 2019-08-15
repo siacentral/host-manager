@@ -20,7 +20,10 @@ export function getDefaultSiaPath() {
 }
 
 export function getUserDataPath(subdir) {
-	return path.join(app.getPath('userData'), '..', subdir);
+	if (subdir)
+		return path.join(app.getPath('userData'), '..', subdir);
+
+	return app.getPath('userData');
 }
 
 export async function readSiaUIConfig() {
