@@ -10,7 +10,8 @@ export function getConnectability(netaddress) {
 	netaddress = encodeURIComponent(netaddress);
 
 	return sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/explorer/hosts/checkconnection?netaddress=${netaddress}`, {
-		method: 'GET'
+		method: 'GET',
+		timeout: 60000
 	});
 }
 
