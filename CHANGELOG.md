@@ -1,5 +1,16 @@
 ## August 2019
 
+### v1.0.0 Initial Release of Sia Central
+
+#### Bug Fixes
+
++ Add timeout to all API requests to prevent the app from permanently locking up
++ Change the pinned pricing to update when the coin price is refreshed instead of with the config refresh
++ Fixed the siad launch flags for `host-addr` and `rpc-addr`
++ Changed the default data path to the Sia Central data path instead of the Sia-UI data path unless changed
++ Fixed the display issues on Linux
++ Fixed issue with clicking Accept Contract not enabling the Update button on the config page
+
 ### v0.1.3
 
 Fourth alpha release of Sia Central.

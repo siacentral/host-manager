@@ -1,13 +1,13 @@
 {
   "name": "SiaCentralDesktop",
-  "version": "0.1.3",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "lint": "vue-cli-service lint",
     "publish": "vue-cli-service electron:build -p always",
     "build": "vue-cli-service electron:build",
     "serve": "vue-cli-service electron:serve",
-    "generate-icons": "electron-icon-builder --input=./public/siacentral.png --output=build --flatten",
+    "generate-icons": "electron-icon-builder --input=./public/icon.png --output=build --flatten",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
