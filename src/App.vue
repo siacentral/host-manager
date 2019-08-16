@@ -213,6 +213,12 @@ export default {
 	}
 }
 
+body.linux {
+	.titlebar {
+		display: none;
+	}
+}
+
 body.win32 {
 	.titlebar {
 		height: 32px;

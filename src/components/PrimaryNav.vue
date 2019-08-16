@@ -161,8 +161,10 @@ nav.primary {
 	}
 }
 
-body.win32 nav.primary {
-	padding: 0;
+body.win32, body.linux {
+	nav.primary {
+		padding: 0;
+	}
 }
 
 body.dark {
