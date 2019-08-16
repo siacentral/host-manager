@@ -48,6 +48,17 @@ module.exports = {
 					entitlements: 'build/entitlements.mac.plist',
 					entitlementsInherit: 'build/entitlements.mac.plist'
 				},
+				linux: {
+					executableNambe: 'Sia Central',
+					target: [
+						'deb',
+						'AppImage'
+					],
+					category: 'Utility'
+				},
+				appImage: {
+					systemIntegration: 'doNotAsk'
+				},
 				dmg: {
 					// new apple notarization does not need the dmg signed
 					sign: false
