@@ -18,8 +18,6 @@ export const apiClient = new SiaApiClient(Store.state.config);
 export async function refreshData() {
 	const credentialsValid = await apiClient.checkCredentials();
 
-	console.log('credential call complete');
-
 	if (!credentialsValid)
 		throw new Error('API credentials invalid');
 
