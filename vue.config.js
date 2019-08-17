@@ -34,7 +34,7 @@ module.exports = {
 				extraResources: [
 					{
 						/* eslint-disable no-template-curly-in-string */
-						from: 'build/bin/${platform}',
+						from: 'build/bin/${os}',
 						to: 'bin',
 						filter: [
 							'**/*'
@@ -49,7 +49,7 @@ module.exports = {
 					entitlementsInherit: 'build/entitlements.mac.plist'
 				},
 				linux: {
-					executableNambe: 'Sia Central',
+					executableName: 'Sia Central',
 					target: [
 						'deb',
 						'AppImage'
