@@ -31,6 +31,8 @@ module.exports = {
 				productName: 'Sia Host Manager',
 				copyright: '2019 Sia Central',
 				afterSign: 'build/scripts/notarize.js',
+				/* eslint-disable no-template-curly-in-string */
+				artifactName: '${productName}-v${version}.${ext}',
 				extraResources: [
 					{
 						/* eslint-disable no-template-curly-in-string */
@@ -42,6 +44,8 @@ module.exports = {
 					}
 				],
 				mac: {
+					/* eslint-disable no-template-curly-in-string */
+					artifactName: '${productName}-v${version}.${ext}',
 					hardenedRuntime: true,
 					// disabled due to new Apple notarization failing
 					gatekeeperAssess: false,
@@ -50,6 +54,8 @@ module.exports = {
 				},
 				linux: {
 					executableName: 'Sia Host Manager',
+					/* eslint-disable no-template-curly-in-string */
+					artifactName: '${productName}-v${version}.${ext}',
 					target: [
 						'deb',
 						'AppImage'
@@ -57,7 +63,9 @@ module.exports = {
 					category: 'Utility'
 				},
 				appImage: {
-					systemIntegration: 'doNotAsk'
+					systemIntegration: 'doNotAsk',
+					/* eslint-disable no-template-curly-in-string */
+					artifactName: '${productName}-v${version}.${ext}'
 				},
 				dmg: {
 					// new apple notarization does not need the dmg signed
