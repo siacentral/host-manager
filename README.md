@@ -1,4 +1,4 @@
-# Sia Central Desktop (Alpha)
+# Sia Central Desktop (Beta)
 
 ![siacentral+sia](https://imgur.com/MtDubn1.png)
 
