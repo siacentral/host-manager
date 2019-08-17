@@ -1,14 +1,14 @@
 {
-  "name": "SiaCentralDesktop",
-  "description": "User-friendly desktop for Sia storage network hosts. Provides easy configuration, better financials, and smart alerts to make hosting simpler.",
+  "name": "Sia-Host-Manager",
+  "description": "User-friendly management utility for Sia storage network hosts. Provides easy configuration, better financials, and smart alerts to make hosting simpler.",
   "author": {
     "email": "hi@siacentral.com",
     "name": "Sia Central",
     "url": "https://siacentral.com"
   },
-  "homepage": "https://siacentral.com/desktop",
+  "homepage": "https://siacentral.com/host-manager",
   "bugs": {
-    "url": "https://github.com/siacentral/desktop/issues"
+    "url": "https://github.com/siacentral/host-manager/issues"
   },
   "license": "MIT",
   "version": "1.0.0",

@@ -27,8 +27,8 @@ module.exports = {
 		electronBuilder: {
 			outputDir: 'dist',
 			builderOptions: {
-				appId: 'com.siacentral.desktop',
-				productName: 'Sia Central',
+				appId: 'com.siacentral.host-desktop',
+				productName: 'Sia Host Manager',
 				copyright: '2019 Sia Central',
 				afterSign: 'build/scripts/notarize.js',
 				extraResources: [
@@ -49,7 +49,7 @@ module.exports = {
 					entitlementsInherit: 'build/entitlements.mac.plist'
 				},
 				linux: {
-					executableName: 'Sia Central',
+					executableName: 'Sia Host Manager',
 					target: [
 						'deb',
 						'AppImage'
