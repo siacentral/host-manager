@@ -71,7 +71,8 @@ module.exports = {
 					provider: 's3',
 					bucket: 'siacentral-public',
 					region: 'us-east-2',
-					acl: 'public-read'
+					acl: 'public-read',
+					path: '/host-manager'
 				}
 			}
 		}
