@@ -31,6 +31,7 @@ module.exports = {
 				productName: 'Sia Host Manager',
 				copyright: '2019 Sia Central',
 				afterSign: 'build/scripts/notarize.js',
+				afterAllArtifactBuild: 'build/scripts/sign.js',
 				/* eslint-disable no-template-curly-in-string */
 				artifactName: '${productName}-v${version}.${ext}',
 				extraResources: [
