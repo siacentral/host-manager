@@ -64,6 +64,10 @@ export default {
 	z-index: 999;
 }
 
+body.win32 .alerts-wrapper {
+	top: 32px;
+}
+
 .panel.panel-alerts {
 	position: absolute;
 	top: 0;
