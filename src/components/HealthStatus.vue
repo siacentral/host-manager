@@ -1,5 +1,7 @@
 <template>
 	<div class="sia-status">
+		<!-- at the top to prevent the :last-child selector from firing -->
+		<receive-modal v-if="modal === 'receiveTransaction'" @close="modal = null" />
 		<a :href="connectivityLink" target="_blank" class="sia-status-item connection-status">
 			<div :class="connectionSeverity">
 				<icon icon="wifi" />
@@ -15,7 +17,7 @@
 			<div class="sia-status-title">{{ blockHeight }}</div>
 			<div class="sia-status-text">{{ statusText }}</div>
 		</div>
-		<div class="sia-status-item">
+		<a href="#" class="sia-status-item" @click.prevent="modal = 'receiveTransaction'">
 			<div :class="{'sia-status-icon': true, 'status-warning': !synced }">
 				<icon icon="wallet" />
 			</div>
@@ -23,16 +25,25 @@
 				{{ formatPriceString(balance, 2) }}
 			</div>
 			<div class="sia-status-text">Balance</div>
-		</div>
+		</a>
 	</div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import ReceiveModal from '@/components/wallet/ReceiveModal';
 
+import { mapState } from 'vuex';
 import { formatFriendlyDuration, formatPriceString } from '@/utils/format';
 
 export default {
+	components: {
+		ReceiveModal
+	},
+	data() {
+		return {
+			modal: null
+		};
+	},
 	computed: {
 		...mapState({
 			netAddress: state => state.netAddress,

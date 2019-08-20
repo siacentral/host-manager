@@ -1,5 +1,8 @@
 <template>
 	<div class="page page-dashboard">
+		<div class="wallet-controls">
+			<button class="btn btn-inline" @click="modal = 'receiveTransaction'"><icon icon="wallet" /> Receive Siacoin</button>
+		</div>
 		<donut-graph class="graph" :data="contractsGraph" :defaultIndex="0" icon="file-contract" />
 		<donut-graph class="graph" :data="storageGraph" :defaultIndex="0" icon="hdd" />
 		<div class="display-grid">
@@ -28,18 +31,26 @@
 				<div class="item-value">{{ formatPriceString(burntCollateral, 4) }}</div>
 			</div>
 		</div>
+		<receive-modal v-if="modal === 'receiveTransaction'" @close="modal = null" />
 	</div>
 </template>
 
 <script>
 import DonutGraph from '@/components/DonutGraph';
+import ReceiveModal from '@/components/wallet/ReceiveModal';
 
 import { mapState } from 'vuex';
 import { formatPriceString, formatByteString } from '@/utils/format';
 
 export default {
 	components: {
-		DonutGraph
+		DonutGraph,
+		ReceiveModal
+	},
+	data() {
+		return {
+			modal: null
+		};
 	},
 	computed: {
 		...mapState(['blockHeight', 'config']),
@@ -117,9 +128,10 @@ export default {
 	display: grid;
 	width: 100%;
 	height: 100%;
-	grid-template-rows: minmax(0, 1fr) auto;
+	grid-template-rows: auto minmax(0, 1fr) auto;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	align-items: center;
+	grid-gap: 15px;
 }
 
 .graph {
@@ -129,5 +141,11 @@ export default {
 .display-grid {
 	padding: 15px;
 	grid-area: auto / 1 / auto / span 2;
+}
+
+.wallet-controls {
+	padding: 15px 5px;
+	grid-area: auto / 1 / auto / span 2;
+	text-align: right;
 }
 </style>
