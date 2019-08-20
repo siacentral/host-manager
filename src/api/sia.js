@@ -47,7 +47,7 @@ export default class SiaApiClient {
 
 	async checkCredentials() {
 		try {
-			const resp = await this.getWalletAddress();
+			const resp = await this.getWalletAddresses();
 
 			if (resp.statusCode === 200)
 				return true;
@@ -211,10 +211,25 @@ export default class SiaApiClient {
 		});
 	}
 
-	async getWalletAddress() {
+	async createWalletAddress() {
 		const apiPassword = await this.getDefaultAPIPassword();
 
 		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/address`, {
+			method: 'GET',
+			headers: {
+				'User-Agent': this.config.siad_api_agent
+			},
+			auth: {
+				username: '',
+				password: apiPassword
+			}
+		});
+	}
+
+	async getWalletAddresses() {
+		const apiPassword = await this.getDefaultAPIPassword();
+
+		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/addresses`, {
 			method: 'GET',
 			headers: {
 				'User-Agent': this.config.siad_api_agent
@@ -277,6 +292,21 @@ export default class SiaApiClient {
 			form: {
 				encryptionpassword,
 				seed
+			}
+		});
+	}
+
+	async getTPoolFees() {
+		const apiPassword = await this.getDefaultAPIPassword();
+
+		return sendJSONRequest(`${this.config.siad_api_addr}/tpool/fee`, {
+			method: 'GET',
+			headers: {
+				'User-Agent': this.config.siad_api_agent
+			},
+			auth: {
+				username: '',
+				password: apiPassword
 			}
 		});
 	}

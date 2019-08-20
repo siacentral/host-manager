@@ -9,7 +9,12 @@ export default {
 		rescanning: false,
 		unlocked: false,
 		encrypted: false,
+		lastAddress: null,
 		alerts: [],
+		fees: {
+			minimum: new BigNumber(0),
+			maximum: new BigNumber(0)
+		},
 		newAlertsCount: 0
 	},
 	mutations: {
@@ -30,6 +35,12 @@ export default {
 		},
 		setRescanning(state, rescanning) {
 			state.rescanning = rescanning;
+		},
+		setLastAddress(state, address) {
+			state.lastAddress = address;
+		},
+		setFees(state, fees) {
+			state.fees = { ...state.fees, ...fees };
 		},
 		setAlerts(state, alerts) {
 			state.newAlertsCount = alerts.reduce((val, alert) => {
@@ -62,6 +73,12 @@ export default {
 		},
 		setRescanning(context, rescanning) {
 			context.commit('setRescanning', rescanning);
+		},
+		setLastAddress(context, address) {
+			context.commit('setLastAddress', address);
+		},
+		setFees(context, fees) {
+			context.commit('setFees', fees);
 		},
 		setAlerts(context, alerts) {
 			context.commit('setAlerts', alerts);

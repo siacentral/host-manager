@@ -7,7 +7,11 @@ import Store from '@/store';
 
 export async function refreshHostWallet() {
 	try {
-		await loadHostWallet();
+		await Promise.all([
+			loadHostWallet(),
+			loadWalletAddress(),
+			loadWalletFees()
+		]);
 	} catch (ex) {
 		log.error('refreshHostWallet', ex.message);
 	}
@@ -27,6 +31,33 @@ async function unlockHostWalllet(password) {
 
 		return false;
 	}
+}
+
+async function loadWalletFees() {
+	const resp = await apiClient.getWalletAddresses();
+
+	if (resp.statusCode !== 200)
+		throw new Error(resp.body.message);
+
+	if (!Array.isArray(resp.body.addresses))
+		throw new Error('addresses must be an array');
+
+	Store.dispatch('hostWallet/setFees', {
+		maximum: new BigNumber(resp.body.maximum),
+		minimum: new BigNumber(resp.body.minimum)
+	});
+}
+
+async function loadWalletAddress() {
+	const resp = await apiClient.getWalletAddresses();
+
+	if (resp.statusCode !== 200)
+		throw new Error(resp.body.message);
+
+	if (!Array.isArray(resp.body.addresses))
+		throw new Error('addresses must be an array');
+
+	Store.dispatch('hostWallet/setLastAddress', resp.body.addresses[resp.body.addresses.length - 1]);
 }
 
 async function loadHostWallet(disableUnlock) {
