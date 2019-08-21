@@ -1,5 +1,13 @@
 ## August 2019
 
+### v1.0.2
+
+Hotfix for macOS not properly including siad binary
+
+#### Bug Fixes
+
++ siad will now properly be included on all platforms
+
 ### v1.0.1
 
 Small bug fix release with a few additional features
