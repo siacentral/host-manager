@@ -46,8 +46,14 @@ function buildEnv(config) {
 function getPath() {
 	const binary = process.platform === 'win32' ? 'siad.exe' : 'siad';
 
-	if (!remote.app.isPackaged)
-		return path.join(__static, '..', 'build', 'bin', process.platform, binary);
+	if (!remote.app.isPackaged) {
+		let platform = process.platform;
+
+		if (platform === 'win32')
+			platform = 'win';
+
+		return path.join(__static, '..', 'build', 'bin', platform, binary);
+	}
 
 	return path.join(process.resourcesPath, 'bin', binary);
 }

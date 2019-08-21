@@ -37,7 +37,7 @@ module.exports = {
 				extraResources: [
 					{
 						/* eslint-disable no-template-curly-in-string */
-						from: 'build/bin/${platform}',
+						from: 'build/bin/${os}',
 						to: 'bin',
 						filter: [
 							'**/*'
@@ -64,7 +64,6 @@ module.exports = {
 					category: 'Utility'
 				},
 				appImage: {
-					systemIntegration: 'doNotAsk',
 					/* eslint-disable no-template-curly-in-string */
 					artifactName: '${productName}-v${version}.${ext}'
 				},
