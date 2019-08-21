@@ -18,8 +18,8 @@
 					around some of stil unresolved bugs in the official clients.</p>
 				<div class="buttons">
 					<button class="btn btn-inline" v-if="daemonManaged" @click="onOpenDataFolder">Open Data Folder</button>
-					<a class="btn btn-inline" href="https://github.com/siacentral/desktop">GitHub</a>
-					<a class="btn btn-inline" href="https://siacentral.com/desktop">Website</a>
+					<a class="btn btn-inline" href="https://github.com/siacentral/host-manager">GitHub</a>
+					<a class="btn btn-inline" href="https://siacentral.com/host-manager">Website</a>
 				</div>
 			</div>
 		</div>
