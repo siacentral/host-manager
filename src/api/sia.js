@@ -280,7 +280,9 @@ export default class SiaApiClient {
 	async recoverWallet(seed, encryptionpassword) {
 		const apiPassword = await this.getDefaultAPIPassword();
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/init/seed`, 'POST', {
+		console.log(this.config.siad_api_agent);
+
+		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/init/seed`, {
 			method: 'POST',
 			headers: {
 				'User-Agent': this.config.siad_api_agent
