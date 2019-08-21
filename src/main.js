@@ -30,7 +30,7 @@ function getConsensusPath(config) {
 	if (config.siad_data_path)
 		return config.siad_data_path;
 
-	return path.join(getUserDataPath('Sia-UI'), 'sia');
+	return path.join(getUserDataPath(), 'sia');
 }
 
 // checks to make sure all of Sia's consensus directories exist at the specified location
