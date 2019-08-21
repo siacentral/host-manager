@@ -48,14 +48,16 @@ async function loadWalletFees() {
 	});
 }
 
-async function loadWalletAddress() {
+async function loadWalletAddress(nocreate) {
 	const resp = await apiClient.getWalletAddresses();
 
 	if (resp.statusCode !== 200)
 		throw new Error(resp.body.message);
 
-	if (!Array.isArray(resp.body.addresses))
-		throw new Error('addresses must be an array');
+	if (!Array.isArray(resp.body.addresses) || resp.body.addresses.length === 0) {
+		await apiClient.createWalletAddress();
+		return loadWalletAddress(true);
+	}
 
 	Store.dispatch('hostWallet/setLastAddress', resp.body.addresses[resp.body.addresses.length - 1]);
 }
