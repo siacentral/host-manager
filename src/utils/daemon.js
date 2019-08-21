@@ -51,6 +51,8 @@ function getPath() {
 
 		if (platform === 'win32')
 			platform = 'win';
+		else if (platform === 'darwin')
+			platform = 'mac';
 
 		return path.join(__static, '..', 'build', 'bin', platform, binary);
 	}
