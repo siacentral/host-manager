@@ -15,6 +15,7 @@
 				<p class="text-center">{{ daemonLoadingModule || 'Loading Sia' }}...</p>
 				<progress-bar :progress="daemonLoadPercent * 100" />
 			</div>
+			<p class="text-center" v-else-if="pullingData" key="data">We're retrieving data from Sia... This may take a while...</p>
 			<p class="text-center" v-else key="success">We're getting everything setup, please wait a moment...</p>
 		</transition>
 		<template v-slot:controls>
@@ -58,7 +59,8 @@ export default {
 	},
 	data() {
 		return {
-			error: null
+			error: null,
+			pullingData: false
 		};
 	},
 	async mounted() {
@@ -72,7 +74,10 @@ export default {
 				throw new Error('Unable to authenticate check API address or password');
 
 			this.setConfig(this.config);
+
+			this.pullingData = true;
 			await refreshData();
+			this.pullingData = false;
 
 			this.$emit('done', {
 				inc: 1,
