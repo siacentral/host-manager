@@ -251,15 +251,11 @@ export default {
 		async recoverWallet() {
 			this.recoverSeed = this.recoverSeed.trim();
 
-			console.log(this.appConfig);
-
 			const client = new SiaApiClient(this.appConfig),
 				resp = await client.recoverWallet(this.recoverSeed, this.unlockPassword);
 
 			if (resp.statusCode !== 200)
 				throw new Error(resp.body.message || 'Error recovering seed');
-
-			console.log(resp.body);
 
 			this.seed = resp.body.primaryseed;
 			this.mode = 'review';

@@ -1491,8 +1491,6 @@ var qrcode = function () {
 		};
 
 		_this.getRSBlocks = function (typeNumber, errorCorrectionLevel) {
-			console.log(typeNumber, errorCorrectionLevel);
-
 			var rsBlock = getRsBlockTable(typeNumber, errorCorrectionLevel);
 
 			if (typeof rsBlock == 'undefined') {
