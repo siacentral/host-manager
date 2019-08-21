@@ -1,16 +1,8 @@
 ## August 2019
 
-### v1.0.2
-
-Hotfix for macOS not properly including siad binary
-
-#### Bug Fixes
-
-+ siad will now properly be included on all platforms
-
 ### v1.0.1
 
-Small bug fix release with a few additional features
+Small bug fix release with a few additional features. 
 
 #### Features
 
@@ -24,6 +16,7 @@ Small bug fix release with a few additional features
 + Fix issue with blank screen after setup completion. Should now display the loading screen
 + Fix issue with windows binary not being packaged properly when using fresh source
 + Replace all branding titles with "Sia Host Manager" instead of "Sia Central"
++ siad will now properly be included on all platforms
 
 ### v1.0.0 Initial Release of Sia Central
 
