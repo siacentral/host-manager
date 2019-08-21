@@ -15,7 +15,7 @@
   "private": true,
   "scripts": {
     "lint": "vue-cli-service lint",
-    "publish": "vue-cli-service electron:build -p always",
+    "publish": "cross-env PUBLISH=true vue-cli-service electron:build -p always",
     "build": "vue-cli-service electron:build",
     "serve": "vue-cli-service electron:serve",
     "generate-icons": "electron-icon-builder --input=./public/icon.png --output=build --flatten",
@@ -48,6 +48,7 @@
     "@vue/eslint-config-standard": "^4.0.0",
     "aws-sdk": "^2.512.0",
     "babel-eslint": "^10.0.1",
+    "cross-env": "^5.2.0",
     "electron": "^5.0.8",
     "electron-builder": "^21.1.1",
     "electron-icon-builder": "^1.0.1",

@@ -15,8 +15,8 @@ async function loadPrivateKey() {
 	 * with mac however we have to use different env vars since it pulls the cert from keychain
 	 * and using CSC_LINK overrides that
 	 */
-	const privKeyFile = process.env.CSC_LINK || process.env.SIGNING_KEY,
-		privKeyPassword = process.env.CSC_KEY_PASSWORD || process.env.SIGNING_KEY_PASSWORD;
+	const privKeyFile = process.env.WIN_CSC_LINK || process.env.CSC_LINK || process.env.SIGNING_KEY,
+		privKeyPassword = process.env.WIN_CSC_KEY_PASSWORD || process.env.CSC_KEY_PASSWORD || process.env.SIGNING_KEY_PASSWORD;
 
 	const keyBuf = await fs.readFile(privKeyFile),
 		p12Der = forge.util.decode64(keyBuf.toString('base64')),
@@ -27,6 +27,9 @@ async function loadPrivateKey() {
 }
 
 async function uploadToS3(opts) {
+	if (!process.env.PUBLISH)
+		return;
+
 	return new Promise((resolve, reject) => {
 		s3.putObject(opts, err => {
 			if (err)
