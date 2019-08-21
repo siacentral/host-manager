@@ -6,7 +6,7 @@
 			</div>
 			<h3>Wallet is locked</h3>
 			<p>Host wallets always need to be unlocked to form new contracts and submit storage proofs.
-				Enter your encryption password below to unlock your wallet. Sia Central can handle
+				Enter your encryption password below to unlock your wallet. Sia Host Manager can handle
 				this automatically in the future.</p>
 			<div class="wallet-step">
 				<div class="control">

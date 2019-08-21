@@ -1,4 +1,4 @@
-# Sia Central Desktop (Beta)
+# Sia Host Manager (Beta)
 
 ![siacentral+sia](https://imgur.com/MtDubn1.png)
 
@@ -7,7 +7,7 @@
 An improved interface for Sia network hosts. Get accurate and complete statistics and 
 monitor the health of your host. Replaces or runs alongside Sia-UI.
 
-Sia Central desktop combines information from your Sia node as well as information from the block chain to display more accurate financial and health statistics.
+Sia Host Manager combines information from your Sia node as well as information from the blockchain to display more accurate financial and health statistics.
 
 ## Features
 

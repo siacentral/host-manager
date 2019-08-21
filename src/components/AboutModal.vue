@@ -1,5 +1,5 @@
 <template>
-	<modal title="About Sia Central Desktop" modalStyle="small" @close="$emit('close')">
+	<modal title="About Sia Host Manager" modalStyle="small" @close="$emit('close')">
 		<div class="about-modal">
 			<div class="about-icon">
 				<sia-central />
@@ -9,10 +9,10 @@
 				<div class="version">Sia Daemon Version: {{ `v${daemonVersion}` }}</div>
 			</div>
 			<div class="about-content">
-				<p>Thank you for trying out Sia Central Desktop.</p>
-				<p>Sia Central Desktop is a 3rd party open-source host management utility for the
-					Sia storage network. It is designed to provide better and more accurate
-					insights and financials. It does this by combining data from your hosting node
+				<p>Thank you for trying out Sia Host Manager.</p>
+				<p>Sia Host Manager is a 3rd party open-source host management utility for the
+					Sia storage network created and maintained by Sia Central. It is designed to provide better
+					and more accurate insights and financials. It does this by combining data from your hosting node
 					with data from the Sia blockchain.</p>
 				<p>This allows the app to get a complete picture of the health of your node and work
 					around some of stil unresolved bugs in the official clients.</p>

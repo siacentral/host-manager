@@ -1,4 +1,4 @@
-### Sia Central Desktop To-Do
+### Sia Host Manager To-Do
 
 #### Package
 

@@ -132,7 +132,7 @@ export default {
 				return 'Loading daemon...';
 
 			if (this.firstRun)
-				return 'Welcome to Sia Central Desktop!';
+				return 'Welcome to Sia Host Manager!';
 
 			if (this.walletScanning)
 				return 'Your wallet is scanning...';

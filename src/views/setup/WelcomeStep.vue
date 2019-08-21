@@ -3,8 +3,8 @@
 		<div class="setup-icon">
 			<SiaCentralSia />
 		</div>
-		<h1>Welcome to Sia Central Desktop</h1>
-		<p>Sia Central provides complete control over all aspects of your host as well as additional insights into the health of your host.</p>
+		<h1>Welcome to Sia Host Manager</h1>
+		<p>Sia Host Manager provides complete control over all aspects of your host as well as additional insights into the health of your host.</p>
 		<p>We need to ask you some questions about your host before we get started.</p>
 
 		<template v-slot:controls>
