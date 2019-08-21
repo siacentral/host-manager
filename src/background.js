@@ -24,7 +24,7 @@ function createWindow() {
 		height: 800,
 		minWidth: 800,
 		minHeight: 600,
-		title: 'Sia Central',
+		title: 'Sia Host Manager',
 		icon: path.join(__static, 'icon.png'),
 		autoHideMenuBar: true,
 		backgroundColor: '#1d1e21',
