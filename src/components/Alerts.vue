@@ -64,10 +64,6 @@ export default {
 	z-index: 999;
 }
 
-body.win32 .alerts-wrapper {
-	top: 32px;
-}
-
 .panel.panel-alerts {
 	position: absolute;
 	top: 0;
@@ -91,6 +87,16 @@ body.win32 .alerts-wrapper {
 		&:hover, &:active, &:focus {
 			color: primary;
 		}
+	}
+}
+
+body.win32 {
+	.alerts-wrapper {
+		padding: 32px 0 15px;
+	}
+
+	.panel.panel-alerts .close-button {
+		top: 45px;
 	}
 }
 
@@ -137,8 +143,8 @@ body.win32 .alerts-wrapper {
 	align-items: center;
 
 	.alert-icon svg.svg-inline--fa {
-		width: 18px;
-		height: 18px;
+		width: 28px;
+		height: 28px;
 	}
 
 	&.alert-danger {
