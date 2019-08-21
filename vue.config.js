@@ -37,7 +37,7 @@ module.exports = {
 				extraResources: [
 					{
 						/* eslint-disable no-template-curly-in-string */
-						from: 'build/bin/${os}',
+						from: 'build/bin/${platform}',
 						to: 'bin',
 						filter: [
 							'**/*'
