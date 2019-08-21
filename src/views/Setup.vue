@@ -98,11 +98,11 @@ export default {
 					this.createWallet = data.createWallet;
 
 				if (this.step >= this.steps.length) {
+					this.setLoaded(false);
 					this.setConfig(this.config);
+					this.setFirstRun(false);
 
 					await refreshData();
-
-					this.setFirstRun(false);
 
 					writeConfig(this.config);
 				}
