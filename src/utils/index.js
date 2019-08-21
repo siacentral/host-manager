@@ -167,11 +167,11 @@ export function concatUint8Array() {
 };
 
 export function showSaveDialogAsync(opts) {
-	return new Promise(resolve => {
-		dialog.showSaveDialog(window, opts, filename => {
-			resolve(filename);
-		});
-	});
+	return dialog.showSaveDialog(window, opts);
+}
+
+export function showOpenDialogAsync(opts) {
+	return dialog.showOpenDialog(window, opts);
 }
 
 /**

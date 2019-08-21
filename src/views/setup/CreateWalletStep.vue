@@ -28,7 +28,7 @@
 					<input type="password" v-model="unlockPassword" />
 				</div>
 				<p>Hosts need to have their wallet unlocked at all times in order to form contracts
-					and submit storage proofs. Sia Central can automatically unlock your wallet
+					and submit storage proofs. Sia Host Manager can automatically unlock your wallet
 					for you.</p>
 				<div class="control">
 					<input type="checkbox" v-model="autoUnlock" id="chk-auto-unlock-create" />
@@ -36,19 +36,24 @@
 				</div>
 			</div>
 			<div class="recover-wallet" v-else-if="mode === 'recover-wallet'" key="recover">
-				<div class="control">
-					<label>Wallet Seed</label>
-					<input type="password" v-model="recoverSeed" />
+				<div class="review-wallet">
+					<div class="control">
+						<label>Wallet Seed</label>
+						<textarea v-model="recoverSeed"></textarea>
+					</div>
+					<div class="review-controls">
+						<button @click="onLoadSeed" class="btn btn-inline pull-right"><icon icon="save" /> Load</button>
+					</div>
 				</div>
 				<div class="control">
 					<label>Unlock Password</label>
 					<input type="password" v-model="unlockPassword" />
 				</div>
 				<p>Hosts need to have their wallet unlocked at all times in order to form contracts
-					and submit storage proofs. Sia Central can automatically unlock your wallet
+					and submit storage proofs. Sia Host Manager can automatically unlock your wallet
 					for you.</p>
 				<div class="control">
-					<input type="checkbox" v-model="autoUnlock" id="chk-auto-unlock-create" />
+					<input type="checkbox" v-model="autoUnlock" id="chk-auto-unlock-review" />
 					<label for="chk-auto-unlock-review">Automatically Unlock</label>
 				</div>
 			</div>
@@ -76,9 +81,10 @@
 <script>
 import log from 'electron-log';
 import { mapState, mapActions } from 'vuex';
+import { decode } from '@stablelib/utf8';
 
 import SiaApiClient from '@/api/sia';
-import { showSaveDialogAsync, writeFileAsync } from '@/utils';
+import { showSaveDialogAsync, showOpenDialogAsync, readFileAsync, writeFileAsync } from '@/utils';
 
 import SetupStep from './SetupStep';
 
@@ -169,6 +175,37 @@ export default {
 				this.creating = false;
 			}
 		},
+		async onLoadSeed() {
+			if (this.saving)
+				return;
+
+			try {
+				this.saving = true;
+
+				const filePaths = await showOpenDialogAsync({
+					title: 'Load Wallet Seed',
+					buttonLabel: 'Load Seed',
+					filters: [
+						{ name: 'Seed File', extensions: ['seed'] },
+						{ name: 'All Files', extensions: ['*'] }
+					]
+				});
+
+				if (!Array.isArray(filePaths) || filePaths.length === 0)
+					return;
+
+				const seed = await readFileAsync(filePaths[0]);
+
+				this.recoverSeed = decode(seed);
+			} catch (ex) {
+				log.error('create wallet onLoadSeed', ex.message);
+				this.pushNotification({
+					message: ex.message,
+					icon: 'save',
+					severity: 'danger'
+				});
+			}
+		},
 		async onSaveSeed() {
 			if (this.saving)
 				return;
@@ -179,7 +216,7 @@ export default {
 				const filePath = await showSaveDialogAsync({
 					title: 'Save Wallet Seed',
 					defaultPath: 'my-wallet.seed',
-					buttonLabel: 'Save',
+					buttonLabel: 'Save Seed',
 					filters: [
 						{ name: 'Seed File', extensions: ['seed'] },
 						{ name: 'All Files', extensions: ['*'] }
@@ -214,11 +251,15 @@ export default {
 		async recoverWallet() {
 			this.recoverSeed = this.recoverSeed.trim();
 
+			console.log(this.appConfig);
+
 			const client = new SiaApiClient(this.appConfig),
 				resp = await client.recoverWallet(this.recoverSeed, this.unlockPassword);
 
-			if (resp.statusCode !== 400)
+			if (resp.statusCode !== 200)
 				throw new Error(resp.body.message || 'Error recovering seed');
+
+			console.log(resp.body);
 
 			this.seed = resp.body.primaryseed;
 			this.mode = 'review';
@@ -237,6 +278,7 @@ export default {
 	grid-template-columns: minmax(0, 1fr) auto;
 	grid-gap: 15px;
 	align-items: center;
+	margin-bottom: 15px;
 
 	.control {
 		margin: 0;
