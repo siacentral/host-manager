@@ -44,7 +44,7 @@ export function getHost(netaddress) {
 }
 
 export function getCoinPrice() {
-	return sendJSONRequest('https://api.coingecko.com/api/v3/coins/siacoin?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false', {
+	return sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/explorer/market/exchange-rate`, {
 		method: 'GET'
 	});
 }
