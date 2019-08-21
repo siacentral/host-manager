@@ -11,7 +11,7 @@
     "url": "https://github.com/siacentral/host-manager/issues"
   },
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "lint": "vue-cli-service lint",

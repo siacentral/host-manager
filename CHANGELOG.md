@@ -1,5 +1,22 @@
 ## August 2019
 
+### v1.0.1
+
+Small bug fix release with a few additional features
+
+#### Features
+
++ Add receive Siacoin button to get an address to top up wallet.
++ Add address QR code to Receive Siacoin modal
++ Add loading message when pulling data from the Sia API
+
+#### Bug Fixes
+
++ Fix display issue with alert panel on Windows
++ Fix issue with blank screen after setup completion. Should now display the loading screen
++ Fix issue with windows binary not being packaged properly when using fresh source
++ Replace all branding titles with "Sia Host Manager" instead of "Sia Central"
+
 ### v1.0.0 Initial Release of Sia Central
 
 #### Bug Fixes
