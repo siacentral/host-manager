@@ -4,7 +4,6 @@
 
 + Customize Auto Updater
 + Customize "About" menu item on Mac
-+ Create Linux AppImage release
 
 #### Sync
 
