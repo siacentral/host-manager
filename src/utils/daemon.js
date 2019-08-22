@@ -1,6 +1,7 @@
 import Store from '@/store';
 import path from 'path';
 import process from 'process';
+import os from 'os';
 import { remote } from 'electron';
 import { spawn } from 'child_process';
 import { decode } from '@stablelib/utf8';
@@ -61,36 +62,29 @@ function getPath() {
 }
 
 function parseStdOut(output) {
-	const loadLines = output.match(/^\([0-9]\/[0-9]\) .*$/gm);
+	const lines = output.split(os.EOL),
+		loadingRegex = /\((?<numerator>[0-9]+)\/(?<denominator>[0-9]+)\) Loading (?<module>.+)\.\.\./gm;
+
 	let loadNum = 0, loadDenom = 0, loadModule;
 
-	if (!loadLines || loadLines.length === 0)
+	if (!Array.isArray(lines) || lines.length === 0)
 		return;
 
-	loadLines.forEach(l => {
-		let lineFrac = l.match(/^\([0-9]\/[0-9]/),
-			lineModule = l.match(/Loading [a-zA-Z]+/);
+	lines.forEach(l => {
+		const match = loadingRegex.exec(l);
 
-		if (!lineModule || lineModule.length === 0)
-			lineModule = '';
-		else
-			lineModule = lineModule[0].trim();
-
-		if (!lineFrac || lineFrac.length === 0)
+		if (!match || !match.groups)
 			return;
 
-		lineFrac = lineFrac[0].substr(1).split('/').map(l => parseInt(l, 10));
+		loadNum = parseInt(match.groups.numerator, 10);
+		loadDenom = parseInt(match.groups.denominator, 10);
+		loadModule = match.groups.module;
 
-		if (lineFrac.length < 2)
-			return;
+		if (isNaN(loadNum) || !isFinite(loadNum))
+			loadNum = 0;
 
-		if (loadNum < lineFrac[0]) {
-			loadNum = lineFrac[0];
-			loadModule = lineModule;
-		}
-
-		if (loadDenom < lineFrac[1])
-			loadDenom = lineFrac[1];
+		if (isNaN(loadDenom) || !isFinite(loadDenom))
+			loadDenom = 1;
 	});
 
 	Store.dispatch('hostDaemon/setLoadPercent', loadNum / (loadDenom + 1));
