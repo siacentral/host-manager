@@ -147,11 +147,11 @@ async function refreshCoinPrice() {
 		if (resp.statusCode !== 200)
 			return;
 
-		Store.dispatch('setCoinPrice', resp.body.market_data.current_price);
+		Store.dispatch('setCoinPrice', resp.body.price);
 
 		await updatePinnedPricing(Store.state.hostConfig.config);
 	} catch (ex) {
-		log.error('coingecko refresh', ex.message);
+		log.error('refreshCoinPrice', ex.message);
 	} finally {
 		priceTimeout = setTimeout(refreshCoinPrice, 1000 * 60 * 15);
 	}
