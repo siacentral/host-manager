@@ -50,33 +50,11 @@ export function formatBlockTimeString(blocks) {
 }
 
 export function formatShortDateString(date) {
-	let m = date.getMonth() + 1,
-		d = date.getDate();
-
-	if (m < 10)
-		m = `0${m}`;
-
-	if (d < 10)
-		d = `0${d}`;
-
-	return `${m}/${d}/${date.getFullYear()}`;
+	return date.toLocaleDateString([], { dateStyle: 'short' });
 }
 
 export function formatShortTimeString(date) {
-	let hours = (date.getHours() % 12).toString(),
-		minutes = date.getMinutes().toString(),
-		meridian = date.getHours() > 12 ? 'PM' : 'AM';
-
-	if (hours === '0')
-		hours = 12;
-
-	if (hours.length === 1)
-		hours = '0' + hours.toString();
-
-	if (minutes.length === 1)
-		minutes = '0' + minutes.toString();
-
-	return `${hours}:${minutes} ${meridian}`;
+	return date.toLocaleTimeString([], { timeStyle: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
 export function formatFriendlyDuration(sec, short) {
@@ -115,6 +93,10 @@ export function formatByteString(val, dec) {
 	return numberToString(val, 1024, ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB'], dec);
 };
 
+const numFormatter = new Intl.NumberFormat({
+	maximumFractionDigits: 20
+});
+
 export function formatSiacoinString(val, dec) {
 	if (!isFinite(dec))
 		dec = 2;
@@ -122,12 +104,13 @@ export function formatSiacoinString(val, dec) {
 	if (!val || val.isEqualTo(0))
 		return '0 SC';
 
-	return `${sigDecimalRound(val.dividedBy(1e24), dec).toString(10)} SC`;
+	return `${numFormatter.format(sigDecimalRound(val.dividedBy(1e24), dec))} SC`;
 };
 
 function sigDecimalRound(val, num) {
-	num = num || 2;
 	const pieces = val.toString(10).split('.');
+
+	num = num || 2;
 
 	if (pieces.length < 2)
 		return val;
@@ -138,13 +121,15 @@ function sigDecimalRound(val, num) {
 	return w.plus(d).toDecimalPlaces(6);
 };
 
-export function formatCryptoString(val) {
+export function formatCryptoString(val, dec) {
 	const currency = Store.state.config.currency || 'btc';
+
+	dec = dec || 4;
 
 	if (val.isEqualTo(0) || !Store.state.coinPrice[currency])
 		return `0 ${currency.toUpperCase()}`;
 
-	return `${sigDecimalRound(val.dividedBy(1e24).times(Store.state.coinPrice[currency]), 4).toString(10)} ${currency.toUpperCase()}`;
+	return `${numFormatter.format(sigDecimalRound(val.dividedBy(1e24).times(Store.state.coinPrice[currency]), dec).toNumber())} ${currency.toUpperCase()}`;
 }
 
 export function formatCurrencyString(val) {
@@ -177,34 +162,34 @@ const supportedCrypto = [
 		'cny'
 	];
 
-export function formatDataPriceString(val) {
+export function formatDataPriceString(val, dec) {
 	if (!val)
 		val = new BigNumber(0);
 
 	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
 
 	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCryptoString(val.times(1e12));
+		return formatCryptoString(val.times(1e12), dec);
 
 	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCurrencyString(val.times(1e12));
+		return formatCurrencyString(val.times(1e12), dec);
 
-	return formatSiacoinString(val.times(1e12));
+	return formatSiacoinString(val.times(1e12), dec);
 };
 
-export function formatMonthlyPriceString(val) {
+export function formatMonthlyPriceString(val, dec) {
 	if (!val)
 		val = new BigNumber(0);
 
 	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
 
 	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCryptoString(val.times(1e12).times(4320));
+		return formatCryptoString(val.times(1e12).times(4320), dec);
 
 	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCurrencyString(val.times(1e12).times(4320));
+		return formatCurrencyString(val.times(1e12).times(4320), dec);
 
-	return formatSiacoinString(val.times(1e12).times(4320));
+	return formatSiacoinString(val.times(1e12).times(4320), dec);
 };
 
 export function formatPriceString(val, dec) {
@@ -214,10 +199,10 @@ export function formatPriceString(val, dec) {
 	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
 
 	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCryptoString(val);
+		return formatCryptoString(val, dec);
 
 	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCurrencyString(val);
+		return formatCurrencyString(val, dec);
 
 	return formatSiacoinString(val, dec);
 }
