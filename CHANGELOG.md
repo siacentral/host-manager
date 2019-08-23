@@ -1,5 +1,18 @@
 ## August 2019
 
+### v1.0.2
+
+Release to update Sia to latest hotfix
+
+#### Features
+
++ Update siad binary to latest version v1.4.1.1
++ Change market price API to use Sia Central market data which uses CoinGecko under the hood instead of CoinGecko directly
+
+#### Bug Fixes
+
++ Fix an issue where exiting Sia-UI would cause Host Manager to lose connection to Sia
+
 ### v1.0.1
 
 Small bug fix release with a few additional features. 
