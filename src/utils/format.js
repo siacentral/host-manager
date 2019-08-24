@@ -134,7 +134,7 @@ export function formatCryptoString(val, dec) {
 
 export function formatCurrencyString(val) {
 	const currency = Store.state.config.currency || 'usd',
-		formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: currency, maximumFractionDigits: 20 });
+		formatter = new Intl.NumberFormat([], { style: 'currency', currency: currency, maximumFractionDigits: 20 });
 
 	if (val.isEqualTo(0) || !Store.state.coinPrice[currency])
 		return formatter.format(0);
