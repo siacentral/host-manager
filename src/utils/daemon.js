@@ -1,7 +1,6 @@
 import Store from '@/store';
 import path from 'path';
 import process from 'process';
-import os from 'os';
 import { remote } from 'electron';
 import { spawn } from 'child_process';
 import { decode } from '@stablelib/utf8';
@@ -62,19 +61,15 @@ function getPath() {
 }
 
 function parseStdOut(output) {
-	const lines = output.split(os.EOL),
-		loadingRegex = /\((?<numerator>[0-9]+)\/(?<denominator>[0-9]+)\) Loading (?<module>.+)\.\.\./gm;
+	const loadingRegex = /^\((?<numerator>[0-9]+)\/(?<denominator>[0-9]+)\) Loading (?<module>.+)\.{3}$/gm;
 
-	let loadNum = 0, loadDenom = 0, loadModule;
+	let loadNum = 0, loadDenom = 0, loadModule, match, rounds = 0;
 
-	if (!Array.isArray(lines) || lines.length === 0)
-		return;
-
-	lines.forEach(l => {
-		const match = loadingRegex.exec(l);
+	do {
+		match = loadingRegex.exec(output);
 
 		if (!match || !match.groups)
-			return;
+			continue;
 
 		loadNum = parseInt(match.groups.numerator, 10);
 		loadDenom = parseInt(match.groups.denominator, 10);
@@ -85,7 +80,9 @@ function parseStdOut(output) {
 
 		if (isNaN(loadDenom) || !isFinite(loadDenom))
 			loadDenom = 1;
-	});
+
+		rounds++;
+	} while (match != null && rounds < 15);
 
 	Store.dispatch('hostDaemon/setLoadPercent', loadNum / (loadDenom + 1));
 	Store.dispatch('hostDaemon/setCurrentModule', loadModule);
@@ -161,11 +158,12 @@ export function launch(config) {
 				stdout += decode(data);
 
 				// useful debug message will be removed when packaged
-				console.log(stdout);
+				// console.log(stdout);
 
 				parseStdOut(stdout);
 
 				if (stdout.indexOf('Finished loading in') >= 0) {
+					console.log(stdout);
 					Store.dispatch('hostDaemon/setLoaded', true);
 
 					setTimeout(resolve, 300);
