@@ -4,7 +4,7 @@
 			<div class="setup-icon">
 				<icon icon="database" />
 			</div>
-			<h3>{{ questionText }}</h3>
+			<h3>Would you like to move your Sia Data Path?</h3>
 			<p>Some hosts like to store their consensus data on a different harddrive from Sia. Leave the field blank to use the default.</p>
 		</template>
 		<div class="control control-search">
@@ -36,11 +36,6 @@ export default {
 		return {
 			consensusLocation: null
 		};
-	},
-	computed: {
-		questionText() {
-			return this.fresh ? 'Would you like to move your Sia Data Path?' : 'Did you move your Sia Data Path?';
-		}
 	},
 	methods: {
 		onSearchFile() {

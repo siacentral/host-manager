@@ -4,8 +4,8 @@
 			<div class="setup-icon">
 				<icon icon="cogs" />
 			</div>
-			<h3>Do you want to change ports?</h3>
-			<p>Some hosts change the port their host listens on, use a custom RPC port, or change their API authentication. Change any of the daemon settings you need to. Leave blank to use the default value.</p>
+			<h3>Do you want to change any Daemon flags?</h3>
+			<p>Some hosts use custom ports or change their API authentication. Change any of the daemon settings you need to. Leave blank to use the default value.</p>
 		</template>
 		<div class="control">
 			<label>Host Port</label>
