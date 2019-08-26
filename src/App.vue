@@ -108,6 +108,7 @@ export default {
 		...mapState({
 			config: state => state.config,
 			dataLoaded: state => state.loaded,
+			refreshingData: state => state.refreshingData,
 			firstRun: state => state.firstRun,
 			criticalError: state => state.criticalError,
 			walletUnlocked: state => state.hostWallet.unlocked,
@@ -130,6 +131,9 @@ export default {
 
 			if (!this.daemonLoaded && this.daemonManaged)
 				return 'Loading daemon...';
+
+			if (this.refreshingData)
+				return 'Syncing data from Sia... This may take a minute...';
 
 			if (this.firstRun)
 				return 'Welcome to Sia Host Manager!';

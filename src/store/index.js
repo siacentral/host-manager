@@ -30,6 +30,7 @@ export default new Vuex.Store({
 		synced: false,
 		syncTime: 0,
 		loaded: false,
+		refreshingData: false,
 		criticalError: null,
 		notifications: []
 	},
@@ -66,6 +67,9 @@ export default new Vuex.Store({
 		},
 		setLoaded(state, loaded) {
 			state.loaded = loaded;
+		},
+		setRefreshingData(state, refreshingData) {
+			state.refreshingData = refreshingData;
 		},
 		setNetAddress(state, netaddress) {
 			state.netAddress = netaddress;
@@ -119,6 +123,9 @@ export default new Vuex.Store({
 		},
 		setLoaded(context, loaded) {
 			context.commit('setLoaded', loaded);
+		},
+		setRefreshingData(context, refreshingData) {
+			context.commit('setRefreshingData', refreshingData);
 		},
 		setCriticalError(context, criticalError) {
 			context.commit('setCriticalError', criticalError);

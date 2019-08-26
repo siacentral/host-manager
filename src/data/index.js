@@ -21,11 +21,14 @@ export async function refreshData() {
 	if (!credentialsValid)
 		throw new Error('API credentials invalid');
 
+	Store.dispatch('setRefreshingData', true);
+
 	await longRefresh();
 	await shortRefresh();
 	await refreshCoinPrice();
 
 	Store.dispatch('setLoaded', true);
+	Store.dispatch('setRefreshingData', false);
 }
 
 async function shortRefresh() {

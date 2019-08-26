@@ -15,7 +15,7 @@
 				<p class="text-center">{{ daemonLoadingModule || 'Loading Sia' }}...</p>
 				<progress-bar :progress="daemonLoadPercent * 100" />
 			</div>
-			<p class="text-center" v-else-if="pullingData" key="data">We're retrieving data from Sia... This may take a while...</p>
+			<p class="text-center" v-else-if="refreshingData" key="data">We're retrieving data from Sia... This may take a while...</p>
 			<p class="text-center" v-else key="success">We're getting everything setup, please wait a moment...</p>
 		</transition>
 		<template v-slot:controls>
@@ -49,6 +49,7 @@ export default {
 	},
 	computed: {
 		...mapState({
+			refreshingData: state => state.refreshingData,
 			walletEncrypted: state => state.hostWallet.encrypted,
 			walletUnlocked: state => state.hostWallet.unlocked,
 			daemonLoaded: state => state.hostDaemon.loaded,
@@ -59,8 +60,7 @@ export default {
 	},
 	data() {
 		return {
-			error: null,
-			pullingData: false
+			error: null
 		};
 	},
 	async mounted() {
@@ -75,9 +75,7 @@ export default {
 
 			this.setConfig(this.config);
 
-			this.pullingData = true;
 			await refreshData();
-			this.pullingData = false;
 
 			this.$emit('done', {
 				inc: 1,
