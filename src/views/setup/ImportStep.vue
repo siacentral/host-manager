@@ -39,7 +39,7 @@ export default {
 			const ev = { inc: 1 };
 
 			if (doImport) {
-				ev.inc = this.advanced ? 3 : 2;
+				ev.inc = 2;
 				ev.config = { ...this.config, ...this.import };
 			}
 
