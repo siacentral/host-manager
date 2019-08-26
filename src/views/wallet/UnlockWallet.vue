@@ -59,7 +59,7 @@ export default {
 				}
 
 				if (this.autoUnlock) {
-					const newConf = { ...this.config, siad_api_password: this.password };
+					const newConf = { ...this.config, siad_wallet_password: this.password };
 
 					this.setConfig(newConf);
 					await writeConfig(newConf);

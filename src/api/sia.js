@@ -246,6 +246,7 @@ export default class SiaApiClient {
 
 		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/unlock`, {
 			method: 'POST',
+			timeout: 10000,
 			headers: {
 				'User-Agent': this.config.siad_api_agent
 			},

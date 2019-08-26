@@ -7,7 +7,6 @@
 			<daemon-override-step v-else-if="stepActive('settings')" key="settings" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<review-step v-else-if="stepActive('review')" key="review" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<create-wallet-step v-else-if="stepActive('create-wallet')" key="create-wallet" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
-			<auto-unlock-step v-else-if="stepActive('auto-unlock')" key="auto-unlock" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 		</transition>
 	</div>
 </template>
@@ -22,7 +21,6 @@ import ConsensusLocationStep from '@/views/setup/ConsensusLocationStep';
 import DaemonOverrideStep from '@/views/setup/DaemonOverrideStep';
 import ReviewStep from '@/views/setup/ReviewStep';
 import CreateWalletStep from '@/views/setup/CreateWalletStep';
-import AutoUnlockStep from '@/views/setup/AutoUnlockStep';
 import { readSiaUIConfig, writeConfig } from '@/utils';
 import { refreshData } from '@/data';
 
@@ -33,8 +31,7 @@ export default {
 		ConsensusLocationStep,
 		DaemonOverrideStep,
 		ReviewStep,
-		CreateWalletStep,
-		AutoUnlockStep
+		CreateWalletStep
 	},
 	data() {
 		return {
@@ -64,8 +61,6 @@ export default {
 
 			if (this.createWallet)
 				steps.push('create-wallet');
-			else
-				steps.push('auto-unlock');
 
 			return steps;
 		}
