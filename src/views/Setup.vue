@@ -4,6 +4,7 @@
 			<welcome-step v-if="stepActive('welcome')" key="welcome" :import="imported" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<import-step v-else-if="stepActive('import')" key="import" :import="imported" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<consensus-location-step v-else-if="stepActive('consensus')" key="consensus" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
+			<bootstrap-step v-else-if="stepActive('bootstrap')" key="bootstrap" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<daemon-override-step v-else-if="stepActive('settings')" key="settings" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<review-step v-else-if="stepActive('review')" key="review" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<create-wallet-step v-else-if="stepActive('create-wallet')" key="create-wallet" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
@@ -18,6 +19,7 @@ import { mapActions } from 'vuex';
 import WelcomeStep from '@/views/setup/WelcomeStep';
 import ImportStep from '@/views/setup/ImportStep';
 import ConsensusLocationStep from '@/views/setup/ConsensusLocationStep';
+import BootstrapStep from '@/views/setup/BootstrapStep';
 import DaemonOverrideStep from '@/views/setup/DaemonOverrideStep';
 import ReviewStep from '@/views/setup/ReviewStep';
 import CreateWalletStep from '@/views/setup/CreateWalletStep';
@@ -29,6 +31,7 @@ export default {
 		WelcomeStep,
 		ImportStep,
 		ConsensusLocationStep,
+		BootstrapStep,
 		DaemonOverrideStep,
 		ReviewStep,
 		CreateWalletStep
@@ -39,6 +42,7 @@ export default {
 			step: 0,
 			showAdvanced: false,
 			createWallet: false,
+			needsBootstrap: false,
 			config: {
 				dark_mode: true
 			},
@@ -51,8 +55,11 @@ export default {
 
 			if (this.imported)
 				steps.push('import');
+			else
+				steps.push('consensus');
 
-			steps.push('consensus');
+			if (this.needsBootstrap)
+				steps.push('bootstrap');
 
 			if (this.showAdvanced)
 				steps.push('settings');
@@ -77,20 +84,28 @@ export default {
 		}
 	},
 	methods: {
-		...mapActions(['setFirstRun', 'setLoaded', 'setConfig']),
+		...mapActions({
+			setLoaded: state => state.setLoaded,
+			setConfig: state => state.setConfig,
+			setFirstRun: state => state.setup.setFirstRun
+		}),
 		stepActive(name) {
 			return this.loaded && this.step === this.steps.indexOf(name.toLowerCase());
 		},
 		async onStepComplete(data) {
 			try {
 				this.config = data.config ? { ...this.config, ...data.config } : this.config;
-				this.step += data.inc;
 
 				if (typeof data.showAdvanced === 'boolean')
 					this.showAdvanced = data.showAdvanced;
 
 				if (typeof data.createWallet === 'boolean')
 					this.createWallet = data.createWallet;
+
+				if (typeof data.needsBootstrap === 'boolean')
+					this.needsBootstrap = data.needsBootstrap;
+
+				this.step += data.inc;
 
 				if (this.step >= this.steps.length) {
 					this.setLoaded(false);

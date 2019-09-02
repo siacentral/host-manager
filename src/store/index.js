@@ -8,6 +8,7 @@ import hostDaemon from './daemon';
 import explorer from './explorer';
 import hostStorage from './storage';
 import hostWallet from './wallet';
+import setup from './setup';
 
 Vue.use(Vuex);
 
@@ -18,10 +19,10 @@ export default new Vuex.Store({
 		hostConfig,
 		hostDaemon,
 		hostStorage,
-		hostWallet
+		hostWallet,
+		setup
 	},
 	state: {
-		firstRun: true,
 		config: null,
 		netAddress: null,
 		coinPrice: 0.00318536,
@@ -59,9 +60,6 @@ export default new Vuex.Store({
 		}
 	},
 	mutations: {
-		setFirstRun(state, firstRun) {
-			state.firstRun = firstRun;
-		},
 		setCriticalError(state, criticalError) {
 			state.criticalError = criticalError;
 		},
@@ -118,9 +116,6 @@ export default new Vuex.Store({
 		}
 	},
 	actions: {
-		setFirstRun(context, firstRun) {
-			context.commit('setFirstRun', firstRun);
-		},
 		setLoaded(context, loaded) {
 			context.commit('setLoaded', loaded);
 		},

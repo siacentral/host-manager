@@ -43,7 +43,13 @@ export default {
 		UnlockWallet
 	},
 	methods: {
-		...mapActions(['setConfig', 'pushNotification', 'setLoaded', 'setFirstRun', 'setCriticalError']),
+		...mapActions({
+			setConfig: state => state.setConfig,
+			pushNotification: state => state.pushNotification,
+			setLoaded: state => state.setLoaded,
+			setCriticalError: state => state.setCriticalError,
+			setFirstRun: state => state.setup.setFirstRun
+		}),
 		async tryLoad() {
 			try {
 				this.$router.replace({ name: 'dashboard' });
@@ -109,7 +115,7 @@ export default {
 			config: state => state.config,
 			dataLoaded: state => state.loaded,
 			refreshingData: state => state.refreshingData,
-			firstRun: state => state.firstRun,
+			firstRun: state => state.setup.firstRun,
 			criticalError: state => state.criticalError,
 			walletUnlocked: state => state.hostWallet.unlocked,
 			walletEncrypted: state => state.hostWallet.encrypted,
