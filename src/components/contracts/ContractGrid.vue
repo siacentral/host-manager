@@ -88,7 +88,7 @@ export default {
 				totals.risked_collateral = totals.risked_collateral.plus(c.risked_collateral);
 				totals.burnt_collateral = totals.burnt_collateral.plus(c.burnt_collateral);
 				totals.transaction_fees_added = totals.transaction_fees_added.plus(c.transaction_fees_added);
-				totals.totals_cost = totals.totals_cost.plus(c.totals_cost);
+				totals.totals_cost = totals.totals_cost.plus(c.contract_cost);
 				totals.total_revenue = totals.total_revenue.plus(c.total_revenue);
 				totals.download_revenue = totals.download_revenue.plus(c.download_revenue);
 				totals.upload_revenue = totals.upload_revenue.plus(c.upload_revenue);
