@@ -1,8 +1,8 @@
 import log from 'electron-log';
 import path from 'path';
 import process from 'process';
+import { promises as fs } from 'fs';
 
-import { readFileAsync } from '@/utils';
 import { sendJSONRequest } from './common';
 import { decode } from '@stablelib/utf8';
 
@@ -38,7 +38,7 @@ export default class SiaApiClient {
 		}
 
 		const passwordFile = path.join(getDefaultSiaPath(), 'apipassword'),
-			data = decode(await readFileAsync(passwordFile)).trim();
+			data = decode(await fs.readFile(passwordFile)).trim();
 
 		this._defaultApiPassword = data;
 

@@ -1,5 +1,5 @@
 import { decode } from '@stablelib/utf8';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import process from 'process';
 import { remote } from 'electron';
@@ -28,7 +28,7 @@ export function getUserDataPath(subdir) {
 
 export async function readSiaUIConfig() {
 	const configPath = path.join(getUserDataPath('Sia-UI'), 'sia', 'config.json'),
-		config = JSON.parse(decode(await readFileAsync(configPath)));
+		config = JSON.parse(decode(await fs.readFile(configPath)));
 
 	return {
 		'siad_path': config.siad.path,
@@ -37,12 +37,20 @@ export async function readSiaUIConfig() {
 	};
 }
 
+export async function mkdirIfNotExist(path) {
+	try {
+		await fs.mkdir(path, {
+			recursive: true
+		});
+	} catch (ex) {}
+}
+
 export async function writeConfig(config) {
 	const siacentralPath = app.getPath('userData');
 
-	await mkdirAsync(siacentralPath);
+	await mkdirIfNotExist(siacentralPath);
 
-	return writeFileAsync(path.join(siacentralPath, 'config.json'), JSON.stringify(config, null, '\t'));
+	return fs.writeFile(path.join(siacentralPath, 'config.json'), JSON.stringify(config, null, '\t'));
 }
 
 let config;
@@ -58,81 +66,41 @@ export async function getConfig() {
 
 export async function readConfig() {
 	const siacentralPath = app.getPath('userData'),
-		config = await readFileAsync(path.join(siacentralPath, 'config.json'));
+		config = await fs.readFile(path.join(siacentralPath, 'config.json'));
 
 	return JSON.parse(decode(config));
 }
 
-export function readFileAsync(path) {
-	return new Promise((resolve, reject) => {
-		fs.readFile(path, (err, data) => {
-			if (err) {
-				reject(err);
-				return;
-			}
+export function getConsensusPath(loc) {
+	if (loc)
+		return loc;
 
-			resolve(data);
-		});
-	});
-};
-
-export function writeFileAsync(path, data) {
-	return new Promise((resolve, reject) => {
-		fs.writeFile(path, data, (err) => {
-			if (err) {
-				reject(err);
-				return;
-			}
-
-			resolve(data);
-		});
-	});
-};
-
-/**
- * Async Promise wrapper around fs.mkdir
- * @param {string} dirPath the path of the directory to create
- */
-export function mkdirAsync(dirPath) {
-	return new Promise((resolve, reject) => {
-		fs.mkdir(dirPath, {
-			recursive: true
-		}, (err) => {
-			if (err) {
-				reject(err);
-				return;
-			}
-
-			resolve();
-		});
-	});
+	return path.join(getUserDataPath(), 'sia');
 }
 
-export function fileExistsAsync(path) {
-	return new Promise((resolve, reject) => {
-		fs.stat(path, (err) => {
-			if (err) {
-				resolve(false);
-				return;
-			}
+async function folderMissing(folder) {
+	try {
+		await fs.stat(folder);
 
-			resolve(true);
-		});
-	});
-};
+		return null;
+	} catch (ex) {
+		return path.basename(folder);
+	}
+}
 
-export function dirExistsAsync(path) {
-	return new Promise(resolve => {
-		fs.stat(path, (err, stat) => {
-			if (err) {
-				resolve(false);
-				return;
-			}
+// checks to make sure all of Sia's data directories exist at the specified location
+export async function checkSiaDataFolders(loc) {
+	const missingFolders = (await Promise.all([
+		folderMissing(path.join(loc, 'consensus')),
+		folderMissing(path.join(loc, 'gateway')),
+		folderMissing(path.join(loc, 'host')),
+		folderMissing(path.join(loc, 'renter')),
+		folderMissing(path.join(loc, 'transactionpool')),
+		folderMissing(path.join(loc, 'wallet'))
+	])).filter(f => f !== null);
 
-			resolve(stat.isDirectory());
-		});
-	});
-};
+	return missingFolders;
+}
 
 export function getLastItems(arr, n) {
 	const len = arr.length,

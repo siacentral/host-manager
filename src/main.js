@@ -1,19 +1,18 @@
 import Vue from 'vue';
 import log from 'electron-log';
-import path from 'path';
 
 import App from './App.vue';
 import router from './router';
 import store from './store';
-import { readConfig, dirExistsAsync, getUserDataPath } from '@/utils';
+import { readConfig, checkSiaDataFolders, getConsensusPath } from '@/utils';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
+import { faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
 	faChartPie, faHdd, faFileContract, faWrench, faCogs, faSearch,
 	faUnlock, faDatabase, faPlus, faExpand, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome';
 
-library.add(faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes, faChartPie,
+library.add(faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes, faChartPie,
 	faHdd, faFileContract, faWrench, faCogs, faSearch, faUnlock,
 	faDatabase, faPlus, faExpand, faTrash, faSync);
 
@@ -26,35 +25,15 @@ process.on('unhandledRejection', error => {
 	log.error(error);
 });
 
-function getConsensusPath(config) {
-	if (config.siad_data_path)
-		return config.siad_data_path;
-
-	return path.join(getUserDataPath(), 'sia');
-}
-
-// checks to make sure all of Sia's consensus directories exist at the specified location
-async function checkSiaFolders(config) {
-	const consensusFoldersExist = (await Promise.all([
-		dirExistsAsync(path.join(getConsensusPath(config), 'consensus')),
-		dirExistsAsync(path.join(getConsensusPath(config), 'gateway')),
-		dirExistsAsync(path.join(getConsensusPath(config), 'host')),
-		dirExistsAsync(path.join(getConsensusPath(config), 'renter')),
-		dirExistsAsync(path.join(getConsensusPath(config), 'transactionpool')),
-		dirExistsAsync(path.join(getConsensusPath(config), 'wallet'))
-	])).filter(f => !f);
-
-	return consensusFoldersExist.length === 0;
-}
-
 async function init() {
 	document.body.classList.add(process.platform);
 
 	try {
-		const config = await readConfig();
+		const config = await readConfig(),
+			missingFolders = await checkSiaDataFolders(getConsensusPath(config.siad_data_path));
 
-		if (!(await checkSiaFolders(config)))
-			throw new Error('consensus folder missing, running setup');
+		if (missingFolders.length > 0)
+			throw new Error('data folder missing, running setup');
 
 		store.dispatch('setConfig', config);
 
@@ -63,7 +42,7 @@ async function init() {
 		else
 			document.body.classList.remove('dark');
 
-		store.dispatch('setFirstRun', false);
+		store.dispatch('setup/setFirstRun', false);
 	} catch (ex) {
 		log.error('main init', ex.message);
 	}

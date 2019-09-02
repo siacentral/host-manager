@@ -47,7 +47,7 @@ import log from 'electron-log';
 import Modal from '@/components/Modal';
 import ProgressBar from '@/components/ProgressBar';
 import { BigNumber } from 'bignumber.js';
-import { mkdirAsync, dirExistsAsync } from '@/utils';
+import { mkdirIfNotExist } from '@/utils';
 import { parseByteString } from '@/utils/parse';
 import { formatByteString } from '@/utils/format';
 import SiaApiClient from '@/api/sia';
@@ -151,8 +151,7 @@ export default {
 			}
 		},
 		async createFolder(path, size) {
-			if (!(await dirExistsAsync(path)))
-				await mkdirAsync(path);
+			await mkdirIfNotExist(path);
 
 			// all folders must be a factor of 64 sectors
 			size = new BigNumber(Math.floor(size.div(sectorSize * granularity).toNumber())).times(sectorSize * granularity);

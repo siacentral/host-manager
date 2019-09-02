@@ -79,12 +79,13 @@
 </template>
 
 <script>
+import { promises as fs } from 'fs';
 import log from 'electron-log';
 import { mapState, mapActions } from 'vuex';
 import { decode } from '@stablelib/utf8';
 
 import SiaApiClient from '@/api/sia';
-import { showSaveDialogAsync, showOpenDialogAsync, readFileAsync, writeFileAsync } from '@/utils';
+import { showSaveDialogAsync, showOpenDialogAsync } from '@/utils';
 
 import SetupStep from './SetupStep';
 
@@ -194,7 +195,7 @@ export default {
 				if (!Array.isArray(filePaths) || filePaths.length === 0)
 					return;
 
-				const seed = await readFileAsync(filePaths[0]);
+				const seed = await fs.readFile(filePaths[0]);
 
 				this.recoverSeed = decode(seed);
 			} catch (ex) {
@@ -226,7 +227,7 @@ export default {
 				if (!filePath)
 					return;
 
-				await writeFileAsync(filePath, this.seed);
+				await fs.writeFile(filePath, this.seed);
 			} catch (ex) {
 				log.error('create wallet on save seed click', ex.message);
 				this.pushNotification({
