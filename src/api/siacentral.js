@@ -48,3 +48,9 @@ export function getCoinPrice() {
 		method: 'GET'
 	});
 }
+
+export function getSiaCentralBootstrap() {
+	return sendJSONRequest(`${process.env.VUE_APP_API_BASE_URL}/bootstrap/latest`, {
+		method: 'GET'
+	});
+}
