@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import log from 'electron-log';
+import { checkSiaDataFolders } from '@/utils';
 import SetupStep from './SetupStep';
 import SiaCentralSia from '@/assets/siacentral+sia.svg';
 
@@ -25,6 +27,11 @@ export default {
 		config: Object,
 		import: Object,
 		advanced: Boolean
+	},
+	data() {
+		return {
+			setting: false
+		};
 	},
 	beforeMount() {
 		if (!this.import)
@@ -35,15 +42,28 @@ export default {
 		SiaCentralSia
 	},
 	methods: {
-		onNext(doImport) {
-			const ev = { inc: 1 };
+		async onNext(doImport) {
+			if (this.setting)
+				return;
 
-			if (doImport) {
-				ev.inc = 2;
-				ev.config = { ...this.config, ...this.import };
+			try {
+				const ev = { inc: 1 };
+
+				if (doImport) {
+					ev.config = { ...this.config, ...this.import };
+
+					const missingFolders = await checkSiaDataFolders(ev.config.siad_data_path);
+
+					if (missingFolders.indexOf('consensus') >= 0)
+						ev.needsBootstrap = true;
+				}
+
+				this.$emit('done', ev);
+			} catch (ex) {
+				log.error('import setup', ex.message);
+			} finally {
+				this.setting = false;
 			}
-
-			this.$emit('done', ev);
 		}
 	}
 };

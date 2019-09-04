@@ -13,14 +13,16 @@
 			<button @click="onSearchFile"><icon icon="search" /> Browse</button>
 		</div>
 		<template v-slot:controls>
-			<button class="btn btn-success btn-inline" @click="onNext(1)">Next</button>
+			<button class="btn btn-success btn-inline" @click="onNext(1)" :disabled="setting">Next</button>
 		</template>
 	</setup-step>
 </template>
 
 <script>
-import SetupStep from './SetupStep';
 import { remote } from 'electron';
+import log from 'electron-log';
+import { checkSiaDataFolders } from '@/utils';
+import SetupStep from './SetupStep';
 
 const dialog = remote.dialog;
 
@@ -34,7 +36,8 @@ export default {
 	},
 	data() {
 		return {
-			consensusLocation: null
+			consensusLocation: null,
+			setting: false
 		};
 	},
 	methods: {
@@ -43,13 +46,30 @@ export default {
 
 			this.consensusLocation = paths ? paths[0] : null;
 		},
-		onNext(n) {
-			this.$emit('done', {
-				inc: n,
-				config: {
-					siad_data_path: this.consensusLocation
-				}
-			});
+		async onNext(n) {
+			if (this.setting)
+				return;
+
+			try {
+				this.setting = true;
+
+				const ev = {
+						inc: n,
+						config: {
+							siad_data_path: this.consensusLocation
+						}
+					},
+					missingFolders = await checkSiaDataFolders(ev.config.siad_data_path);
+
+				if (missingFolders.indexOf('consensus') >= 0)
+					ev.needsBootstrap = true;
+
+				this.$emit('done', ev);
+			} catch (ex) {
+				log.error('consensus location setup', ex.message);
+			} finally {
+				this.setting = false;
+			}
 		}
 	}
 };
