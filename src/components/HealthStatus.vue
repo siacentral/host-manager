@@ -33,7 +33,7 @@
 import ReceiveModal from '@/components/wallet/ReceiveModal';
 
 import { mapState } from 'vuex';
-import { formatFriendlyDuration, formatPriceString } from '@/utils/format';
+import { formatDuration, formatPriceString } from '@/utils/format';
 
 export default {
 	components: {
@@ -58,7 +58,7 @@ export default {
 				return 'Synced';
 
 			if (this.syncTime > 0)
-				return `Syncing - ${formatFriendlyDuration(this.syncTime / 1000, true)} remaining`;
+				return `Syncing - ${formatDuration(this.syncTime / 1000, true)} remaining`;
 
 			return 'Syncing';
 		},

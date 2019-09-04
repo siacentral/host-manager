@@ -69,7 +69,7 @@ export function formatShortTimeString(date) {
 	return date.toLocaleTimeString([], { timeStyle: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
-export function formatFriendlyDuration(sec, short) {
+export function formatDuration(sec, short) {
 	if (sec <= 0)
 		return '0 sec';
 
@@ -104,6 +104,10 @@ export function formatFriendlyDuration(sec, short) {
 export function formatByteString(val, dec) {
 	return numberToString(val, 1024, ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB'], dec);
 };
+
+export function formatByteSpeed(val, dec) {
+	return numberToString(val, 1024, ['B/s', 'KiB/s', 'MiB/s', 'GiB/s', 'TiB/s', 'PiB/s'], dec);
+}
 
 const numFormatter = new Intl.NumberFormat({
 	maximumFractionDigits: 20
