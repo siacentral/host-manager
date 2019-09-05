@@ -1,6 +1,6 @@
 import { sendJSONRequest } from './common';
 
-export function getLatestBootstrap(netaddress) {
+export function getSiaStatsBootstrap(netaddress) {
 	netaddress = encodeURIComponent(netaddress);
 
 	return sendJSONRequest('https://siastats.info/bootstrap/metadata.json', {
