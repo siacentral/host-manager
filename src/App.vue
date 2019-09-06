@@ -43,13 +43,9 @@ export default {
 		UnlockWallet
 	},
 	methods: {
-		...mapActions({
-			setConfig: state => state.setConfig,
-			pushNotification: state => state.pushNotification,
-			setLoaded: state => state.setLoaded,
-			setCriticalError: state => state.setCriticalError,
-			setFirstRun: state => state.setup.setFirstRun
-		}),
+		...mapActions(['setConfig', 'pushNotification', 'setLoaded', 'setCriticalError',
+			'setFirstRun']),
+		...mapActions('setup', ['setFirstRun']),
 		async tryLoad() {
 			try {
 				this.$router.replace({ name: 'dashboard' });

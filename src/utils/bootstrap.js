@@ -13,6 +13,12 @@ export function checkDownloadOptions(opts) {
 	if (typeof opts.progress !== 'function')
 		opts.progress = () => {};
 
+	if (typeof opts.done !== 'function')
+		opts.done = () => {};
+
+	if (typeof opts.error !== 'function')
+		opts.error = () => {};
+
 	return opts;
 }
 
@@ -28,11 +34,20 @@ export function downloadFile(opts) {
 	let downloadSize = 0, totalSize = 1, estimatedRemaining = 0, downloadSpeed = 0;
 
 	req.on('response', (data) => {
+		if (data.statusCode !== 200) {
+			opts.error(new Error('unable to download file'));
+			return;
+		}
+
 		totalSize = parseInt(data.headers['content-length'], 10);
 
 		if (isNaN(totalSize) || !isFinite(totalSize))
 			totalSize = 1;
 	});
+
+	req.on('error', opts.error);
+
+	req.on('end', opts.done);
 
 	req.on('data', (chunk) => {
 		const elapsed = (Date.now() / 1000) - start;
@@ -48,6 +63,8 @@ export function downloadFile(opts) {
 		opts.progress({
 			downloadSpeed,
 			estimatedRemaining,
+			downloaded: downloadSize,
+			total: totalSize,
 			progress: (downloadSize / totalSize) * 100
 		});
 	});

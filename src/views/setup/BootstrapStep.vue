@@ -8,33 +8,60 @@
 			<p>Downloading a consensus snapshot can make your client sync significantly faster. However, you are
 				trusting that the transaction history in the snapshot is completely accurate. It is more secure to sync the entire blockchain from scratch.</p>
 		</template>
-		<transition-group name="fade" tag="div" class="bootstrap-providers">
-			<div class="provider" v-for="provider in providers" :key="provider.name">
-				<div class="provider-name">Bootstrap from {{ provider.name }}</div>
-				<div class="provider-stat">{{ provider.height }}<span class="sub-label">Block Height</span></div>
-				<div class="provider-stat">{{ provider.size }}<span class="sub-label">Compressed Size</span></div>
-				<div class="provider-stat">{{ provider.timestamp }}<span class="sub-label">Timestamp</span></div>
-				<div class="provider-action">
-					<button class="btn btn-inline">Start Download</button>
-				</div>
+		<transition name="fade" mode="out-in" appear>
+			<div class="error" v-if="error" :key="error">{{ error }}</div>
+		</transition>
+		<transition name="fade" mode="out-in" appear>
+			<div class="download-progress" v-if="complete">
+				<p>Bootstrap from {{ selectedProvider.name }} complete! Block height will start at {{ selectedProvider.height }}</p>
 			</div>
-		</transition-group>
+			<div class="download-progress" v-else-if="downloadComplete">
+				<p>Consensus downloaded. Decompressing. This can take some time. Please wait.</p>
+			</div>
+			<div class="download-progress" v-else-if="downloading">
+				<progress-bar :progress="downloadProgress" />
+				<p>Bootstraping from {{ selectedProvider.name }} to height {{ selectedProvider.height }} around {{ formatDuration(downloadEstimate) }} remaining ({{ formatByteString(downloadBytes, 2) }}/{{ formatByteString(downloadTotal, 2) }} - {{ formatByteSpeed(downloadSpeed, 2) }})</p>
+			</div>
+			<div v-else>
+				<transition-group name="fade" tag="div" class="bootstrap-providers">
+					<div class="provider" v-for="provider in providers" :key="provider.name">
+						<div class="provider-name">Bootstrap from {{ provider.name }}</div>
+						<div class="provider-stat">{{ provider.height }}<span class="sub-label">Block Height</span></div>
+						<div class="provider-stat">{{ provider.size }}<span class="sub-label">Compressed Size</span></div>
+						<div class="provider-stat">{{ provider.timestamp }}<span class="sub-label">Timestamp</span></div>
+						<div class="provider-action">
+							<button class="btn btn-inline" @click="onDownload(provider)">Start Download</button>
+						</div>
+					</div>
+				</transition-group>
+			</div>
+		</transition>
 		<template v-slot:controls>
-			<button class="btn btn-success btn-inline" @click="onNext(1)" :disabled="setting">Sync from Scratch</button>
+			<transition name="fade" mode="out-in">
+				<button class="btn btn-success btn-inline" @click="onNext(1)" :key="buttonText" :disabled="loading || setting || downloading">{{ buttonText }}</button>
+			</transition>
 		</template>
 	</setup-step>
 </template>
 
 <script>
+import fs from 'fs';
+import path from 'path';
+import zlib from 'zlib';
 import log from 'electron-log';
-import SetupStep from './SetupStep';
+import { mapActions } from 'vuex';
 
-import { getLatestBootstrap } from '@/api/siastats';
-import { formatByteString, formatDate } from '@/utils/format';
+import ProgressBar from '@/components/ProgressBar';
+import SetupStep from './SetupStep';
+import { getSiaCentralBootstrap } from '@/api/siacentral';
+import { getSiaStatsBootstrap } from '@/api/siastats';
+import { downloadFile } from '@/utils/bootstrap';
+import { formatByteString, formatDate, formatDuration, formatByteSpeed } from '@/utils/format';
 
 export default {
 	components: {
-		SetupStep
+		SetupStep,
+		ProgressBar
 	},
 	props: {
 		config: Object,
@@ -42,21 +69,71 @@ export default {
 	},
 	data() {
 		return {
+			loading: true,
 			setting: false,
-			providers: []
+			downloading: false,
+			downloadComplete: false,
+			complete: false,
+			providers: [],
+			downloadBytes: 0,
+			downloadTotal: 0,
+			downloadProgress: 0.01,
+			downloadSpeed: 0,
+			downloadEstimate: 0,
+			error: null,
+			selectedProvider: null,
+			downloadReq: null
 		};
 	},
-	beforeMount() {
-		this.loadSiaStatsBootstrap();
+	computed: {
+		buttonText() {
+			return this.downloading || this.complete ? 'Next' : 'Sync from Scratch';
+		}
+	},
+	async beforeMount() {
+		try {
+			await Promise.all([
+				this.loadSiaStatsBootstrap(),
+				this.loadSiaCentralBootstrap()
+			]);
+		} catch (ex) {
+			log.error('load bootstrap', ex.message);
+		} finally {
+			this.loading = false;
+		}
 	},
 	methods: {
+		...mapActions(['pushNotification']),
+		formatDuration,
+		formatByteSpeed,
+		formatByteString,
+		async loadSiaCentralBootstrap() {
+			try {
+				const resp = await getSiaCentralBootstrap();
+
+				if (resp.status !== 200 && resp.body.type !== 'success')
+					throw new Error(resp.body.message);
+
+				const fmt = new Intl.NumberFormat([], {}),
+					timestamp = new Date(resp.body.snapshot.timestamp);
+
+				this.providers.push({
+					name: 'Sia Central',
+					download_url: resp.body.snapshot.download_url,
+					hash: resp.body.snapshot.block_hash,
+					height: fmt.format(resp.body.snapshot.block_height),
+					size: formatByteString(parseFloat(resp.body.snapshot.compressed_size), 2),
+					timestamp: formatDate(timestamp)
+				});
+			} catch (ex) {
+				log.error('loadSiaCentralBootstrap', ex.message);
+			}
+		},
 		async loadSiaStatsBootstrap() {
 			try {
-				const resp = await getLatestBootstrap(),
+				const resp = await getSiaStatsBootstrap(),
 					fmt = new Intl.NumberFormat([], {}),
 					timestamp = new Date(parseFloat(resp.body.timestamp) * 1000);
-
-				console.log(resp);
 
 				this.providers.push({
 					name: 'SiaStats',
@@ -70,7 +147,119 @@ export default {
 				log.error('loadSiaStatsBootstrap', ex.message);
 			}
 		},
-		async onNext(n) {
+		async onDownload(provider) {
+			if (this.downloading)
+				return;
+
+			try {
+				this.downloading = true;
+				this.complete = false;
+				this.selectedProvider = provider;
+
+				const tempPath = path.join(this.config.siad_data_path, `host-manager-bootstrap-dl.tmp`);
+
+				try {
+					await fs.promises.unlink(tempPath);
+				} catch (ex) {}
+
+				const out = fs.createWriteStream(tempPath);
+
+				out.on('error', this.onError);
+
+				const req = downloadFile({
+					uri: provider.download_url,
+					progress: this.onDownloadProgress,
+					done: this.onDownloadComplete,
+					error: this.onError
+				});
+
+				out.on('finish', () => this.onDownloadComplete);
+
+				switch (provider.name) {
+				case 'Sia Central': // Sia Central provides a .gz file which can be piped directly to disk
+					const gzip = zlib.createGunzip();
+
+					req.pipe(gzip).pipe(out);
+					break;
+				case 'SiaStats':
+					req.pipe(out);
+					break;
+				default:
+					throw new Error('unknown provider');
+				}
+
+				this.downloadReq = req;
+			} catch (ex) {
+				this.onError(ex);
+				log.error('onDownload', ex.message);
+			}
+		},
+		onDownloadProgress(progress) {
+			this.downloadBytes = progress.downloaded;
+			this.downloadTotal = progress.total;
+			this.downloadProgress = progress.progress;
+			this.downloadSpeed = progress.downloadSpeed;
+			this.downloadEstimate = progress.estimatedRemaining;
+		},
+		async onDownloadComplete() {
+			try {
+				if (this.error)
+					return;
+
+				const consensusPath = path.join(this.config.siad_data_path, 'consensus'),
+					tempPath = path.join(this.config.siad_data_path, `host-manager-bootstrap-dl.tmp`);
+
+				await fs.promises.mkdir(consensusPath, {
+					recursive: true
+				});
+
+				switch (this.selectedProvider.name) {
+				case 'Sia Central':
+					await fs.promises.rename(tempPath, path.join(consensusPath, 'consensus.db'));
+					break;
+				case 'SiaStats':
+					break;
+				default:
+					throw new Error('unsupported provider');
+				}
+
+				this.complete = true;
+			} catch (ex) {
+				this.onError(ex);
+				log.error('bootstrap error', ex.message);
+			} finally {
+				this.downloading = false;
+			}
+		},
+		async onError(ex) {
+			try {
+				log.error('bootstrap error', ex.message);
+
+				try {
+					this.downloadReq.abort();
+				} catch (ex) {}
+
+				try {
+					await fs.promies.unlink(path.join(this.config.siad_data_path, `host-manager-bootstrap-dl.tmp`));
+				} catch (ex) {}
+
+				this.downloadReq = null;
+
+				this.pushNotification({
+					severity: 'error',
+					icon: 'save',
+					message: ex.message
+				});
+
+				this.error = ex.message;
+			} catch (ex2) {
+				log.error('bootstrap error', ex2.message);
+			} finally {
+				this.downloading = false;
+				this.complete = false;
+			}
+		},
+		onNext(n) {
 			if (this.setting)
 				return;
 
@@ -102,6 +291,12 @@ export default {
 	justify-content: center;
 	align-content: center;
 	grid-gap: 15px;
+}
+
+.download-progress {
+	p {
+		margin-top: 15px;
+	}
 }
 
 .provider {
