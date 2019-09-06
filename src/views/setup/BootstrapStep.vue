@@ -93,7 +93,7 @@ export default {
 	async beforeMount() {
 		try {
 			await Promise.all([
-				this.loadSiaStatsBootstrap(),
+				// this.loadSiaStatsBootstrap(),
 				this.loadSiaCentralBootstrap()
 			]);
 		} catch (ex) {
