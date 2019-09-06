@@ -87,10 +87,8 @@ export default {
 		}
 	},
 	methods: {
-		...mapActions({
-			setConfig: state => state.setConfig,
-			setFirstRun: state => state.setup.setFirstRun
-		})
+		...mapActions(['setConfig']),
+		...mapActions('setup', ['setFirstRun'])
 	}
 };
 </script>

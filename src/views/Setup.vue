@@ -84,11 +84,8 @@ export default {
 		}
 	},
 	methods: {
-		...mapActions({
-			setLoaded: state => state.setLoaded,
-			setConfig: state => state.setConfig,
-			setFirstRun: state => state.setup.setFirstRun
-		}),
+		...mapActions(['setLoaded', 'setConfig']),
+		...mapActions('setup', ['setFirstRun']),
 		stepActive(name) {
 			return this.loaded && this.step === this.steps.indexOf(name.toLowerCase());
 		},
