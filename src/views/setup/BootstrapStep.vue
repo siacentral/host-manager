@@ -38,7 +38,8 @@
 		</transition>
 		<template v-slot:controls>
 			<transition name="fade" mode="out-in">
-				<button class="btn btn-success btn-inline" @click="onNext(1)" :key="buttonText" :disabled="loading || setting || downloading">{{ buttonText }}</button>
+				<button class="btn btn-danger btn-inline" @click="onCancel" key="cancelDownload" v-if="downloading">Cancel</button>
+				<button class="btn btn-success btn-inline" @click="onNext(1)" v-else :key="buttonText" :disabled="loading || setting || downloading">{{ buttonText }}</button>
 			</transition>
 		</template>
 	</setup-step>
@@ -55,7 +56,7 @@ import ProgressBar from '@/components/ProgressBar';
 import SetupStep from './SetupStep';
 import { getSiaCentralBootstrap } from '@/api/siacentral';
 import { getSiaStatsBootstrap } from '@/api/siastats';
-import { downloadFile } from '@/utils/bootstrap';
+import { downloadFile, extractSiaStats } from '@/utils/bootstrap';
 import { formatByteString, formatDate, formatDuration, formatByteSpeed } from '@/utils/format';
 
 export default {
@@ -73,6 +74,7 @@ export default {
 			setting: false,
 			downloading: false,
 			downloadComplete: false,
+			canceling: false,
 			complete: false,
 			providers: [],
 			downloadBytes: 0,
@@ -93,7 +95,7 @@ export default {
 	async beforeMount() {
 		try {
 			await Promise.all([
-				// this.loadSiaStatsBootstrap(),
+				this.loadSiaStatsBootstrap(),
 				this.loadSiaCentralBootstrap()
 			]);
 		} catch (ex) {
@@ -147,6 +149,29 @@ export default {
 				log.error('loadSiaStatsBootstrap', ex.message);
 			}
 		},
+		async onCancel() {
+			this.canceling = true;
+
+			try {
+				this.downloadReq.abort();
+			} catch (ex) {
+				log.error('cancel bootstrap', ex.message);
+			}
+
+			try {
+				const tempPath = path.join(this.config.siad_data_path, `host-manager-bootstrap-dl.tmp`);
+
+				await fs.promises.unlink(tempPath);
+			} catch (ex) {
+				log.error('cancel bootstrap', ex.message);
+			}
+
+			this.downloading = false;
+			this.downloadComplete = false;
+			this.complete = false;
+			this.selectedProvider = null;
+			this.error = 'Bootstrap cancelled';
+		},
 		async onDownload(provider) {
 			if (this.downloading)
 				return;
@@ -154,6 +179,7 @@ export default {
 			try {
 				this.downloading = true;
 				this.complete = false;
+				this.canceling = false;
 				this.selectedProvider = provider;
 
 				const tempPath = path.join(this.config.siad_data_path, `host-manager-bootstrap-dl.tmp`);
@@ -218,6 +244,7 @@ export default {
 					await fs.promises.rename(tempPath, path.join(consensusPath, 'consensus.db'));
 					break;
 				case 'SiaStats':
+					await extractSiaStats(tempPath, consensusPath);
 					break;
 				default:
 					throw new Error('unsupported provider');
@@ -233,8 +260,6 @@ export default {
 		},
 		async onError(ex) {
 			try {
-				log.error('bootstrap error', ex.message);
-
 				try {
 					this.downloadReq.abort();
 				} catch (ex) {}
@@ -242,6 +267,11 @@ export default {
 				try {
 					await fs.promies.unlink(path.join(this.config.siad_data_path, `host-manager-bootstrap-dl.tmp`));
 				} catch (ex) {}
+
+				if (this.canceling)
+					return;
+
+				log.error('bootstrap error', ex.message);
 
 				this.downloadReq = null;
 
