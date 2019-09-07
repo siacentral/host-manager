@@ -83,10 +83,9 @@ export function extractSiaStats(inputPath, outputPath) {
 					return;
 				}
 
-				const outputDir = path.join(outputPath, 'consensus'),
-					outputFile = path.join(outputPath, 'consensus.db.tmp');
+				const outputFile = path.join(outputPath, 'consensus.db');
 
-				await fs.promises.mkdir(outputDir, {
+				await fs.promises.mkdir(outputPath, {
 					recursive: true
 				});
 
