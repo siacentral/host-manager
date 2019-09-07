@@ -7,10 +7,10 @@
 			<h3>Would you like to bootstrap your consensus?</h3>
 			<p>Downloading a consensus snapshot can make your client sync significantly faster. However, you are
 				trusting that the transaction history in the snapshot is completely accurate. It is more secure to sync the entire blockchain from scratch.</p>
+			<transition name="fade" mode="out-in" appear>
+				<div class="error" v-if="error" :key="error">{{ error }}</div>
+			</transition>
 		</template>
-		<transition name="fade" mode="out-in" appear>
-			<div class="error" v-if="error" :key="error">{{ error }}</div>
-		</transition>
 		<transition name="fade" mode="out-in" appear>
 			<div class="download-progress" v-if="complete">
 				<p>Bootstrap from {{ selectedProvider.name }} complete! Block height will start at {{ selectedProvider.height }}</p>
@@ -180,6 +180,7 @@ export default {
 				this.downloading = true;
 				this.complete = false;
 				this.canceling = false;
+				this.error = null;
 				this.selectedProvider = provider;
 
 				const tempPath = path.join(this.config.siad_data_path, `host-manager-bootstrap-dl.tmp`);
@@ -313,6 +314,12 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+.error {
+	font-size:0.9rem;
+	color: negative-accent;
+	padding-top: 15px;
+}
+
 .bootstrap-providers {
 	display: grid;
 	grid-auto-columns: min-content;
