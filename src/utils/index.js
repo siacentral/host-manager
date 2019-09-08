@@ -53,22 +53,15 @@ export async function writeConfig(config) {
 	return fs.writeFile(path.join(siacentralPath, 'config.json'), JSON.stringify(config, null, '\t'));
 }
 
-let config;
-
-export async function getConfig() {
-	if (config)
-		return config;
-
-	config = await readConfig();
-
-	return config;
-}
-
 export async function readConfig() {
 	const siacentralPath = app.getPath('userData'),
-		config = await fs.readFile(path.join(siacentralPath, 'config.json'));
+		buf = await fs.readFile(path.join(siacentralPath, 'config.json')),
+		config = {
+			siad_data_path: path.join(siacentralPath, 'sia'),
+			...JSON.parse(decode(buf))
+		};
 
-	return JSON.parse(decode(config));
+	return config;
 }
 
 export function getConsensusPath(loc) {
