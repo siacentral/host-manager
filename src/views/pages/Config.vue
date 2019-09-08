@@ -313,7 +313,6 @@ export default {
 				this.$set(this.pinned, key, pin);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error('config modal price change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -337,7 +336,6 @@ export default {
 				this.$set(this.pinned, key, pin);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error('config modal monthly price change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -361,7 +359,6 @@ export default {
 				this.$set(this.pinned, key, pin);
 				this.$set(this.errors, key, null);
 			} catch (ex) {
-				log.error('config modal data price change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -374,7 +371,6 @@ export default {
 
 				this.changed = true;
 			} catch (ex) {
-				log.error('config modal time change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		},
@@ -387,7 +383,6 @@ export default {
 
 				this.changed = true;
 			} catch (ex) {
-				log.error('config modal data change', key, value, ex.message);
 				this.$set(this.errors, key, ex.message);
 			}
 		}
