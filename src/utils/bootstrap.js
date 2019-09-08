@@ -1,7 +1,4 @@
-import fs from 'fs';
 import request from 'request';
-import path from 'path';
-import unzipper from 'unzipper';
 
 export function checkDownloadOptions(opts) {
 	if (!opts)
@@ -72,7 +69,7 @@ export function downloadFile(opts) {
 	return req;
 }
 
-export function extractSiaStats(inputPath, outputPath) {
+/* export function extractSiaStats(inputPath, outputPath) {
 	return new Promise((resolve, reject) => {
 		const tmp = fs.createReadStream(inputPath);
 
@@ -95,4 +92,4 @@ export function extractSiaStats(inputPath, outputPath) {
 		tmp.on('finish', resolve);
 		tmp.on('error', reject);
 	});
-}
+} */
