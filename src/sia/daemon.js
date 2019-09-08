@@ -6,8 +6,8 @@ import { spawn } from 'child_process';
 import { decode } from '@stablelib/utf8';
 import log from 'electron-log';
 
-import SiaApiClient from '@/api/sia';
-import { getUserDataPath } from './index';
+import SiaApiClient from '@/sia/api';
+import { getUserDataPath } from '../utils/index';
 
 let siaProcess, shutdown = false, stdout = '', stderr = '';
 

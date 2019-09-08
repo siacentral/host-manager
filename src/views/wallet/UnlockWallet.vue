@@ -29,7 +29,7 @@
 <script>
 import { mapActions, mapState } from 'vuex';
 import { writeConfig } from '@/utils';
-import SiaApiClient from '@/api/sia';
+import SiaApiClient from '@/sia/api';
 import { refreshHostWallet } from '@/data/wallet';
 
 export default {

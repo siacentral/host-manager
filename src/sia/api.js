@@ -1,10 +1,41 @@
-import log from 'electron-log';
 import path from 'path';
 import process from 'process';
 import { promises as fs } from 'fs';
 
-import { sendJSONRequest } from './common';
+import request from 'request';
 import { decode } from '@stablelib/utf8';
+
+export async function sendJSONRequest(url, opts) {
+	opts = {
+		method: 'GET',
+		timeout: 60000,
+		...(opts || {})
+	};
+
+	return new Promise((resolve, reject) => {
+		if (url.indexOf('http') < 0)
+			url = `http://${url}`;
+
+		if (opts.body && typeof opts.body !== 'string')
+			opts.body = JSON.stringify(opts.body);
+
+		request(url, opts, (err, resp, body) => {
+			if (err)
+				return reject(err);
+
+			const r = { ...resp.toJSON() };
+
+			try {
+				r.body = JSON.parse(body);
+			} catch (ex) {}
+
+			if (r.statusCode >= 200 && r.statusCode < 300)
+				r.statusCode = 200;
+
+			resolve(r);
+		});
+	});
+}
 
 function getDefaultSiaPath() {
 	switch (process.platform) {
@@ -54,9 +85,7 @@ export default class SiaApiClient {
 
 			if (resp.body.message && resp.body.message.indexOf('wallet must be unlocked before it can be used') >= 0)
 				return true;
-		} catch (ex) {
-			log.error('checking credentials', ex.message);
-		}
+		} catch (ex) {}
 
 		return false;
 	}

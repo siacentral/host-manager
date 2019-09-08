@@ -50,7 +50,7 @@ import { BigNumber } from 'bignumber.js';
 import { mkdirIfNotExist } from '@/utils';
 import { parseByteString } from '@/utils/parse';
 import { formatByteString } from '@/utils/format';
-import SiaApiClient from '@/api/sia';
+import SiaApiClient from '@/sia/api';
 import { refreshHostStorage } from '@/data/storage';
 import { remote } from 'electron';
 import { mapActions, mapState } from 'vuex';

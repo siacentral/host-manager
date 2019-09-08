@@ -84,7 +84,7 @@ import log from 'electron-log';
 import { mapState, mapActions } from 'vuex';
 import { decode } from '@stablelib/utf8';
 
-import SiaApiClient from '@/api/sia';
+import SiaApiClient from '@/sia/api';
 import { showSaveDialogAsync, showOpenDialogAsync } from '@/utils';
 
 import SetupStep from './SetupStep';

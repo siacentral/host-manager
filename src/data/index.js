@@ -9,7 +9,7 @@ import { refreshExplorer } from './explorer';
 import { getCoinPrice } from '@/api/siacentral';
 import { parseCurrencyString } from '@/utils/parse';
 import Store from '@/store';
-import SiaApiClient from '@/api/sia';
+import SiaApiClient from '@/sia/api';
 
 let longTimeout, shortTimeout, loadingLong, loadingShort, priceTimeout;
 

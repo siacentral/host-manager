@@ -30,7 +30,7 @@ import log from 'electron-log';
 
 import Modal from '@/components/Modal';
 import { formatByteString } from '@/utils/format';
-import SiaApiClient from '@/api/sia';
+import SiaApiClient from '@/sia/api';
 import { mapActions, mapState } from 'vuex';
 import { refreshHostStorage } from '@/data/storage';
 

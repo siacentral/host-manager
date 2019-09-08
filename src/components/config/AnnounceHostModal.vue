@@ -20,7 +20,7 @@ import { mapState, mapActions } from 'vuex';
 import log from 'electron-log';
 
 import Modal from '@/components/Modal';
-import SiaApiClient from '@/api/sia';
+import SiaApiClient from '@/sia/api';
 import { formatShortDateString } from '@/utils/format';
 
 export default {

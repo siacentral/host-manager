@@ -169,7 +169,7 @@ import { mapState, mapActions } from 'vuex';
 import { writeConfig } from '@/utils';
 import { formatByteString, formatPriceString, formatBlockTimeString } from '@/utils/format';
 import { parseCurrencyString, parseByteString, parseBlockTimeString } from '@/utils/parse';
-import SiaApiClient from '@/api/sia';
+import SiaApiClient from '@/sia/api';
 import { refreshHostConfig } from '@/data/config';
 
 import AnnounceHostModal from '@/components/config/AnnounceHostModal';
