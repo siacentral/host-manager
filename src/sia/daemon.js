@@ -7,7 +7,6 @@ import { decode } from '@stablelib/utf8';
 import log from 'electron-log';
 
 import SiaApiClient from '@/sia/api';
-import { getUserDataPath } from '../utils/index';
 
 let siaProcess, shutdown = false, stdout = '', stderr = '';
 
@@ -16,8 +15,6 @@ function buildArgs(config) {
 
 	if (config.siad_data_path && config.siad_data_path.length > 0)
 		args.push('-d', config.siad_data_path);
-	else
-		args.push('-d', path.join(getUserDataPath(), 'sia'));
 
 	if (config.siad_api_agent && config.siad_api_agent.length > 0)
 		args.push('--agent', config.siad_api_agent);
