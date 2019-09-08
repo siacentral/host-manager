@@ -30,7 +30,7 @@ import Setup from '@/views/Setup';
 
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { refreshData } from '@/data';
-import { launch } from '@/utils/daemon';
+import { launch } from '@/sia/daemon';
 import { sleep } from '@/utils';
 import log from 'electron-log';
 

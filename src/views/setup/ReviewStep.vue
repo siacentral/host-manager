@@ -30,7 +30,7 @@
 import { mapActions, mapState } from 'vuex';
 import log from 'electron-log';
 import { refreshData } from '@/data/index';
-import { launch } from '@/utils/daemon';
+import { launch } from '@/sia/daemon';
 import SiaApiClient from '@/sia/api';
 import ProgressBar from '@/components/ProgressBar';
 
