@@ -1,14 +1,8 @@
-import Store from '@/store';
-import path from 'path';
 import process from 'process';
-import { remote } from 'electron';
 import { spawn } from 'child_process';
 import { decode } from '@stablelib/utf8';
-import log from 'electron-log';
 
-import SiaApiClient from '@/sia/api';
-
-let siaProcess, shutdown = false, stdout = '', stderr = '';
+import SiaApiClient from './api';
 
 function buildArgs(config) {
 	const args = [];
@@ -40,27 +34,23 @@ function buildEnv(config) {
 	return env;
 }
 
-function getPath() {
-	const binary = process.platform === 'win32' ? 'siad.exe' : 'siad';
+function checkConfig(config) {
+	if (!config)
+		throw new Error('config is required');
 
-	if (!remote.app.isPackaged) {
-		let platform = process.platform;
+	if (typeof config.siad_path !== 'string')
+		throw new Error('siad_path is required');
 
-		if (platform === 'win32')
-			platform = 'win';
-		else if (platform === 'darwin')
-			platform = 'mac';
+	if (typeof config.siad_data_path !== 'string')
+		throw new Error('siad_data_path is required');
 
-		return path.join(__static, '..', 'build', 'bin', platform, binary);
-	}
-
-	return path.join(process.resourcesPath, 'bin', binary);
+	return config;
 }
 
 function parseStdOut(output) {
 	const loadingRegex = /^\((?<numerator>[0-9]+)\/(?<denominator>[0-9]+)\) Loading (?<module>.+)\.{3}$/gm;
 
-	let loadNum = 0, loadDenom = 0, loadModule, match, rounds = 0;
+	let loaded = 0, total = 0, current, match, rounds = 0;
 
 	do {
 		match = loadingRegex.exec(output);
@@ -68,144 +58,184 @@ function parseStdOut(output) {
 		if (!match || !match.groups)
 			continue;
 
-		loadNum = parseInt(match.groups.numerator, 10);
-		loadDenom = parseInt(match.groups.denominator, 10);
-		loadModule = match.groups.module;
+		loaded = parseInt(match.groups.numerator, 10);
+		total = parseInt(match.groups.denominator, 10);
+		current = match.groups.module;
 
-		if (isNaN(loadNum) || !isFinite(loadNum))
-			loadNum = 0;
+		if (isNaN(loaded) || !isFinite(loaded))
+			loaded = 0;
 
-		if (isNaN(loadDenom) || !isFinite(loadDenom))
-			loadDenom = 1;
+		if (isNaN(total) || !isFinite(total))
+			total = 1;
 
 		rounds++;
-	} while (match != null && rounds < 15);
+	} while (match != null && rounds < 15); // if there are more than 15 modules something has gone horribly wrong
 
-	Store.dispatch('hostDaemon/setLoadPercent', loadNum / (loadDenom + 1));
-	Store.dispatch('hostDaemon/setCurrentModule', loadModule);
+	return {
+		loaded,
+		total,
+		current
+	};
 }
 
-export async function stop() {
-	const waitForExit = new Promise(resolve => {
-			siaProcess.on('close', code => resolve(code));
-		}),
-		client = new SiaApiClient(Store.state.config);
+export default class SiaDaemon {
+	constructor(config) {
+		this._config = checkConfig(config);
+		this._events = {};
+	}
 
-	await client.stopDaemon();
-
-	return waitForExit;
-}
-
-export function stdOut() {
-	return stdout;
-}
-
-export function stdErr() {
-	return stderr;
-}
-
-export function launch(config) {
-	const daemonPath = getPath();
-
-	config = config || {};
-
-	if (siaProcess)
-		return;
-
-	shutdown = false;
-	stdout = '';
-	stderr = '';
-
-	Store.dispatch('hostDaemon/setManaged', false);
-	Store.dispatch('hostDaemon/setLoaded', false);
-	Store.dispatch('hostDaemon/setLoadPercent', 0);
-	Store.dispatch('hostDaemon/setCurrentModule', '');
-	Store.dispatch('hostDaemon/setError', '');
-	Store.dispatch('hostDaemon/setOutput', '');
-
-	return new Promise(async(resolve, reject) => {
+	async available() {
 		try {
-			const opts = {
-					windowsHide: true,
-					env: buildEnv(config)
-				},
-				startTime = Date.now();
+			const client = new SiaApiClient(this._config);
 
-			if (process.geteuid)
-				opts.uid = process.geteuid();
+			await client.getDaemonVersion();
 
-			try {
-				const client = new SiaApiClient(Store.state.config);
+			return true;
+		} catch (ex) {}
 
-				await client.getDaemonVersion();
+		return false;
+	}
 
-				log.info('daemon already started not launching');
-				resolve();
-				return;
-			} catch (ex) {
-				// useful debug message will be removed when packaged
-				console.log(ex);
-			}
+	running() {
+		return this._proc && this._proc.pid;
+	}
 
-			Store.dispatch('hostDaemon/setManaged', true);
+	async shutdown() {
+		const that = this;
 
-			siaProcess = spawn(daemonPath, buildArgs(config), opts);
+		if (!this.running())
+			return;
 
-			siaProcess.stdout.on('data', data => {
-				stdout += decode(data);
+		const waitForExit = new Promise(resolve => {
+				that._proc.on('close', resolve);
+			}),
+			client = new SiaApiClient(this._config);
 
-				// useful debug message will be removed when packaged
-				// console.log(stdout);
+		try {
+			const resp = await client.stopDaemon();
 
-				parseStdOut(stdout);
-
-				if (stdout.indexOf('Finished loading in') >= 0) {
-					console.log(stdout);
-					Store.dispatch('hostDaemon/setLoaded', true);
-
-					setTimeout(resolve, 300);
-				}
-
-				Store.dispatch('hostDaemon/setOutput', stdout);
-			});
-
-			siaProcess.stderr.on('data', data => {
-				stderr += decode(data);
-
-				// useful debug message will be removed when packaged
-				console.error(stderr);
-
-				Store.dispatch('hostDaemon/setError', stderr);
-			});
-
-			siaProcess.on('close', code => {
-				if (shutdown)
-					return;
-
-				siaProcess = null;
-
-				Store.dispatch('hostDaemon/setManaged', false);
-				Store.dispatch('hostDaemon/setLoaded', false);
-				Store.dispatch('hostDaemon/setLoadPercent', 0);
-				Store.dispatch('hostDaemon/setCurrentModule', '');
-
-				if (stderr && stderr.trim().length > 0)
-					log.error(stderr);
-
-				if (Date.now() - startTime < 10000) {
-					Store.dispatch('hostDaemon/setLoaded', false);
-					Store.dispatch('hostDaemon/setManaged', false);
-					Store.dispatch('setCriticalError', 'daemon is unable to stay running. check your logs for more information.');
-					return;
-				}
-
-				if (shutdown)
-					return;
-
-				launch(config);
-			});
+			if (resp.statusCode !== 200)
+				throw new Error(resp.body.error || 'error shutting down');
 		} catch (ex) {
-			reject(ex);
+			this._proc.kill();
 		}
-	});
-}
+
+		return waitForExit;
+	}
+
+	start() {
+		const that = this;
+
+		if (that.running())
+			return Promise.reject(new Error('daemon is already running'));
+
+		return that.available()
+			.then(running => {
+				if (running)
+					return Promise.reject(new Error('daemon is already running'));
+			})
+			.then(() => new Promise((resolve, reject) => {
+				try {
+					const opts = {
+						windowsHide: true,
+						env: buildEnv(that._config)
+					};
+
+					that._start = Date.now();
+
+					if (process.geteuid)
+						opts.uid = process.geteuid();
+
+					that._proc = spawn(that._config.siad_path, buildArgs(that._config), opts);
+
+					that._proc.on('error', ex => {
+						that._trigger('error', ex.message);
+						throw ex;
+					});
+
+					that._proc.stdout.on('data', data => {
+						that._stdout = that._stdout || '';
+						that._stdout += decode(data);
+
+						const { loaded, total, current } = parseStdOut(that._stdout);
+
+						that._loadedMods = loaded;
+						that._totalMods = total;
+						that._currentMod = current;
+
+						if (that._stdout.indexOf('Finished loading in') >= 0 && !that._loaded) {
+							that._loaded = true;
+
+							that._trigger('loaded', that.stats());
+							resolve();
+						}
+
+						that._trigger('stdout', that.stats());
+					});
+
+					that._proc.stderr.on('data', data => {
+						that._stderr = that._stderr || '';
+						that._stderr += decode(data);
+
+						that._trigger('stderr', that.stats());
+					});
+
+					that._proc.on('close', code => {
+						that._trigger('exit', code, that.stats());
+
+						that._proc = null;
+						that._stdout = null;
+						that._stderr = null;
+						that._start = null;
+						that._loaded = null;
+						that._loadedMods = null;
+						that._totalMods = null;
+						that._currentMod = null;
+					});
+				} catch (ex) {
+					reject(ex);
+				}
+			}));
+	}
+
+	stats() {
+		return {
+			stdout: this._stdout,
+			stderr: this._stderr,
+			start: this._start,
+			loaded: this._loaded,
+			modules: {
+				loaded: this._loadedMods,
+				total: this._totalMods,
+				module: this._currentMod
+			}
+		};
+	}
+
+	on(event, handler) {
+		if (!Array.isArray(this._events[event]))
+			this._events[event] = [];
+
+		this._events[event].push(handler);
+	}
+
+	off(event, handler) {
+		if (!Array.isArray(this._events[event]))
+			return;
+
+		const i = this._events[event].indexOf(handler);
+
+		if (i === -1)
+			return;
+
+		this._events[event].splice(i, 1);
+	}
+
+	_trigger(event, ...args) {
+		if (!Array.isArray(this._events[event]))
+			return;
+
+		for (let i = 0; i < this._events[event].length; i++)
+			this._events[event][i].apply(this, args);
+	}
+};
