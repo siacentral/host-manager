@@ -1,23 +1,11 @@
 import { decode } from '@stablelib/utf8';
 import { promises as fs } from 'fs';
 import path from 'path';
-import process from 'process';
 import { remote } from 'electron';
 
 const app = remote.app,
 	dialog = remote.dialog,
 	window = remote.getCurrentWindow();
-
-export function getDefaultSiaPath() {
-	switch (process.platform) {
-	case 'win32':
-		return path.join(process.env.LOCALAPPDATA, 'Sia');
-	case 'darwin':
-		return path.join(process.env.HOME, 'Library', 'Application Support', 'Sia');
-	default:
-		return path.join(process.env.HOME, '.sia');
-	}
-}
 
 export function getUserDataPath(subdir) {
 	if (subdir)
@@ -31,7 +19,6 @@ export async function readSiaUIConfig() {
 		config = JSON.parse(decode(await fs.readFile(configPath)));
 
 	return {
-		'siad_path': config.siad.path,
 		'siad_data_path': config.siad.datadir,
 		'dark_mode': true // config.darkMode
 	};
