@@ -7,7 +7,7 @@ import { refreshData } from './index';
 import { sleep } from '@/utils';
 
 function onDaemonUpdate(ev, stats) {
-	const loadDenom = stats.modules && stats.modules.total ? stats.modules.total : 1,
+	const loadDenom = stats.modules && stats.modules.total ? stats.modules.total + 1 : 1,
 		loadNum = stats.modules && stats.modules.loaded ? stats.modules.loaded : 0;
 
 	Store.dispatch('hostDaemon/setManaged', true);
