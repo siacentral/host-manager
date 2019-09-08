@@ -5,7 +5,7 @@
 				<icon icon="fast-forward" />
 			</div>
 			<h3>Would you like to bootstrap your consensus?</h3>
-			<p>Downloading a consensus snapshot can make your client sync significantly faster. However, you are
+			<p>Please select a provider to bootstrap from below. Downloading a consensus snapshot can make your client sync significantly faster. However, you are
 				trusting that the transaction history in the snapshot is completely accurate. It is more secure to sync the entire blockchain from scratch.</p>
 			<transition name="fade" mode="out-in" appear>
 				<div class="error" v-if="error" :key="error">{{ error }}</div>
@@ -38,7 +38,7 @@
 		</transition>
 		<template v-slot:controls>
 			<transition name="fade" mode="out-in">
-				<button class="btn btn-danger btn-inline" @click="onCancel" key="cancelDownload" v-if="downloading">Cancel</button>
+				<button class="btn btn-danger btn-inline" @click="onCancel" key="cancelDownload" v-if="downloading && !downloadComplete">Cancel</button>
 				<button class="btn btn-success btn-inline" @click="onNext(1)" v-else :key="buttonText" :disabled="loading || setting || downloading">{{ buttonText }}</button>
 			</transition>
 		</template>
@@ -56,7 +56,7 @@ import ProgressBar from '@/components/ProgressBar';
 import SetupStep from './SetupStep';
 import { getSiaCentralBootstrap } from '@/api/siacentral';
 import { getSiaStatsBootstrap } from '@/api/siastats';
-import { downloadFile, extractSiaStats } from '@/utils/bootstrap';
+import { downloadFile } from '@/utils/bootstrap';
 import { formatByteString, formatDate, formatDuration, formatByteSpeed } from '@/utils/format';
 
 export default {
@@ -95,7 +95,8 @@ export default {
 	async beforeMount() {
 		try {
 			await Promise.all([
-				this.loadSiaStatsBootstrap(),
+				// disabled SiaStats for now, unzipper is throwing an error with the archive, but I can unzip it freely myself.
+				// this.loadSiaStatsBootstrap(),
 				this.loadSiaCentralBootstrap()
 			]);
 		} catch (ex) {
@@ -151,6 +152,11 @@ export default {
 		},
 		async onCancel() {
 			this.canceling = true;
+			this.error = 'Bootstrap cancelled';
+			this.downloading = false;
+			this.downloadComplete = false;
+			this.complete = false;
+			this.selectedProvider = null;
 
 			try {
 				this.downloadReq.abort();
@@ -165,12 +171,6 @@ export default {
 			} catch (ex) {
 				log.error('cancel bootstrap', ex.message);
 			}
-
-			this.downloading = false;
-			this.downloadComplete = false;
-			this.complete = false;
-			this.selectedProvider = null;
-			this.error = 'Bootstrap cancelled';
 		},
 		async onDownload(provider) {
 			if (this.downloading)
@@ -208,9 +208,6 @@ export default {
 
 					req.pipe(gzip).pipe(out);
 					break;
-				case 'SiaStats':
-					req.pipe(out);
-					break;
 				default:
 					throw new Error('unknown provider');
 				}
@@ -244,9 +241,6 @@ export default {
 				case 'Sia Central':
 					await fs.promises.rename(tempPath, path.join(consensusPath, 'consensus.db'));
 					break;
-				case 'SiaStats':
-					await extractSiaStats(tempPath, consensusPath);
-					break;
 				default:
 					throw new Error('unsupported provider');
 				}
@@ -266,8 +260,10 @@ export default {
 				} catch (ex) {}
 
 				try {
-					await fs.promies.unlink(path.join(this.config.siad_data_path, `host-manager-bootstrap-dl.tmp`));
-				} catch (ex) {}
+					await fs.promies.unlink(path.join(this.config.siad_data_path, 'host-manager-bootstrap-dl.tmp'));
+				} catch (ex) {
+					log.error('delete tmp bootstrap', ex.message);
+				}
 
 				if (this.canceling)
 					return;
@@ -298,10 +294,7 @@ export default {
 				this.setting = true;
 
 				this.$emit('done', {
-					inc: n,
-					config: {
-						siad_data_path: this.consensusLocation
-					}
+					inc: n
 				});
 			} catch (ex) {
 				log.error('consensus location setup', ex.message);
