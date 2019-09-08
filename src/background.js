@@ -5,6 +5,7 @@ import { app, Menu, Tray, protocol, BrowserWindow, shell, ipcMain, powerSaveBloc
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib';
 import path from 'path';
 import log from 'electron-log';
+import SiaDaemon from './sia/daemon';
 
 const isDevelopment = !!~process.defaultApp;
 
@@ -13,12 +14,12 @@ if (!app.requestSingleInstanceLock())
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win, tray, powerSaveID;
+let win, tray, powerSaveID, shutdown = false;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }]);
 
-function createWindow() {
+async function createWindow() {
 	const opts = {
 		width: 1000,
 		height: 800,
@@ -65,6 +66,9 @@ function createWindow() {
 	};
 
 	win.on('close', (e) => {
+		if (shutdown)
+			return;
+
 		if (process.platform === 'darwin')
 			app.dock.hide();
 
@@ -95,15 +99,19 @@ function openWindow() {
 	win.focus();
 }
 
-function forceExit() {
-	powerSaveBlocker.stop(powerSaveID);
-	app.exit();
+async function onExit() {
+	shutdown = true;
+
+	if (daemon && daemon.running())
+		await daemon.shutdown();
+
+	app.quit();
 }
 
 function createTray() {
 	const menu = Menu.buildFromTemplate([
 		{ label: 'Show Desktop', click: openWindow },
-		{ label: 'Exit', click: forceExit }
+		{ label: 'Exit', click: onExit }
 	]);
 	tray = new Tray(path.join(__static, 'icons/siacentral_white_16.png'));
 
@@ -121,6 +129,13 @@ app.on('window-all-closed', (e) => {
 });
 
 app.on('activate', openWindow);
+
+app.on('will-quit', async() => {
+	if (daemon && daemon.running())
+		daemon.shutdown();
+
+	powerSaveBlocker.stop(powerSaveID);
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -179,3 +194,69 @@ if (isDevelopment) {
 		});
 	}
 }
+
+// TEMP MOVE LATER
+
+let daemon;
+
+function getPath() {
+	const binary = process.platform === 'win32' ? 'siad.exe' : 'siad';
+
+	if (!app.isPackaged) {
+		let platform = process.platform;
+
+		if (platform === 'win32')
+			platform = 'win';
+		else if (platform === 'darwin')
+			platform = 'mac';
+
+		return path.join(__static, '..', 'build', 'bin', platform, binary);
+	}
+
+	return path.join(process.resourcesPath, 'bin', binary);
+}
+
+ipcMain.on('launchDaemon', async(ev, config) => {
+	try {
+		if (shutdown)
+			return;
+
+		const running = daemon && (await daemon.available());
+
+		if (running)
+			return;
+
+		if (!daemon) {
+			daemon = new SiaDaemon({
+				...config,
+				siad_path: getPath()
+			});
+
+			daemon.on('stdout', (stats) => {
+				win.webContents.send('daemonUpdate', stats);
+			});
+
+			daemon.on('loaded', (stats) => {
+				log.info(`daemon loaded after ${Math.floor((Date.now() - stats.start) / 1000)} seconds`);
+				win.webContents.send('daemonLoaded', stats);
+			});
+
+			daemon.on('exit', (code, stats) => {
+				log.info(`daemon exited after ${Math.floor((Date.now() - stats.start) / 1000)} seconds with exit code ${code}`);
+
+				if (stats.stderr && stats.stderr.trim().length > 0)
+					log.error('daemon stderr', stats.stderr);
+
+				win.webContents.send('daemonExit', code, stats);
+			});
+
+			daemon.on('error', (ex) => {
+				win.webContents.send('daemonError', ex);
+			});
+		}
+
+		await daemon.start();
+	} catch (ex) {
+		log.error('startDaemon', ex.message);
+	}
+});
