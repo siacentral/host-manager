@@ -55,7 +55,7 @@ import { mapActions } from 'vuex';
 import ProgressBar from '@/components/ProgressBar';
 import SetupStep from './SetupStep';
 import { getSiaCentralBootstrap } from '@/api/siacentral';
-import { getSiaStatsBootstrap } from '@/sia/apistats';
+import { getSiaStatsBootstrap } from '@/api/siastats';
 import { downloadFile } from '@/utils/bootstrap';
 import { formatByteString, formatDate, formatDuration, formatByteSpeed } from '@/utils/format';
 
