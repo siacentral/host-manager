@@ -26,6 +26,7 @@ export async function refreshBlockHeight() {
 			Store.dispatch('setSyncTime', remainingBlocks * blockTime);
 		}
 
+		Store.dispatch('setBlockHash', resp.body.currentblock);
 		Store.dispatch('setBlockHeight', resp.body.height);
 		Store.dispatch('setSynced', resp.body.synced);
 	} catch (ex) {
@@ -48,6 +49,37 @@ export async function refreshDaemonVersion() {
 		Store.dispatch('hostDaemon/setVersion', resp.body.version);
 	} catch (ex) {
 		log.error('refreshDaemonVersion', ex.message);
+	}
+}
+
+export async function checkConsensusSync() {
+	try {
+		if (!Store.state.blockHash)
+			return;
+
+		const hash = Store.state.blockHash,
+			height = Store.state.blockHeight,
+			resp = await getBlock(height);
+
+		if (resp.body.type !== 'success')
+			throw new Error(resp.body.message);
+
+		console.log(hash, resp.body.block.id);
+
+		if (hash === resp.body.block.id)
+			return;
+
+		Store.dispatch('setAlerts', [
+			{
+				category: 'consensus',
+				icon: 'redo',
+				severity: 'error',
+				message: 'You do not appear to be synced to the Sia network.' +
+					' You may need to resync the consensus.'
+			}
+		]);
+	} catch (ex) {
+		log.error('checkConsensusSync', ex.message);
 	}
 }
 

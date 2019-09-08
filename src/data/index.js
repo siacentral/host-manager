@@ -1,6 +1,6 @@
 import log from 'electron-log';
 
-import { refreshBlockHeight, refreshLastBlock, refreshDaemonVersion } from './consensus';
+import { refreshBlockHeight, refreshLastBlock, refreshDaemonVersion, checkConsensusSync } from './consensus';
 import { refreshHostContracts } from './contracts';
 import { refreshHostStorage } from './storage';
 import { refreshHostWallet } from './wallet';
@@ -66,7 +66,8 @@ async function longRefresh() {
 		await Promise.all([
 			refreshLastBlock(),
 			refreshHostConfig(),
-			refreshHostContracts()
+			refreshHostContracts(),
+			checkConsensusSync()
 		]);
 
 		// refresh explorer relies on host config call being completed

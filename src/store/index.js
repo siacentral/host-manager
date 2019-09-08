@@ -27,17 +27,20 @@ export default new Vuex.Store({
 		netAddress: null,
 		coinPrice: 0.00318536,
 		blockHeight: 0,
+		blockHash: null,
 		lastBlock: 0,
 		synced: false,
 		syncTime: 0,
 		loaded: false,
 		refreshingData: false,
 		criticalError: null,
-		notifications: []
+		notifications: [],
+		alerts: [],
+		newAlertsCount: 0
 	},
 	getters: {
 		alerts(state) {
-			let alerts = state.hostStorage.alerts.concat(state.hostContracts.alerts,
+			let alerts = state.alerts.concat(state.hostStorage.alerts, state.hostContracts.alerts,
 				state.hostWallet.alerts, state.hostConfig.alerts,
 				state.explorer.alerts);
 
@@ -54,12 +57,24 @@ export default new Vuex.Store({
 			return alerts;
 		},
 		newAlertsCount(state) {
-			return state.hostStorage.newAlertsCount + state.hostContracts.newAlertsCount +
+			return state.newAlertsCount + state.hostStorage.newAlertsCount + state.hostContracts.newAlertsCount +
 				state.hostWallet.newAlertsCount + state.hostConfig.newAlertsCount +
 				state.explorer.newAlertsCount;
 		}
 	},
 	mutations: {
+		setAlerts(state, alerts) {
+			state.newAlertsCount = alerts.reduce((val, alert) => {
+				const match = state.alerts.find(existing => existing.message === alert.message);
+
+				if (match)
+					return val;
+
+				return val + 1;
+			}, 0);
+
+			state.alerts = alerts;
+		},
 		setCriticalError(state, criticalError) {
 			state.criticalError = criticalError;
 		},
@@ -80,6 +95,9 @@ export default new Vuex.Store({
 		},
 		setBlockHeight(state, height) {
 			state.blockHeight = height;
+		},
+		setBlockHash(state, hash) {
+			state.blockHash = hash;
 		},
 		setLastBlock(state, height) {
 			state.lastBlock = height;
@@ -116,6 +134,9 @@ export default new Vuex.Store({
 		}
 	},
 	actions: {
+		setAlerts(context, alerts) {
+			context.commit('setAlerts', alerts);
+		},
 		setLoaded(context, loaded) {
 			context.commit('setLoaded', loaded);
 		},
@@ -136,6 +157,9 @@ export default new Vuex.Store({
 		},
 		setBlockHeight(context, height) {
 			context.commit('setBlockHeight', height);
+		},
+		setBlockHash(context, hash) {
+			context.commit('setBlockHash', hash);
 		},
 		setLastBlock(context, height) {
 			context.commit('setLastBlock', height);
