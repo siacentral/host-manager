@@ -13,6 +13,13 @@ export async function refreshHostWallet() {
 			loadWalletFees()
 		]);
 
+		if (!Store.state.hostWallet.unlocked && !Store.state.hostWallet.encrypted &&
+			!Store.state.hostWallet.scanning) {
+			Store.dispatch('setup/setFirstRun', true);
+			Store.dispatch('setLoaded', false);
+			return;
+		}
+
 		if (!Store.state.lastAddress) {
 			await apiClient.createWalletAddress();
 			await loadWalletAddress();
@@ -24,7 +31,6 @@ export async function refreshHostWallet() {
 
 async function unlockHostWalllet(password) {
 	try {
-		log.info('attempting wallet unlock');
 		const resp = await apiClient.unlockWallet(password);
 
 		if (resp.statusCode !== 200)
