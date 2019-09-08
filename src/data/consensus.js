@@ -64,8 +64,6 @@ export async function checkConsensusSync() {
 		if (resp.body.type !== 'success')
 			throw new Error(resp.body.message);
 
-		console.log(hash, resp.body.block.id);
-
 		if (hash === resp.body.block.id)
 			return;
 
