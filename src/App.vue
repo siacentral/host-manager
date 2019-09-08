@@ -22,17 +22,16 @@
 </template>
 <script>
 import { remote } from 'electron';
+import { mapActions, mapState, mapGetters } from 'vuex';
+import log from 'electron-log';
+
+import { launch, running } from '@/data/daemon';
+import { refreshData } from '@/data';
 import Loader from '@/views/Loader';
 import NotificationQueue from '@/components/NotificationQueue';
 import PrimaryView from '@/views/PrimaryView';
 import UnlockWallet from '@/views/wallet/UnlockWallet';
 import Setup from '@/views/Setup';
-
-import { mapActions, mapState, mapGetters } from 'vuex';
-import { refreshData } from '@/data';
-import { launch } from '@/sia/daemon';
-import { sleep } from '@/utils';
-import log from 'electron-log';
 
 export default {
 	components: {
@@ -53,19 +52,12 @@ export default {
 				if (!this.config)
 					return;
 
-				await launch(this.config);
-				await refreshData();
-
-				// nexttick so the store should be completely committed
-				await sleep(1);
-
-				// wallet has not been initialized we need to run setup
-				if (!this.walletUnlocked && !this.walletEncrypted && !this.walletScanning) {
-					this.setFirstRun(true);
-					this.setLoaded(false);
+				if (await running()) {
+					await refreshData();
+					return;
 				}
 
-				this.setCriticalError(null);
+				launch(this.config);
 			} catch (ex) {
 				log.error('try load', ex.message);
 				this.setCriticalError(ex.message);
@@ -98,8 +90,7 @@ export default {
 	},
 	data() {
 		return {
-			animationComplete: false,
-			createWallet: false
+			animationComplete: false
 		};
 	},
 	beforeMount() {

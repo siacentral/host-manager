@@ -27,10 +27,12 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex';
 import log from 'electron-log';
-import { refreshData } from '@/data/index';
-import { launch } from '@/sia/daemon';
+import { ipcRenderer } from 'electron';
+import { mapActions, mapState } from 'vuex';
+
+import { refreshData } from '@/data';
+import { launch, running } from '@/data/daemon';
 import SiaApiClient from '@/sia/api';
 import ProgressBar from '@/components/ProgressBar';
 
@@ -52,6 +54,7 @@ export default {
 			refreshingData: state => state.refreshingData,
 			walletEncrypted: state => state.hostWallet.encrypted,
 			walletUnlocked: state => state.hostWallet.unlocked,
+			walletScanning: state => state.hostWallet.scanning,
 			daemonLoaded: state => state.hostDaemon.loaded,
 			daemonLoadingModule: state => state.hostDaemon.currentModule,
 			daemonLoadPercent: state => state.hostDaemon.loadPercent,
@@ -65,22 +68,14 @@ export default {
 	},
 	async mounted() {
 		try {
-			log.info('launching');
-			await launch(this.config);
+			if (await running()) {
+				this.onDaemonLoaded();
+				return;
+			}
 
-			const client = new SiaApiClient(this.config);
+			ipcRenderer.once('daemonLoaded', this.onDaemonLoaded);
 
-			if (!(await client.checkCredentials()))
-				throw new Error('Unable to authenticate check API address or password');
-
-			this.setConfig(this.config);
-
-			await refreshData();
-
-			this.$emit('done', {
-				inc: 1,
-				createWallet: !this.walletEncrypted && !this.walletUnlocked
-			});
+			launch(this.config);
 		} catch (ex) {
 			log.error('review step mounted', ex.message);
 			this.error = ex.message;
@@ -88,7 +83,22 @@ export default {
 	},
 	methods: {
 		...mapActions(['setConfig']),
-		...mapActions('setup', ['setFirstRun'])
+		...mapActions('setup', ['setFirstRun']),
+		async onDaemonLoaded() {
+			const client = new SiaApiClient(this.config);
+
+			if (!(await client.checkCredentials()))
+				throw new Error('Unable to authenticate check API address or password');
+
+			await refreshData();
+
+			this.setConfig(this.config);
+
+			this.$emit('done', {
+				inc: 1,
+				createWallet: !this.walletUnlocked && !this.walletEncrypted
+			});
+		}
 	}
 };
 </script>

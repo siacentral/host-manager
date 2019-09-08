@@ -2,7 +2,7 @@ import log from 'electron-log';
 import { apiClient } from './index';
 import { getBlock } from '@/api/siacentral';
 import Store from '@/store';
-import { launch } from '../sia/daemon';
+import { launch } from '@/data/daemon';
 
 let startTime, startBlock, finalBlock;
 
@@ -32,11 +32,8 @@ export async function refreshBlockHeight() {
 		log.error('refreshBlockHeight', ex.message);
 
 		if (ex.message.indexOf('ECONNREFUSED') >= 0) {
-			if (Store.state.hostDaemon.managed)
-				return;
-
 			log.error('daemon connection lost attempting reload');
-			await launch(Store.state.config);
+			launch(Store.state.config);
 		}
 	}
 }
