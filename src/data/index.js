@@ -99,7 +99,7 @@ function getSCValue(key, pin) {
 
 async function updatePinnedPricing() {
 	try {
-		if (!Store.state.config.host_pricing_pins)
+		if (!Store.state.config || !Store.state.config.host_pricing_pins)
 			return;
 
 		let changed = false,
