@@ -54,7 +54,7 @@ export async function refreshDaemonVersion() {
 
 export async function checkConsensusSync() {
 	try {
-		if (!Store.state.blockHash)
+		if (!Store.state.blockHash || Store.state.blockHeight === 0)
 			return;
 
 		const hash = Store.state.blockHash,
@@ -64,14 +64,16 @@ export async function checkConsensusSync() {
 		if (resp.body.type !== 'success')
 			throw new Error(resp.body.message);
 
-		if (hash === resp.body.block.id)
+		if (hash === resp.body.block.id) {
+			Store.dispatch('setAlerts', []);
 			return;
+		}
 
 		Store.dispatch('setAlerts', [
 			{
 				category: 'consensus',
 				icon: 'redo',
-				severity: 'error',
+				severity: 'danger',
 				message: 'You do not appear to be synced to the Sia network.' +
 					' You may need to resync the consensus.'
 			}
