@@ -4,8 +4,11 @@ import { autoUpdater } from 'electron-updater';
 import { app, Menu, Tray, protocol, BrowserWindow, shell, ipcMain, powerSaveBlocker } from 'electron';
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib';
 import path from 'path';
+import { promises as fs } from 'fs';
 import log from 'electron-log';
+import { decode } from '@stablelib/utf8';
 import SiaDaemon from './sia/daemon';
+import SiaApiClient from './sia/api';
 
 const isDevelopment = !!~process.defaultApp;
 
@@ -100,17 +103,40 @@ function openWindow() {
 }
 
 async function onExit() {
-	shutdown = true;
+	try {
+		win.webContents.send('statusUpdate', 'shutdown');
+		shutdown = true;
 
-	if (daemon && daemon.running())
-		await daemon.shutdown();
+		if (daemon && daemon.running())
+			await daemon.shutdown();
+	} catch (ex) {
+		log.error('onExit', ex.message);
+	} finally {
+		app.quit();
+	}
+}
 
-	app.quit();
+async function onRestart() {
+	try {
+		win.webContents.send('statusUpdate', 'restart');
+
+		const buf = await fs.readFile(path.join(app.getPath('userData'), 'config.json')),
+			config = JSON.parse(decode(buf)),
+			client = new SiaApiClient(config),
+			resp = await client.stopDaemon();
+
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.error || 'unknown error');
+	} catch (ex) {
+		log.error('daemon restart', ex.message);
+		win.webContents.send('statusUpdate', null);
+	}
 }
 
 function createTray() {
 	const menu = Menu.buildFromTemplate([
 		{ label: 'Show Desktop', click: openWindow },
+		{ label: 'Restart Daemon', click: onRestart },
 		{ label: 'Exit', click: onExit }
 	]);
 	tray = new Tray(path.join(__static, 'icons/siacentral_white_16.png'));

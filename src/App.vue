@@ -113,12 +113,19 @@ export default {
 			daemonLoaded: state => state.hostDaemon.loaded,
 			daemonLoadingModule: state => state.hostDaemon.currentModule,
 			daemonLoadPercent: state => state.hostDaemon.loadPercent,
-			daemonManaged: state => state.hostDaemon.managed
+			daemonManaged: state => state.hostDaemon.managed,
+			daemonStatus: state => state.hostDaemon.status
 		}),
 		showLoader() {
-			return !this.dataLoaded || this.criticalError || (!this.daemonLoaded && this.daemonManaged) || this.walletScanning || !this.animationComplete;
+			return this.daemonStatus || !this.dataLoaded || this.criticalError || (!this.daemonLoaded && this.daemonManaged) || this.walletScanning || !this.animationComplete;
 		},
 		loaderText() {
+			if (this.daemonStatus === 'shutdown')
+				return 'Shutting down... Please wait...';
+
+			if (this.daemonStatus === 'restart')
+				return 'Restarting Sia... Please wait...';
+
 			if (this.criticalError && !this.firstRun)
 				return 'Uh Oh! We\'ve run into a problem.';
 

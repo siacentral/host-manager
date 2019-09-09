@@ -22,6 +22,7 @@ async function onDaemonLoaded(ev, stats) {
 
 		Store.dispatch('hostDaemon/setLoaded', stats.loaded);
 		Store.dispatch('setCriticalError', null);
+		Store.dispatch('hostDaemon/setStatus', null);
 	} catch (ex) {
 		log.error('onDaemonLoaded', ex.message);
 	}

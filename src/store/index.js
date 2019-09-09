@@ -12,7 +12,7 @@ import setup from './setup';
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
 	modules: {
 		explorer,
 		hostContracts,
@@ -181,3 +181,11 @@ export default new Vuex.Store({
 		}
 	}
 });
+
+ipcRenderer.on('statusUpdate', (ev, status) => {
+	store.dispatch('hostDaemon/setLoaded', false);
+	store.dispatch('hostDaemon/setLoadPercent', 0);
+	store.dispatch('hostDaemon/setStatus', status);
+});
+
+export default store;

@@ -7,7 +7,8 @@ export default {
 		currentModule: '',
 		output: '',
 		error: '',
-		version: '0.0.0'
+		version: '0.0.0',
+		status: null
 	},
 	mutations: {
 		setManaged(state, managed) {
@@ -30,6 +31,9 @@ export default {
 		},
 		setVersion(state, version) {
 			state.version = version;
+		},
+		setStatus(state, status) {
+			state.status = status;
 		}
 	},
 	actions: {
@@ -53,6 +57,9 @@ export default {
 		},
 		setVersion(context, version) {
 			context.commit('setVersion', version);
+		},
+		setStatus(context, status) {
+			context.commit('setStatus', status);
 		}
 	}
 };
