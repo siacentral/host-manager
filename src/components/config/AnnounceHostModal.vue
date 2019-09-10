@@ -3,14 +3,23 @@
 		<p>Are you sure you want to announce this host to the network?</p>
 		<p>Announcing your host will deduct a small amount of Siacoin from your wallet for the transaction
 			on the blockchain.</p>
-		<p class="text-warning" v-if="lastAnnounceDate">You should only announce again if your IP address
-			has changed or you are having trouble getting new contracts. Your last confirmed announcement was on {{ lastAnnounceDate }}</p>
-		<div class="control">
-			<label>Announce address and port (leave blank for automatic)</label>
-			<input type="text" v-model="announceAddress" :placeholder="configNetAddress || netAddress" />
+		<p class="text-warning" v-if="lastAnnouncement">You should only announce again if your IP address
+			has changed or you are having trouble getting new contracts. Your last confirmed announcement was <i>{{ lastAnnouncement.net_address }}</i> on {{ lastAnnouncement.date }}</p>
+		<div class="control control-mode">
+			<label>Announce address and port</label>
+			<select v-model="addressMode">
+				<option value="automatic">Automatic</option>
+				<option value="custom">Custom</option>
+			</select>
+			<transition name="fade" mode="out-in">
+				<input type="text" :key="addressMode" v-model="announceAddress" :readonly="addressMode !== 'custom'" />
+			</transition>
+			<transition name="fade" mode="out-in" appear>
+				<label class="error" v-if="error">{{ error }}</label>
+			</transition>
 		</div>
 		<div class="controls">
-			<button class="btn btn-success btn-inline" @click="onAnnounceHost" :disabled="announcing">Announce Host</button>
+			<button class="btn btn-success btn-inline" @click="onAnnounceHost" :disabled="announcing || error">Announce Host</button>
 		</div>
 	</modal>
 </template>
@@ -33,7 +42,7 @@ export default {
 			netAddress: state => state.netAddress,
 			host: state => state.explorer.host
 		}),
-		lastAnnounceDate() {
+		lastAnnouncement() {
 			if (!Array.isArray(this.host.announcements) || this.host.announcements.length === 0)
 				return null;
 
@@ -45,14 +54,55 @@ export default {
 			};
 		}
 	},
+	beforeMount() {
+		if (this.configNetAddress && this.configNetAddress.trim().length > 0)
+			this.addressMode = 'custom';
+		else
+			this.addressMode = 'automatic';
+	},
 	data() {
 		return {
 			announceAddress: null,
-			announcing: false
+			announcing: false,
+			addressMode: null,
+			error: null
 		};
 	},
 	methods: {
 		...mapActions(['pushNotification']),
+		validateAddress(netaddress) {
+			try {
+				if (this.addressMode === 'automatic') {
+					this.error = null;
+					return;
+				}
+
+				const i = netaddress.lastIndexOf(':');
+
+				if (i < 0)
+					throw new Error('net address is missing port');
+
+				const port = netaddress.substr(i + 1),
+					addr = netaddress.substr(0, i);
+
+				if (addr.length === 0 || addr.search(/\s+/gm) !== -1)
+					throw new Error('net address cannot contain spaces');
+
+				if (port.length === 0 || port.search(/\s+/gm) !== -1)
+					throw new Error('port cannot contain spaces');
+
+				// parseFloat to preserve any decimals isInteger will return false when decimals are present
+				if (!Number.isInteger(parseFloat(port)))
+					throw new Error('port must be a number between 0 and 65535');
+
+				if (port < 0 || port > 65535)
+					throw new Error('port must be a number between 0 and 65535');
+
+				this.error = null;
+			} catch (ex) {
+				this.error = ex.message;
+			}
+		},
 		async onAnnounceHost() {
 			if (this.announcing)
 				return;
@@ -60,19 +110,37 @@ export default {
 			try {
 				this.announcing = true;
 
-				if (this.announceAddress && this.announceAddress.trim().length > 0)
-					this.announceAddress = this.announceAddress.trim();
-				else
-					this.announceAddress = null;
+				let hostConfig = {
+						acceptingcontracts: true
+					},
+					address = null;
+
+				switch (this.addressMode.toLowerCase()) {
+				case 'automatic':
+					hostConfig.netaddress = '';
+					address = null;
+					break;
+				case 'custom':
+					hostConfig.netaddress = this.announceAddress;
+					address = this.announceAddress;
+					break;
+				default:
+					throw new Error('unknown announce type');
+				}
 
 				const client = new SiaApiClient(this.config),
-					resp = await client.announceHost(this.announceAddress ? this.announceAddress : null);
+					configResp = await client.updateHost(hostConfig);
 
-				if (resp.statusCode !== 200)
-					throw new Error(resp.body.message);
+				if (configResp.statusCode !== 200)
+					throw new Error(configResp.body.message);
+
+				const announceResp = await client.announceHost(address);
+
+				if (announceResp.statusCode !== 200)
+					throw new Error(announceResp.body.message);
 
 				this.pushNotification({
-					message: `Successfully announced ${this.announceAddress || this.netAddress} to the network`,
+					message: `Successfully announced to the network`,
 					icon: 'bullhorn',
 					severity: 'success'
 				});
@@ -80,6 +148,7 @@ export default {
 				this.$emit('close');
 			} catch (ex) {
 				log.error('announce host', ex.message);
+				this.error = ex.message;
 				this.pushNotification({
 					message: ex.message,
 					icon: 'bullhorn',
@@ -89,11 +158,44 @@ export default {
 				this.announcing = false;
 			}
 		}
+	},
+	watch: {
+		addressMode(mode) {
+			switch (mode.toLowerCase()) {
+			case 'automatic':
+				this.announceAddress = 'automatic';
+				break;
+			case 'custom':
+				if (this.configNetAddress.trim().length === 0)
+					this.announceAddress = this.netAddress;
+				else
+					this.announceAddress = this.configNetAddress;
+
+				break;
+			}
+		},
+		announceAddress(address) {
+			this.validateAddress(address);
+		}
 	}
 };
 </script>
 
 <style lang="stylus" scoped>
+	.control-mode {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		grid-gap: 5px;
+
+		label {
+			grid-column: auto / span 2;
+		}
+
+		input:read-only {
+			color: rgba(255, 255, 255, 0.54);
+		}
+	}
+
 	.controls {
 		padding: 15px 15px 0;
 		text-align: center;
