@@ -159,6 +159,12 @@ export default {
 			return 0;
 		},
 		loaderSubtext() {
+			if (this.daemonStatus === 'shutdown')
+				return 'Cleanly shutting down Sia... This can take a while...';
+
+			if (this.daemonStatus === 'restart')
+				return null;
+
 			if (this.criticalError)
 				return this.criticalError;
 
