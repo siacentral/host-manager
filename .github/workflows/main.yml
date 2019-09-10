@@ -1,6 +1,6 @@
-name: CI
+name: Lint
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   lint:
@@ -8,6 +8,16 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Set Node.js 10.x
+      uses: actions/setup-node@master
+      with:
+        version: 10.x
+       
+    - name: Install Deps
+    - run: npm i
+        
     - name: Lint
       run: npm run lint
