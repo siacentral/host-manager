@@ -37,7 +37,12 @@ export default {
 			if (!Array.isArray(this.host.announcements) || this.host.announcements.length === 0)
 				return null;
 
-			return formatShortDateString(new Date(this.host.announcements[this.host.announcements.length - 1].timestamp));
+			const lastAnnounce = this.host.announcements[this.host.announcements.length - 1];
+
+			return {
+				date: formatShortDateString(new Date(lastAnnounce.timestamp)),
+				net_address: lastAnnounce.net_address
+			};
 		}
 	},
 	data() {
