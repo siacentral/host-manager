@@ -17,7 +17,7 @@ jobs:
         version: 10.x
        
     - name: Install Deps
-    - run: npm i
+      run: npm install
         
     - name: Lint
       run: npm run lint
