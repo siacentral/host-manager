@@ -213,6 +213,7 @@ export default {
 				this.updating = true;
 
 				await refreshHostConfig();
+				this.updateConfig();
 			} catch (ex) {
 				log.error('config modal close', ex.message);
 			} finally {
