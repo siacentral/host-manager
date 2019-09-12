@@ -85,7 +85,6 @@ export default {
 				totals.data_size = totals.data_size.plus(c.data_size);
 				totals.risked_collateral = totals.risked_collateral.plus(c.risked_collateral);
 				totals.locked_collateral = totals.locked_collateral.plus(c.locked_collateral);
-				totals.risked_collateral = totals.risked_collateral.plus(c.risked_collateral);
 				totals.burnt_collateral = totals.burnt_collateral.plus(c.burnt_collateral);
 				totals.transaction_fees_added = totals.transaction_fees_added.plus(c.transaction_fees_added);
 				totals.totals_cost = totals.totals_cost.plus(c.contract_cost);

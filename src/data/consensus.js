@@ -56,7 +56,7 @@ export async function checkConsensusSync() {
 	const alerts = [];
 
 	try {
-		if (!Store.state.blockHash || Store.state.blockHeight === 0)
+		if (!Store.state.blockHash || !Store.state.blockHeight || Store.state.blockHeight === 0)
 			return;
 
 		const hash = JSON.parse(JSON.stringify(Store.state.blockHash)),
@@ -68,6 +68,8 @@ export async function checkConsensusSync() {
 
 		if (hash === resp.body.block.id)
 			return;
+
+		console.log(hash, height, resp.body);
 
 		alerts.push({
 			category: 'consensus',
