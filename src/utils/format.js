@@ -113,6 +113,13 @@ const numFormatter = new Intl.NumberFormat({
 	maximumFractionDigits: 20
 });
 
+export function formatNumber(val, dec) {
+	if (!dec)
+		dec = 0;
+
+	return numFormatter.format(sigDecimalRound(val, dec));
+}
+
 export function formatSiacoinString(val, dec) {
 	if (!isFinite(dec))
 		dec = 2;

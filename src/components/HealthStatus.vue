@@ -14,7 +14,7 @@
 				<icon icon="redo" v-if="!synced" />
 				<icon icon="check-circle" v-else />
 			</div>
-			<div class="sia-status-title">{{ blockHeight }}</div>
+			<div class="sia-status-title">{{ formatNumber(blockHeight, 0) }}</div>
 			<div class="sia-status-text">{{ statusText }}</div>
 		</div>
 		<a href="#" class="sia-status-item" @click.prevent="modal = 'receiveTransaction'">
@@ -33,7 +33,7 @@
 import ReceiveModal from '@/components/wallet/ReceiveModal';
 
 import { mapState } from 'vuex';
-import { formatDuration, formatPriceString } from '@/utils/format';
+import { formatDuration, formatPriceString, formatNumber } from '@/utils/format';
 
 export default {
 	components: {
@@ -77,7 +77,8 @@ export default {
 		}
 	},
 	methods: {
-		formatPriceString
+		formatPriceString,
+		formatNumber
 	}
 };
 </script>
