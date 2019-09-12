@@ -1,47 +1,61 @@
 <template>
 	<modal title="Settings" @close="$emit('close')">
-		<div class="control">
-			<label>Currency</label>
-			<select v-model="currency">
-				<option value="siacoin">Siacoin</option>
-				<optgroup label="Fiat">
-					<option value="usd">USD</option>
-					<option value="jpy">JPY</option>
-					<option value="eur">EUR</option>
-					<option value="gbp">GBP</option>
-					<option value="aus">AUS</option>
-					<option value="cad">CAD</option>
-					<option value="rub">RUB</option>
-					<option value="cny">CNY</option>
-				</optgroup>
-				<optgroup label="Crypto">
-					<option value="btc">BTC</option>
-					<option value="bch">BCH</option>
-					<option value="eth">ETH</option>
-					<option value="xrp">XRP</option>
-					<option value="ltc">LTC</option>
-				</optgroup>
-			</select>
-		</div>
-		<div class="control control-search">
-			<label>Data Path</label>
-			<input type="text" v-model="dataPath" />
-			<button><icon icon="search"/> Browse</button>
-		</div>
-		<div class="control">
-			<label>API Address</label>
-			<input type="text" v-model="apiAddr" placeholder="localhost:9980" />
-		</div>
-		<div class="control">
-			<label>API Agent</label>
-			<input type="text" v-model="apiAgent" placeholder="Sia-Agent" />
-		</div>
-		<div class="control">
-			<label>API Password</label>
-			<input type="text" v-model="apiPassword" placeholder="automatic" />
-		</div>
-		<div class="controls">
-			<button class="btn btn-success btn-inline" @click="onUpdateConfig">Update</button>
+		<div class="settings-modal">
+			<div class="settings-wrapper">
+				<div class="settings-controls">
+					<div class="control">
+						<label>Currency</label>
+						<select v-model="currency">
+							<option value="siacoin">Siacoin</option>
+							<optgroup label="Fiat">
+								<option value="usd">USD</option>
+								<option value="jpy">JPY</option>
+								<option value="eur">EUR</option>
+								<option value="gbp">GBP</option>
+								<option value="aus">AUS</option>
+								<option value="cad">CAD</option>
+								<option value="rub">RUB</option>
+								<option value="cny">CNY</option>
+							</optgroup>
+							<optgroup label="Crypto">
+								<option value="btc">BTC</option>
+								<option value="bch">BCH</option>
+								<option value="eth">ETH</option>
+								<option value="xrp">XRP</option>
+								<option value="ltc">LTC</option>
+							</optgroup>
+						</select>
+					</div>
+					<div class="control control-search">
+						<label>Data Path</label>
+						<input type="text" v-model="dataPath" />
+						<button><icon icon="search"/> Browse</button>
+					</div>
+					<div class="control">
+						<label>Host Port</label>
+						<input type="text" v-model="hostPort" placeholder=":9981" />
+					</div>
+					<div class="control">
+						<label>RPC Port</label>
+						<input type="text" v-model="rpcPort" placeholder=":9982" />
+					</div>
+					<div class="control">
+						<label>API Address</label>
+						<input type="text" v-model="apiAddr" placeholder="localhost:9980" />
+					</div>
+					<div class="control">
+						<label>API Agent</label>
+						<input type="text" v-model="apiAgent" placeholder="Sia-Agent" />
+					</div>
+					<div class="control">
+						<label>API Password</label>
+						<input type="text" v-model="apiPassword" placeholder="automatic" />
+					</div>
+				</div>
+			</div>
+			<div class="controls">
+				<button class="btn btn-success btn-inline" @click="onUpdateConfig">Update</button>
+			</div>
 		</div>
 	</modal>
 </template>
@@ -74,7 +88,8 @@ export default {
 			apiAgent: '',
 			apiPassword: '',
 			dataPath: '',
-			siaPath: ''
+			hostPort: '',
+			rpcPort: ''
 		};
 	},
 	methods: {
@@ -85,6 +100,8 @@ export default {
 			this.apiAgent = this.config.siad_api_agent;
 			this.apiPassword = this.config.siad_api_password;
 			this.dataPath = this.config.siad_data_path;
+			this.hostPort = this.config.siad_host_port;
+			this.rpcPort = this.config.siad_rpc_port;
 		},
 		async onUpdateConfig() {
 			try {
@@ -93,7 +110,9 @@ export default {
 					siad_api_addr: this.apiAddr,
 					siad_api_agent: this.apiAgent,
 					siad_api_password: this.apiPassword,
-					siad_data_path: this.dataPath
+					siad_data_path: this.dataPath,
+					siad_host_port: this.config.siad_host_port,
+					siad_rpc_port: this.config.siad_rpc_port
 				});
 
 				await writeConfig(this.config);
@@ -107,12 +126,31 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-	.controls {
-		text-align: center;
-		padding: 15px;
+.settings-modal {
+	display: grid;
+	grid-template-rows: minmax(0, 1fr) auto;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+	grid-gap: 15px;
 
-		&:last-child {
-			margin-right: 0;
-		}
+	.settings-wrapper {
+		height: 100%;
+		overflow: auto;
 	}
+
+	.settings-controls {
+		height: auto;
+		overflow: auto;
+	}
+}
+
+.controls {
+	text-align: center;
+	padding: 15px;
+
+	&:last-child {
+		margin-right: 0;
+	}
+}
 </style>
