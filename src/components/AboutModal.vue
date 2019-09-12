@@ -1,5 +1,5 @@
 <template>
-	<modal title="About Sia Host Manager" modalStyle="small" @close="$emit('close')">
+	<modal title="About Sia Host Manager" modalStyle="medium" @close="$emit('close')">
 		<div class="about-modal">
 			<div class="about-icon">
 				<sia-central />
@@ -16,11 +16,11 @@
 					with data from the Sia blockchain.</p>
 				<p>This allows the app to get a complete picture of the health of your node and work
 					around some of stil unresolved bugs in the official clients.</p>
-				<div class="buttons">
-					<button class="btn btn-inline" v-if="daemonManaged" @click="onOpenDataFolder">Open Data Folder</button>
-					<a class="btn btn-inline" href="https://github.com/siacentral/host-manager">GitHub</a>
-					<a class="btn btn-inline" href="https://siacentral.com/host-manager">Website</a>
-				</div>
+			</div>
+			<div class="buttons">
+				<button class="btn btn-inline" v-if="daemonManaged" @click="onOpenDataFolder">Open Data Folder</button>
+				<a class="btn btn-inline" href="https://github.com/siacentral/host-manager">GitHub</a>
+				<a class="btn btn-inline" href="https://siacentral.com/host-manager">Website</a>
 			</div>
 		</div>
 	</modal>
@@ -71,15 +71,21 @@ export default {
 
 <style lang="stylus" scoped>
 .about-modal {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	grid-template-rows: minmax(0, 1fr) auto auto;
+	grid-gap: 15px;
 	width: 100%;
 
 	.about-content {
 		font-size: 1rem;
+		overflow: auto;
 	}
 
 	.about-icon {
-		margin: auto auto 25px;
+		margin: auto;
 		max-width: 150px;
+		grid-area: 1 / 1;
 	}
 
 	.version {
@@ -96,12 +102,14 @@ export default {
 		background: #191919;
 		border: 1px solid dark-gray;
 		border-radius: 8px;
+		grid-area: 2 / 1 / 2 / span 2;
 	}
 }
 
 .buttons {
 	padding: 15px 0 0;
 	text-align: center;
+	grid-area: 3 / 1 / 3 / span 2;
 
 	&:last-child {
 		margin-right: 0;

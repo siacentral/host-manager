@@ -57,7 +57,7 @@ export default {
 		max-width: 90%;
 		max-height: 90%;
 		min-width: 500px;
-		grid-template-rows: auto minmax(auto, 1fr);
+		grid-template-rows: auto minmax(0, 1fr);
 		grid-template-columns: 100%;
 		padding: 15px 30px;
 		grid-gap: 15px;
@@ -74,6 +74,10 @@ export default {
 
 		&.modal-small {
 			max-width: 500px;
+		}
+
+		&.modal-medium {
+			max-width: 600px;
 		}
 	}
 
