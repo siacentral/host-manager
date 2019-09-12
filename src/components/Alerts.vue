@@ -128,7 +128,7 @@ body.win32 {
 .alert {
 	display: grid;
 	position: relative;
-	grid-template-columns: 18px 1fr;
+	grid-template-columns: 30px 1fr;
 	grid-gap: 15px;
     padding: 15px;
     border: 1px solid #00801d;
