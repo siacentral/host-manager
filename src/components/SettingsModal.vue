@@ -3,6 +3,7 @@
 		<div class="settings-modal">
 			<div class="settings-wrapper">
 				<div class="settings-controls">
+					<div class="settings-section text-small text-success">App Settings</div>
 					<div class="control">
 						<label>Currency</label>
 						<select v-model="currency">
@@ -25,36 +26,61 @@
 								<option value="ltc">LTC</option>
 							</optgroup>
 						</select>
+						<transition name="fade" mode="out-in" appear>
+							<label class="error" v-if="errors['currency']">{{ errors['currency'] }}</label>
+						</transition>
 					</div>
+					<div class="settings-section text-small text-success">Daemon Settings</div>
 					<div class="control control-search">
 						<label>Data Path</label>
 						<input type="text" v-model="dataPath" />
 						<button><icon icon="search"/> Browse</button>
+						<transition name="fade" mode="out-in" appear>
+							<label class="error" v-if="errors['dataPath']">{{ errors['dataPath'] }}</label>
+						</transition>
 					</div>
 					<div class="control">
 						<label>Host Port</label>
 						<input type="text" v-model="hostPort" placeholder=":9981" />
+						<transition name="fade" mode="out-in" appear>
+							<label class="error" v-if="errors['hostPort']">{{ errors['hostPort'] }}</label>
+						</transition>
 					</div>
 					<div class="control">
 						<label>RPC Port</label>
 						<input type="text" v-model="rpcPort" placeholder=":9982" />
+						<transition name="fade" mode="out-in" appear>
+							<label class="error" v-if="errors['rpcPort']">{{ errors['rpcPort'] }}</label>
+						</transition>
 					</div>
 					<div class="control">
 						<label>API Address</label>
 						<input type="text" v-model="apiAddr" placeholder="localhost:9980" />
+						<transition name="fade" mode="out-in" appear>
+							<label class="error" v-if="errors['apiAddr']">{{ errors['apiAddr'] }}</label>
+						</transition>
 					</div>
 					<div class="control">
 						<label>API Agent</label>
 						<input type="text" v-model="apiAgent" placeholder="Sia-Agent" />
+						<transition name="fade" mode="out-in" appear>
+							<label class="error" v-if="errors['apiAgent']">{{ errors['apiAgent'] }}</label>
+						</transition>
 					</div>
 					<div class="control">
 						<label>API Password</label>
 						<input type="text" v-model="apiPassword" placeholder="automatic" />
+						<transition name="fade" mode="out-in" appear>
+							<label class="error" v-if="errors['apiPassword']">{{ errors['apiPassword'] }}</label>
+						</transition>
 					</div>
 				</div>
 			</div>
+			<transition name="fade" mode="out-in" appear>
+				<div class="text-small text-warning" v-if="notice" :key="notice">{{ notice }}</div>
+			</transition>
 			<div class="controls">
-				<button class="btn btn-success btn-inline" @click="onUpdateConfig">Update</button>
+				<button class="btn btn-success btn-inline" @click="onUpdateConfig" :disabled="!changed || !valid">Update</button>
 			</div>
 		</div>
 	</modal>
@@ -89,11 +115,39 @@ export default {
 			apiPassword: '',
 			dataPath: '',
 			hostPort: '',
-			rpcPort: ''
+			rpcPort: '',
+			notice: null,
+			errors: {},
+			valid: false,
+			changed: false
 		};
 	},
 	methods: {
 		...mapActions(['setConfig']),
+		validate() {
+			const portRegex = /^:(?<port>[0-9]{1,5})$/mi,
+				listenRegex = /^(?<address>\S+):(?<port>[0-9]{1,5})$/mi;
+
+			let errors = {}, hasErrors = false;
+
+			if (this.hostPort && this.hostPort.length > 0 && portRegex.exec(this.hostPort) === null) {
+				errors['hostPort'] = 'host port must match the format :9982';
+				hasErrors = true;
+			}
+
+			if (this.rpcPort && this.rpcPort.length > 0 && portRegex.exec(this.rpcPort) === null) {
+				errors['rpcPort'] = 'RPC port must match the format :9981';
+				hasErrors = true;
+			}
+
+			if (this.apiAddr && this.apiAddr.length > 0 && listenRegex.exec(this.apiAddr) === null) {
+				errors['apiAddr'] = 'API Address must match the format localhost:9980';
+				hasErrors = true;
+			}
+
+			this.errors = errors;
+			this.valid = !hasErrors;
+		},
 		updateConfig() {
 			this.currency = this.config.currency || 'siacoin';
 			this.apiAddr = this.config.siad_api_addr;
@@ -121,11 +175,91 @@ export default {
 				log.error('settings update', ex.message);
 			}
 		}
+	},
+	watch: {
+		currency(val) {
+			this.validate();
+
+			if (this.changed)
+				return;
+
+			this.changed = (val !== this.config.currency);
+		},
+		apiAddr(val) {
+			this.validate();
+
+			if (this.changed)
+				return;
+
+			this.changed = (val !== this.config.siad_api_addr);
+
+			if (this.changed)
+				this.notice = 'Changes will not take effect until daemon restart.';
+		},
+		apiAgent(val) {
+			this.validate();
+
+			if (this.changed)
+				return;
+
+			this.changed = (val !== this.config.siad_api_agent);
+
+			if (this.changed)
+				this.notice = 'Changes will not take effect until daemon restart.';
+		},
+		apiPassword(val) {
+			this.validate();
+
+			if (this.changed)
+				return;
+
+			this.changed = (val !== this.config.siad_api_password);
+
+			if (this.changed)
+				this.notice = 'Changes will not take effect until daemon restart.';
+		},
+		dataPath(val) {
+			this.validate();
+
+			if (this.changed)
+				return;
+
+			this.changed = (val !== this.config.siad_data_path);
+
+			if (this.changed)
+				this.notice = 'Changes will not take effect until daemon restart.';
+		},
+		hostPort(val) {
+			this.validate();
+
+			if (this.changed)
+				return;
+
+			this.changed = (val !== this.config.siad_host_port);
+
+			if (this.changed)
+				this.notice = 'Changes will not take effect until daemon restart.';
+		},
+		rpcPort(val) {
+			this.validate();
+
+			if (this.changed)
+				return;
+
+			this.changed = (val !== this.config.siad_rpc_port);
+
+			if (this.changed)
+				this.notice = 'Changes will not take effect until daemon restart.';
+		}
 	}
 };
 </script>
 
 <style lang="stylus" scoped>
+.settings-section {
+	margin-bottom: 15px;
+}
+
 .settings-modal {
 	display: grid;
 	grid-template-rows: minmax(0, 1fr) auto;
