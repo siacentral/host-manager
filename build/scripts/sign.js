@@ -63,6 +63,22 @@ async function generateSignature(result, artifactPath, key) {
 }
 
 module.exports = async function(result) {
+	const reqKey = [
+			process.env.WIN_CSC_LINK,
+			process.env.CSC_LINK,
+			process.env.SIGNING_KEY
+		],
+		reqPass = [
+			process.env.WIN_CSC_KEY_PASSWORD,
+			process.env.CSC_KEY_PASSWORD,
+			process.env.SIGNING_KEY_PASSWORD
+		];
+
+	console.log(reqKey, reqPass);
+
+	if (reqKey.filter(r => r !== null && r !== undefined).length === 0 || reqPass.filter(r => r !== null && r !== undefined).length === 0)
+		return;
+
 	const files = result.artifactPaths;
 
 	if (!Array.isArray(files) || files.length === 0)
