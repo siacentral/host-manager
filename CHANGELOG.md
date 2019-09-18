@@ -1,3 +1,27 @@
+## September 2019
+
+### v1.0.3
+
+Updates Sia to the latest hotfix v1.4.1.2 along with bug fixes, minor improvements, and consensus bootstraping
+
+#### Features
+
++ Make all numbers and dates adhere to locale specific formatting.
++ Add bootstrapping to setup
++ Add restart daemon menu item to tray
++ Add validation to host Announce modal to help prevent bad announces
++ Add validation to settings modal
++ Add rpc port and host port to settings modal
+
+#### Bug Fixes
+
++ Added a loading message when pulling data from the Sia API
++ Fix issue with Sia-UI import skipping advanced setup
++ Fix sia loading message only picking up odd numbered modules.
++ Fix siad not being shutdown on exit on Mac OS
++ Fix issue with "Contract Cost" being `NaN` when revenue is split
++ Fix about modal not scrolling when at smallest screen size
+
 ## August 2019
 
 ### v1.0.2
