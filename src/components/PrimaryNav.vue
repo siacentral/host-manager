@@ -1,7 +1,7 @@
 <template>
 	<nav class="primary">
 		<div class="nav-logo">
-			<sia-central /> Sia Central
+			<sia-central /> Sia Host Manager
 		</div>
 		<health-status />
 		<div class="top-nav">
