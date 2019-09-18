@@ -1,4 +1,4 @@
-# Sia Host Manager (Beta)
+# Sia Host Manager
 
 ![siacentral+sia](https://imgur.com/MtDubn1.png)
 
