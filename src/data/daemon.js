@@ -28,23 +28,23 @@ async function onDaemonLoaded(ev, stats) {
 	}
 }
 
-function onDaemonCritical(ev, error) {
+function onDaemonCritical(ev, code, stats) {
 	try {
-		Store.dispatch('setCriticalError', error);
+		const runtime = Math.floor((Date.now() - stats.start) / 1000);
+
+		Store.dispatch('setCriticalError', `Daemon crashed in ${runtime} seconds. Unable to start Sia. Please check logs for more information`);
 	} catch (ex) {
 		log.error('onDaemonCritical', ex.message);
 	}
 }
 
-export function launch(config) {
-	ipcRenderer.removeListener('daemonUpdate', onDaemonUpdate);
-	ipcRenderer.removeListener('daemonLoaded', onDaemonLoaded);
-	ipcRenderer.removeListener('daemonError', onDaemonCritical);
-
+export function attachIPC() {
 	ipcRenderer.on('daemonUpdate', onDaemonUpdate);
 	ipcRenderer.on('daemonLoaded', onDaemonLoaded);
 	ipcRenderer.on('daemonError', onDaemonCritical);
+}
 
+export function launch(config) {
 	ipcRenderer.send('launchDaemon', config);
 }
 

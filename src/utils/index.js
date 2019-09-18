@@ -29,7 +29,7 @@ export async function mkdirIfNotExist(path) {
 		await fs.mkdir(path, {
 			recursive: true
 		});
-	} catch (ex) {}
+	} catch (ex) { }
 }
 
 export async function writeConfig(config) {
@@ -49,6 +49,20 @@ export async function readConfig() {
 		};
 
 	return config;
+}
+
+export function getLogPath() {
+	const appName = app.getName(),
+		homePath = app.getPath('home');
+
+	switch (process.platform) {
+	case 'darwin':
+		return path.join(homePath, `Library/Logs/${appName}/log.log`);
+	case 'win32':
+		return path.join(homePath, `AppData/Roaming/${appName}/log.log`);
+	default:
+		return path.join(homePath, `.config/${appName}/log.log`);
+	}
 }
 
 export function getConsensusPath(loc) {

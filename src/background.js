@@ -268,7 +268,12 @@ ipcMain.on('launchDaemon', async(ev, config) => {
 			});
 
 			daemon.on('exit', (code, stats) => {
-				log.info(`daemon exited after ${Math.floor((Date.now() - stats.start) / 1000)} seconds with exit code ${code}`);
+				const runtime = Math.floor((Date.now() - stats.start) / 1000);
+
+				if (runtime < 10)
+					win.webContents.send('daemonError', -1, stats);
+
+				log.info(`daemon exited after ${runtime} seconds with exit code ${code}`);
 
 				if (stats.stderr && stats.stderr.trim().length > 0)
 					log.error('daemon stderr', stats.stderr);

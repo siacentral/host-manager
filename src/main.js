@@ -5,6 +5,7 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import { readConfig, checkSiaDataFolders, getConsensusPath } from '@/utils';
+import { attachIPC } from '@/data/daemon';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
@@ -26,6 +27,7 @@ process.on('unhandledRejection', error => {
 });
 
 async function init() {
+	attachIPC();
 	document.body.classList.add(process.platform);
 
 	try {

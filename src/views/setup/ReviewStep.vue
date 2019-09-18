@@ -58,7 +58,8 @@ export default {
 			daemonLoaded: state => state.hostDaemon.loaded,
 			daemonLoadingModule: state => state.hostDaemon.currentModule,
 			daemonLoadPercent: state => state.hostDaemon.loadPercent,
-			daemonManaged: state => state.hostDaemon.managed
+			daemonManaged: state => state.hostDaemon.managed,
+			criticalError: state => state.criticalError
 		})
 	},
 	data() {
@@ -98,6 +99,11 @@ export default {
 				inc: 1,
 				createWallet: !this.walletUnlocked && !this.walletEncrypted
 			});
+		}
+	},
+	watch: {
+		criticalError(val) {
+			this.error = val;
 		}
 	}
 };
