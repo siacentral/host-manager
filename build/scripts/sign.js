@@ -74,8 +74,6 @@ module.exports = async function(result) {
 			process.env.SIGNING_KEY_PASSWORD
 		];
 
-	console.log(reqKey, reqPass);
-
 	if (reqKey.filter(r => r !== null && r !== undefined).length === 0 || reqPass.filter(r => r !== null && r !== undefined).length === 0)
 		return;
 
