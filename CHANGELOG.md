@@ -1,5 +1,16 @@
 ## September 2019
 
+### v1.0.4
+
+Quick bug fix release from issues discovered with v1.0.3
+
+#### Bug Fixes
+
++ Reduce memory usage
++ Host port and RPC port placeholders on settings modal where switched
++ Changing host port or RPC port from the settings modal didn't work
++ Saving settings could trigger Host Manager to start in light mode instead of dark mode which is not complete.
+
 ### v1.0.3
 
 Updates Sia to the latest hotfix v1.4.1.2 along with bug fixes, minor improvements, and consensus bootstraping
