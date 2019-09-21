@@ -159,17 +159,19 @@ export default {
 		},
 		async onUpdateConfig() {
 			try {
-				this.setConfig({
+				const newConfig = {
+					...this.config,
 					currency: this.currency,
 					siad_api_addr: this.apiAddr,
 					siad_api_agent: this.apiAgent,
 					siad_api_password: this.apiPassword,
 					siad_data_path: this.dataPath,
-					siad_host_port: this.config.siad_host_port,
-					siad_rpc_port: this.config.siad_rpc_port
-				});
+					siad_host_port: this.hostPort,
+					siad_rpc_port: this.rpcPort
+				};
 
-				await writeConfig(this.config);
+				this.setConfig(newConfig);
+				await writeConfig(newConfig);
 				this.$emit('close');
 			} catch (ex) {
 				log.error('settings update', ex.message);
