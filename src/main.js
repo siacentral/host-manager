@@ -39,10 +39,7 @@ async function init() {
 
 		store.dispatch('setConfig', config);
 
-		if (config.dark_mode)
-			document.body.classList.add('dark');
-		else
-			document.body.classList.remove('dark');
+		document.body.classList.add('dark');
 
 		store.dispatch('setup/setFirstRun', false);
 	} catch (ex) {
