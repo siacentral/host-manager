@@ -111,7 +111,14 @@ export async function parseHostContracts() {
 			});
 		}
 
-		if (contract.status !== contract.sia_status) {
+		if (contract.status !== contract.sia_status && contract.proof_deadline.lt(lastHeight)) {
+			const key = `${contract.status}-${contract.sia_status}`;
+
+			if (!invalidStatusMap[key])
+				invalidStatusMap[key] = 0;
+
+			invalidStatusMap[key] += 1;
+
 			contract.tags.push({
 				severity: 'warning',
 				text: 'Status Mismatch'
@@ -173,28 +180,10 @@ export async function parseHostContracts() {
 			break;
 		}
 
-		if (contract.status !== contract.sia_status) {
-			const key = `${contract.status}-${contract.sia_status}`;
-
-			if (!invalidStatusMap[key])
-				invalidStatusMap[key] = 0;
-
-			invalidStatusMap[key] += 1;
-		}
-
 		filtered.push(contract);
 
 		return filtered;
 	}, []);
-
-	if (minDate && maxDate) {
-		let revenueDays = Math.floor((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24));
-
-		if (revenueDays <= 0)
-			revenueDays = 1;
-
-		Store.dispatch('hostContracts/setAverageRevenue', totals.earned_revenue.div(revenueDays));
-	}
 
 	if (totals.failed_contracts > 0) {
 		let prefix;
