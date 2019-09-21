@@ -7,22 +7,13 @@ import Store from '@/store';
 
 export async function refreshHostWallet() {
 	try {
-		await Promise.all([
-			loadHostWallet(),
-			loadWalletAddress(),
-			loadWalletFees()
-		]);
+		await loadHostWallet();
 
 		if (!Store.state.hostWallet.unlocked && !Store.state.hostWallet.encrypted &&
 			!Store.state.hostWallet.scanning) {
 			Store.dispatch('setup/setFirstRun', true);
 			Store.dispatch('setLoaded', false);
 			return;
-		}
-
-		if (!Store.state.lastAddress) {
-			await apiClient.createWalletAddress();
-			await loadWalletAddress();
 		}
 	} catch (ex) {
 		log.error('refreshHostWallet', ex.message);
@@ -44,35 +35,25 @@ async function unlockHostWalllet(password) {
 	}
 }
 
-async function loadWalletFees() {
+export async function getLastWalletAddress() {
 	try {
 		const resp = await apiClient.getWalletAddresses();
 
 		if (resp.statusCode !== 200)
 			throw new Error(resp.body.message);
 
-		if (!Array.isArray(resp.body.addresses))
-			throw new Error('addresses must be an array');
+		if (resp.body.addresses.length === 0) {
+			const newAddrResp = await apiClient.createWalletAddress();
 
-		Store.dispatch('hostWallet/setFees', {
-			maximum: new BigNumber(resp.body.maximum),
-			minimum: new BigNumber(resp.body.minimum)
-		});
+			if (resp.statusCode !== 200)
+				throw new Error(resp.body.message);
+
+			return newAddrResp.body.address;
+		}
+
+		return resp.body.addresses[resp.body.addresses.length - 1];
 	} catch (ex) {
-		log.error('loadWalletFees', ex.message);
-	}
-}
-
-async function loadWalletAddress() {
-	try {
-		const resp = await apiClient.getWalletAddresses();
-
-		if (resp.statusCode !== 200)
-			throw new Error(resp.body.message);
-
-		Store.dispatch('hostWallet/setLastAddress', resp.body.addresses[resp.body.addresses.length - 1]);
-	} catch (ex) {
-		log.error('loadWalletAddress', ex.message);
+		log.error('getLastWalletAddress', ex.message);
 	}
 }
 
