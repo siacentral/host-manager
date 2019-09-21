@@ -30,8 +30,6 @@ export async function refreshData() {
 	Store.dispatch('setLoaded', true);
 	Store.dispatch('setRefreshingData', false);
 
-	console.log(Store.state);
-
 	if (!Store.state.hostWallet.lastAddress)
 		Store.dispatch('hostWallet/setLastAddress', await getLastWalletAddress());
 }
