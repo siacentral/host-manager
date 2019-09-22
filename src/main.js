@@ -34,18 +34,36 @@ async function init() {
 	try {
 		const config = await readConfig();
 
-		if (typeof config.siad_data_path !== 'string' || config.siad_data_path.length === 0)
+		if (typeof config.siad_data_path !== 'string' || config.siad_data_path.length === 0) {
+			store.dispatch('pushNotification', {
+				message: `Config appears to be corrupt, running setup.`,
+				icon: 'folder',
+				severity: 'danger'
+			});
 			throw new Error('siad_data_path missing');
+		}
 
 		const stat = await fs.stat(config.siad_data_path);
 
-		if (!stat || !stat.isDirectory())
+		if (!stat || !stat.isDirectory()) {
+			store.dispatch('pushNotification', {
+				message: `Consensus path is invalid, running setup.`,
+				icon: 'folder',
+				severity: 'danger'
+			});
 			throw new Error('siad_data_path is not a directory');
+		}
 
 		const missingFolders = await checkSiaDataFolders(getConsensusPath(config.siad_data_path));
 
-		if (missingFolders.length > 0)
-			throw new Error('data folder missing, running setup');
+		if (missingFolders.length > 0) {
+			store.dispatch('pushNotification', {
+				message: `Sia data directory changed, running setup.`,
+				icon: 'bullhorn',
+				severity: 'danger'
+			});
+			throw new Error('data folder missing');
+		}
 
 		store.dispatch('setConfig', config);
 
