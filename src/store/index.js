@@ -26,8 +26,10 @@ const store = new Vuex.Store({
 		config: null,
 		netAddress: null,
 		coinPrice: 0.00318536,
-		blockHeight: 0,
-		blockHash: null,
+		block: {
+			hash: null,
+			height: 0
+		},
 		lastBlock: 0,
 		synced: false,
 		syncTime: 0,
@@ -93,11 +95,8 @@ const store = new Vuex.Store({
 		setCoinPrice(state, price) {
 			state.coinPrice = price;
 		},
-		setBlockHeight(state, height) {
-			state.blockHeight = height;
-		},
-		setBlockHash(state, hash) {
-			state.blockHash = hash;
+		setBlock(state, block) {
+			state.block = block;
 		},
 		setLastBlock(state, height) {
 			state.lastBlock = height;
@@ -155,11 +154,8 @@ const store = new Vuex.Store({
 		setCoinPrice(context, price) {
 			context.commit('setCoinPrice', price);
 		},
-		setBlockHeight(context, height) {
-			context.commit('setBlockHeight', height);
-		},
-		setBlockHash(context, hash) {
-			context.commit('setBlockHash', hash);
+		setBlock(context, block) {
+			context.commit('setBlock', block);
 		},
 		setLastBlock(context, height) {
 			context.commit('setLastBlock', height);

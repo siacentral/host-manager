@@ -47,7 +47,7 @@ export default {
 	computed: {
 		...mapState({
 			netAddress: state => state.netAddress,
-			blockHeight: state => state.blockHeight,
+			blockHeight: state => state.block.height,
 			synced: state => state.synced,
 			syncTime: state => state.syncTime,
 			balance: state => state.hostWallet.balance,

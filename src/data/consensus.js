@@ -26,8 +26,10 @@ export async function refreshBlockHeight() {
 			Store.dispatch('setSyncTime', remainingBlocks * blockTime);
 		}
 
-		Store.dispatch('setBlockHash', resp.body.currentblock);
-		Store.dispatch('setBlockHeight', resp.body.height);
+		Store.dispatch('setBlock', {
+			hash: resp.body.currentblock,
+			height: resp.body.height
+		});
 		Store.dispatch('setSynced', resp.body.synced);
 	} catch (ex) {
 		log.error('refreshBlockHeight', ex.message);
@@ -56,11 +58,10 @@ export async function checkConsensusSync() {
 	const alerts = [];
 
 	try {
-		if (!Store.state.blockHash || !Store.state.blockHeight || Store.state.blockHeight === 0)
+		if (!Store.state.block || Store.state.block.height === 0)
 			return;
 
-		const hash = JSON.parse(JSON.stringify(Store.state.blockHash)),
-			height = JSON.parse(JSON.stringify(Store.state.blockHeight)),
+		const { hash, height } = JSON.parse(JSON.stringify(Store.state.block)),
 			resp = await getBlock(height);
 
 		if (resp.body.type !== 'success')
