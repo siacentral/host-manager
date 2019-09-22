@@ -35,13 +35,6 @@ export async function checkHostConnectability() {
 				severity: 'danger',
 				message: report.message ? report.message : 'Your host does not appear to be connectable. Renters may be unable to access their data'
 			});
-		} else if (report.message) {
-			alerts.push({
-				category: 'connection',
-				icon: 'wifi',
-				severity: 'warning',
-				message: report.message ? report.message : 'Your host does not appear to be connectable. Renters may be unable to access their data'
-			});
 		}
 
 		Store.dispatch('explorer/setAlerts', alerts);
