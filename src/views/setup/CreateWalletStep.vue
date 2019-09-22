@@ -156,6 +156,8 @@ export default {
 				case 'review':
 					const config = {};
 
+					await this.unlockWallet(this.unlockPassword);
+
 					if (this.autoUnlock)
 						config.siad_wallet_password = this.unlockPassword;
 
@@ -260,6 +262,21 @@ export default {
 
 			this.seed = resp.body.primaryseed;
 			this.mode = 'review';
+		},
+		async unlockWallet(password) {
+			try {
+				const client = new SiaApiClient(this.appConfig),
+					resp = await client.unlockWallet(password);
+
+				if (resp.statusCode !== 200)
+					throw new Error(resp.body.message);
+
+				return true;
+			} catch (ex) {
+				log.error('data unlock wallet', ex.message);
+
+				return false;
+			}
 		}
 	}
 };
