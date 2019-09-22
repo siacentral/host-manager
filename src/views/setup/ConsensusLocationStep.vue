@@ -20,11 +20,13 @@
 
 <script>
 import { remote } from 'electron';
+import path from 'path';
 import log from 'electron-log';
 import { checkSiaDataFolders } from '@/utils';
 import SetupStep from './SetupStep';
 
-const dialog = remote.dialog;
+const dialog = remote.dialog,
+	app = remote.app;
 
 export default {
 	components: {
@@ -51,15 +53,22 @@ export default {
 				return;
 
 			try {
+				let consensusPath;
+
 				this.setting = true;
+
+				if (!this.consensusLocation || this.consensusLocation.length === 0)
+					consensusPath = path.join(app.getPath('userData'), 'sia');
+				else
+					consensusPath = this.consensusLocation;
 
 				const ev = {
 						inc: n,
 						config: {
-							siad_data_path: this.consensusLocation
+							siad_data_path: consensusPath
 						}
 					},
-					missingFolders = await checkSiaDataFolders(ev.config.siad_data_path);
+					missingFolders = await checkSiaDataFolders(consensusPath);
 
 				if (missingFolders.indexOf('consensus') >= 0)
 					ev.needsBootstrap = true;
