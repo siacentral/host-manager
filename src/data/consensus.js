@@ -69,8 +69,6 @@ export async function checkConsensusSync() {
 		if (hash === resp.body.block.id)
 			return;
 
-		console.log(hash, height, resp.body);
-
 		alerts.push({
 			category: 'consensus',
 			icon: 'redo',
