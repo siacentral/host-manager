@@ -297,7 +297,7 @@ export default {
 					inc: n
 				});
 			} catch (ex) {
-				log.error('consensus location setup', ex.message);
+				log.error('bootstrap setup', ex.message);
 			} finally {
 				this.setting = false;
 			}
