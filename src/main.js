@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import log from 'electron-log';
 
+import { promises as fs } from 'fs';
 import App from './App.vue';
 import router from './router';
 import store from './store';
@@ -31,8 +32,17 @@ async function init() {
 	document.body.classList.add(process.platform);
 
 	try {
-		const config = await readConfig(),
-			missingFolders = await checkSiaDataFolders(getConsensusPath(config.siad_data_path));
+		const config = await readConfig();
+
+		if (typeof config.siad_data_path !== 'string' || config.siad_data_path.length === 0)
+			throw new Error('siad_data_path missing');
+
+		const stat = await fs.stat(config.siad_data_path);
+
+		if (!stat || !stat.isDirectory())
+			throw new Error('siad_data_path is not a directory');
+
+		const missingFolders = await checkSiaDataFolders(getConsensusPath(config.siad_data_path));
 
 		if (missingFolders.length > 0)
 			throw new Error('data folder missing, running setup');
