@@ -49,6 +49,8 @@ export default {
 			try {
 				const ev = { inc: 1 };
 
+				ev.skipImport = !doImport;
+
 				if (doImport) {
 					ev.config = { ...this.config, ...this.import };
 

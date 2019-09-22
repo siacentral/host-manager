@@ -43,6 +43,7 @@ export default {
 			showAdvanced: false,
 			createWallet: false,
 			needsBootstrap: false,
+			skipImport: true,
 			config: {
 				dark_mode: true
 			},
@@ -55,7 +56,8 @@ export default {
 
 			if (this.imported)
 				steps.push('import');
-			else
+
+			if (!this.imported || this.skipImport)
 				steps.push('consensus');
 
 			if (this.needsBootstrap)
@@ -92,6 +94,9 @@ export default {
 		async onStepComplete(data) {
 			try {
 				this.config = data.config ? { ...this.config, ...data.config } : this.config;
+
+				if (typeof data.skipImport === 'boolean')
+					this.skipImport = data.skipImport;
 
 				if (typeof data.showAdvanced === 'boolean')
 					this.showAdvanced = data.showAdvanced;
