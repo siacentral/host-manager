@@ -88,17 +88,26 @@ export default {
 		async onDaemonLoaded() {
 			const client = new SiaApiClient(this.config);
 
-			if (!(await client.checkCredentials()))
-				throw new Error('Unable to authenticate check API address or password');
+			try {
+				if (!(await client.checkCredentials()))
+					throw new Error('Unable to authenticate check API address or password');
 
-			await refreshData();
+				await refreshData();
 
-			this.setConfig(this.config);
+				this.setConfig(this.config);
 
-			this.$emit('done', {
-				inc: 1,
-				createWallet: !this.walletUnlocked && !this.walletEncrypted
-			});
+				this.$emit('done', {
+					inc: 1,
+					createWallet: !this.walletUnlocked && !this.walletEncrypted
+				});
+			} catch (ex) {
+				log.error('on daemon loaded', ex.message);
+				this.error = ex.message;
+
+				try {
+					await client.stopDaemon();
+				} catch (ex) {}
+			}
 		}
 	},
 	watch: {
