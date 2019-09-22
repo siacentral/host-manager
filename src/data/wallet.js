@@ -2,25 +2,29 @@ import { BigNumber } from 'bignumber.js';
 import log from 'electron-log';
 
 import { apiClient } from './index';
-import { sleep } from '@/utils';
 import Store from '@/store';
 
 export async function refreshHostWallet() {
 	try {
 		await loadHostWallet();
 
-		if (!Store.state.hostWallet.unlocked && !Store.state.hostWallet.encrypted &&
-			!Store.state.hostWallet.scanning) {
+		const walletExists = Store.state.hostWallet.encrypted,
+			walletUnlocked = Store.state.hostWallet.unlocked || Store.state.hostWallet.rescanning;
+
+		if (!walletExists) {
 			Store.dispatch('setup/setFirstRun', true);
 			Store.dispatch('setLoaded', false);
 			return;
 		}
+
+		if (!walletUnlocked)
+			unlockHostWallet(Store.state.config.siad_wallet_password);
 	} catch (ex) {
 		log.error('refreshHostWallet', ex.message);
 	}
 }
 
-async function unlockHostWalllet(password) {
+async function unlockHostWallet(password) {
 	try {
 		const resp = await apiClient.unlockWallet(password);
 
@@ -57,21 +61,13 @@ export async function getLastWalletAddress() {
 	}
 }
 
-async function loadHostWallet(disableUnlock) {
+async function loadHostWallet() {
 	try {
-		const config = Store.state.config || {},
-			resp = await apiClient.getWallet(),
+		const resp = await apiClient.getWallet(),
 			alerts = [];
 
 		if (resp.statusCode !== 200)
 			throw new Error(resp.body.message);
-
-		if (!resp.body.unlocked && resp.body.encrypted && !resp.body.rescanning && config.siad_wallet_password && !disableUnlock) {
-			unlockHostWalllet(config.siad_wallet_password);
-			await sleep(1);
-			await loadHostWallet(true);
-			return;
-		}
 
 		if (!resp.body.unlocked) {
 			alerts.push({
