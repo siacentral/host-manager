@@ -1,7 +1,7 @@
 import path from 'path';
 import process from 'process';
 import { promises as fs } from 'fs';
-
+import log from 'electron-log';
 import request from 'request';
 import { decode } from '@stablelib/utf8';
 
@@ -85,7 +85,9 @@ export default class SiaApiClient {
 
 			if (resp.body.message && resp.body.message.indexOf('wallet must be unlocked before it can be used') >= 0)
 				return true;
-		} catch (ex) {}
+		} catch (ex) {
+			log.error('check api credentials', ex.message);
+		}
 
 		return false;
 	}
