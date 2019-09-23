@@ -57,7 +57,7 @@ export async function parseHostContracts() {
 		startDate = new Date(new Date().setDate(-30)),
 		alerts = [],
 		invalidStatusMap = {};
-	let minDate, maxDate, recentRevenue = new BigNumber(0);
+	let recentRevenue = new BigNumber(0);
 
 	if (contracts.length === 0)
 		return;
@@ -144,12 +144,6 @@ export async function parseHostContracts() {
 			totals.earned_revenue = totals.earned_revenue.plus(contract.download_revenue)
 				.plus(contract.storage_revenue)
 				.plus(contract.upload_revenue);
-
-			if (!minDate || (contract.expiration_timestamp.getTime() !== -62135596800000 && contract.expiration_timestamp < minDate))
-				minDate = contract.expiration_timestamp;
-
-			if (!maxDate || (contract.expiration_timestamp.getTime() !== -62135596800000 && contract.expiration_timestamp > maxDate))
-				maxDate = contract.expiration_timestamp;
 
 			if (contract.expiration_timestamp >= startDate) {
 				recentRevenue = recentRevenue.plus(contract.download_revenue)
