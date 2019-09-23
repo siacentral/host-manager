@@ -83,6 +83,10 @@ export default {
 			creating: false
 		};
 	},
+	mounted() {
+		if (this.config.data_unit === 'decimal')
+			this.sizeStr = '100 GB';
+	},
 	computed: {
 		...mapState(['config']),
 		creationText() {
@@ -90,7 +94,7 @@ export default {
 				actualSize = new BigNumber(Math.floor(folderSize.div(sectorSize * granularity)
 					.toNumber())).times(sectorSize * granularity);
 
-			return `Adding ${this.splitFolders && this.splitCount > 1 ? this.splitCount + ' folders' : '1 folder'} of size ${formatByteString(actualSize)}`;
+			return `Adding ${this.splitFolders && this.splitCount > 1 ? this.splitCount + ' folders' : '1 folder'} of size ${formatByteString(actualSize, 2)}`;
 		}
 	},
 	methods: {
