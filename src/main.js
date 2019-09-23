@@ -6,15 +6,16 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import { readConfig, checkSiaDataFolders, getConsensusPath } from '@/utils';
-import { attachIPC } from '@/data/daemon';
+import { attachDaemonIPC } from '@/data/daemon';
+import { attachUpdateIPC } from '@/data/autoupdate';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
+import { faUpload, faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
 	faChartPie, faHdd, faFileContract, faWrench, faCogs, faSearch,
 	faUnlock, faDatabase, faPlus, faExpand, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome';
 
-library.add(faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes, faChartPie,
+library.add(faUpload, faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes, faChartPie,
 	faHdd, faFileContract, faWrench, faCogs, faSearch, faUnlock,
 	faDatabase, faPlus, faExpand, faTrash, faSync);
 
@@ -28,7 +29,9 @@ process.on('unhandledRejection', error => {
 });
 
 async function init() {
-	attachIPC();
+	attachDaemonIPC();
+	attachUpdateIPC();
+
 	document.body.classList.add(process.platform);
 
 	try {

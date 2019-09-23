@@ -21,6 +21,9 @@
 		<settings-modal v-if="modal === 'settings'" @close="modal = null" />
 		<about-modal v-if="modal === 'about'" @close="modal = null" />
 		<alerts-panel v-if="modal === 'alerts'" @close="modal = null" />
+		<transition mode="out-in" name="fade" appear>
+			<update-item v-if="update && update.downloaded" />
+		</transition>
 	</nav>
 </template>
 
@@ -33,6 +36,7 @@ import AlertsPanel from '@/components/Alerts';
 import HealthStatus from '@/components/HealthStatus';
 import SettingsModal from '@/components/SettingsModal';
 import SiaCentral from '@/assets/siacentral.svg';
+import UpdateItem from '@/components/update/UpdateItem';
 
 export default {
 	components: {
@@ -40,7 +44,8 @@ export default {
 		AlertsPanel,
 		HealthStatus,
 		SettingsModal,
-		SiaCentral
+		SiaCentral,
+		UpdateItem
 	},
 	data() {
 		return {

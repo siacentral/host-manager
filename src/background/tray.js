@@ -10,6 +10,10 @@ import { shutdownDaemon } from './daemon';
 export var mainTray;
 export var shutdown = false;
 
+export function setShutdown(val) {
+	shutdown = val;
+}
+
 export function createTray() {
 	const menu = Menu.buildFromTemplate([
 		{ label: 'Show Desktop', click: openWindow },

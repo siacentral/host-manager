@@ -38,7 +38,7 @@ function onDaemonCritical(ev, code, stats) {
 	}
 }
 
-export function attachIPC() {
+export function attachDaemonIPC() {
 	ipcRenderer.on('daemonUpdate', onDaemonUpdate);
 	ipcRenderer.on('daemonLoaded', onDaemonLoaded);
 	ipcRenderer.on('daemonError', onDaemonCritical);
