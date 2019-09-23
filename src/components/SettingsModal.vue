@@ -30,6 +30,16 @@
 							<label class="error" v-if="errors['currency']">{{ errors['currency'] }}</label>
 						</transition>
 					</div>
+					<div class="control">
+						<label>Data Unit</label>
+						<select v-model="dataUnit">
+							<option value="binary">Binary (1 TiB = 1024 GiB)</option>
+							<option value="decimal">Decimal (1 TB = 1000 GB)</option>
+						</select>
+						<transition name="fade" mode="out-in" appear>
+							<label class="error" v-if="errors['currency']">{{ errors['currency'] }}</label>
+						</transition>
+					</div>
 					<div class="settings-section text-small text-success">Daemon Settings</div>
 					<div class="control control-search">
 						<label>Data Path</label>
@@ -110,6 +120,7 @@ export default {
 	data() {
 		return {
 			currency: 'siacoin',
+			dataUnit: 'binary',
 			apiAddr: '',
 			apiAgent: '',
 			apiPassword: '',
@@ -150,6 +161,7 @@ export default {
 		},
 		updateConfig() {
 			this.currency = this.config.currency || 'siacoin';
+			this.dataUnit = this.config.data_unit || 'binary';
 			this.apiAddr = this.config.siad_api_addr;
 			this.apiAgent = this.config.siad_api_agent;
 			this.apiPassword = this.config.siad_api_password;
@@ -162,6 +174,7 @@ export default {
 				const newConfig = {
 					...this.config,
 					currency: this.currency,
+					data_unit: this.dataUnit,
 					siad_api_addr: this.apiAddr,
 					siad_api_agent: this.apiAgent,
 					siad_api_password: this.apiPassword,
@@ -186,6 +199,14 @@ export default {
 				return;
 
 			this.changed = (val !== this.config.currency);
+		},
+		dataUnit(val) {
+			this.validate();
+
+			if (this.changed)
+				return;
+
+			this.changed = (val !== this.config.data_unit);
 		},
 		apiAddr(val) {
 			this.validate();

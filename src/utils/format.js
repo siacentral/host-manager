@@ -102,6 +102,9 @@ export function formatDuration(sec, short) {
 }
 
 export function formatByteString(val, dec) {
+	if (Store && Store.state && Store.state.config && Store.state.config.data_unit === 'decimal')
+		return numberToString(val, 1000, ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB'], dec);
+
 	return numberToString(val, 1024, ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB'], dec);
 };
 
