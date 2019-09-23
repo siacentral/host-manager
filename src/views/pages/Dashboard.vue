@@ -5,6 +5,9 @@
 		</div>
 		<donut-graph class="graph" :data="contractsGraph" :defaultIndex="0" icon="file-contract" />
 		<donut-graph class="graph" :data="storageGraph" :defaultIndex="0" icon="hdd" />
+		<div class="stats-buttons">
+			<button @click="showExtra = true">More</button>
+		</div>
 		<div class="display-grid">
 			<div class="grid-item">
 				<div class="item-title">Potential Revenue</div>
@@ -32,12 +35,16 @@
 			</div>
 		</div>
 		<receive-modal v-if="modal === 'receiveTransaction'" @close="modal = null" />
+		<transition name="fade" mode="out-in" appear>
+			<stats v-if="showExtra" @close="showExtra = false" />
+		</transition>
 	</div>
 </template>
 
 <script>
 import DonutGraph from '@/components/DonutGraph';
 import ReceiveModal from '@/components/wallet/ReceiveModal';
+import Stats from '@/components/dashboard/Stats';
 
 import { mapState } from 'vuex';
 import { formatPriceString, formatByteString } from '@/utils/format';
@@ -45,11 +52,13 @@ import { formatPriceString, formatByteString } from '@/utils/format';
 export default {
 	components: {
 		DonutGraph,
-		ReceiveModal
+		ReceiveModal,
+		Stats
 	},
 	data() {
 		return {
-			modal: null
+			modal: null,
+			showExtra: false
 		};
 	},
 	computed: {
@@ -137,10 +146,28 @@ export default {
 	display: grid;
 	width: 100%;
 	height: 100%;
-	grid-template-rows: auto minmax(0, 1fr) auto;
+	grid-template-rows: auto minmax(0, 1fr) repeat(2, auto);
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	align-items: center;
 	grid-gap: 15px;
+	overflow: hidden;
+}
+
+.stats-buttons {
+	position: relative;
+	width: 100%;
+	grid-column: 1 / span 2;
+	text-align: center;
+
+	button {
+		display: inline-block;
+		color: rgba(255, 255, 255, 0.54);
+		font-size: 1rem;
+		outline: none;
+		border: none;
+		background: none;
+		padding: 0 15px;
+	}
 }
 
 .graph {
