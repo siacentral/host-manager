@@ -35,7 +35,7 @@
 			</tr>
 			<tr v-for="contract in contracts" :key="contract.obligation_id">
 				<td v-if="filterMode !== 'obligationUnresolved'">{{ formatShortDateString(contract.expiration_timestamp) }}</td>
-				<td v-else>{{ formatExpirationString(contract.expiration_height.minus(blockHeight)) }}</td>
+				<td v-else>{{ formatExpirationString(contract.expiration_height.minus(block.height)) }}</td>
 				<td>{{ formatByteString(contract.data_size, 2) }}</td>
 				<td v-if="filterMode === 'obligationUnresolved'">{{ formatPriceString(contract.risked_collateral, 4) }}</td>
 				<td v-if="filterMode === 'obligationSucceeded'">{{ formatPriceString(contract.locked_collateral.plus(contract.risked_collateral), 4) }}</td>
@@ -66,7 +66,7 @@ export default {
 		splitRevenue: Boolean
 	},
 	computed: {
-		...mapState(['blockHeight']),
+		...mapState(['block']),
 		totals() {
 			const totals = {
 				data_size: new BigNumber(0),
