@@ -8,27 +8,27 @@
 		<div class="display-grid">
 			<div class="grid-item">
 				<div class="item-title">Potential Revenue</div>
-				<div class="item-value">{{ formatPriceString(potentialRevenue, 4) }}</div>
+				<div class="item-value">{{ formatPriceString(contractStats.potential_revenue.total, 4) }}</div>
 			</div>
 			<div class="grid-item">
 				<div class="item-title">Earned Revenue</div>
-				<div class="item-value">{{ formatPriceString(earnedRevenue, 4) }}</div>
+				<div class="item-value">{{ formatPriceString(contractStats.earned_revenue.total, 4) }}</div>
 			</div>
 			<div class="grid-item item-negative">
 				<div class="item-title">Lost Revenue</div>
-				<div class="item-value">{{ formatPriceString(lostRevenue, 4) }}</div>
+				<div class="item-value">{{ formatPriceString(contractStats.lost_revenue.total, 4) }}</div>
 			</div>
 			<div class="grid-item">
 				<div class="item-title">Risked Collateral</div>
-				<div class="item-value">{{ formatPriceString(riskedCollateral, 4) }}</div>
+				<div class="item-value">{{ formatPriceString(contractStats.risked_collateral, 4) }}</div>
 			</div>
 			<div class="grid-item">
 				<div class="item-title">Locked Collateral</div>
-				<div class="item-value">{{ formatPriceString(lockedCollateral, 4) }}</div>
+				<div class="item-value">{{ formatPriceString(contractStats.locked_collateral, 4) }}</div>
 			</div>
 			<div class="grid-item item-negative">
 				<div class="item-title">Burnt Collateral</div>
-				<div class="item-value">{{ formatPriceString(burntCollateral, 4) }}</div>
+				<div class="item-value">{{ formatPriceString(contractStats.lost_collateral, 4) }}</div>
 			</div>
 		</div>
 		<receive-modal v-if="modal === 'receiveTransaction'" @close="modal = null" />
@@ -55,15 +55,7 @@ export default {
 	computed: {
 		...mapState({
 			config: state => state.config,
-			potentialRevenue: state => state.hostContracts.potentialRevenue,
-			earnedRevenue: state => state.hostContracts.earnedRevenue,
-			lostRevenue: state => state.hostContracts.lostRevenue,
-			riskedCollateral: state => state.hostContracts.riskedCollateral,
-			lockedCollateral: state => state.hostContracts.lockedCollateral,
-			burntCollateral: state => state.hostContracts.burntCollateral,
-			ongoingContracts: state => state.hostContracts.ongoingContracts,
-			successfulContracts: state => state.hostContracts.successfulContracts,
-			failedContracts: state => state.hostContracts.failedContracts,
+			contractStats: state => state.hostContracts.stats,
 			totalStorage: state => state.hostStorage.totalStorage,
 			usedStorage: state => state.hostStorage.usedStorage
 		}),
@@ -71,30 +63,38 @@ export default {
 			let ongoingPct = 0,
 				failedPct = 0,
 				successfulPct = 0,
-				totalContracts = this.ongoingContracts + this.successfulContracts + this.failedContracts;
+				unusedPct = 0,
+				totalContracts = this.contractStats.contracts.total;
 
 			if (totalContracts > 0) {
-				ongoingPct = this.ongoingContracts / totalContracts;
-				failedPct = this.failedContracts / totalContracts;
-				successfulPct = this.successfulContracts / totalContracts;
+				ongoingPct = this.contractStats.contracts.active / totalContracts;
+				failedPct = this.contractStats.contracts.failed / totalContracts;
+				unusedPct = this.contractStats.contracts.unused / totalContracts;
+				successfulPct = this.contractStats.contracts.successful / totalContracts;
 			}
 
 			return [
 				{
-					title: 'Ongoing Contracts',
-					text: this.ongoingContracts.toString(),
+					title: 'Active Contracts',
+					text: this.contractStats.contracts.active.toString(),
 					value: ongoingPct,
 					color: '#cfbb19'
 				},
 				{
+					title: 'Unused Contracts',
+					text: this.contractStats.contracts.unused.toString(),
+					value: unusedPct,
+					color: '#383838'
+				},
+				{
 					title: 'Failed Contracts',
-					text: this.failedContracts.toString(),
+					text: this.contractStats.contracts.failed.toString(),
 					value: failedPct,
 					color: '#9b4343'
 				},
 				{
 					title: 'Successful Contracts',
-					text: this.successfulContracts.toString(),
+					text: this.contractStats.contracts.successful.toString(),
 					value: successfulPct,
 					color: '#19cf86'
 				}

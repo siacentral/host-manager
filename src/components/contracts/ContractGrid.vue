@@ -26,7 +26,7 @@
 				<td v-if="filterMode === 'obligationUnresolved'">{{ formatPriceString(totals.risked_collateral, 4) }}</td>
 				<td v-if="filterMode === 'obligationSucceeded'">{{ formatPriceString(totals.locked_collateral.plus(totals.risked_collateral), 4) }}</td>
 				<td v-if="filterMode === 'obligationFailed'"> {{formatPriceString(totals.burnt_collateral, 4) }}</td>
-				<td v-if="splitRevenue">{{ formatPriceString(totals.transaction_fees_added.plus(totals.totals_cost), 4) }}</td>
+				<td v-if="splitRevenue">{{ formatPriceString(totals.transaction_fees.plus(totals.totals_cost), 4) }}</td>
 				<td v-if="!splitRevenue">{{ formatPriceString(totals.total_revenue, 4) }}</td>
 				<td v-if="splitRevenue">{{ formatPriceString(totals.download_revenue, 4) }}</td>
 				<td v-if="splitRevenue">{{ formatPriceString(totals.upload_revenue, 4) }}</td>
@@ -40,7 +40,7 @@
 				<td v-if="filterMode === 'obligationUnresolved'">{{ formatPriceString(contract.risked_collateral, 4) }}</td>
 				<td v-if="filterMode === 'obligationSucceeded'">{{ formatPriceString(contract.locked_collateral.plus(contract.risked_collateral), 4) }}</td>
 				<td v-if="filterMode === 'obligationFailed'"> {{formatPriceString(contract.burnt_collateral, 4) }}</td>
-				<td v-if="splitRevenue">{{ formatPriceString(contract.transaction_fees_added.plus(contract.contract_cost), 4) }}</td>
+				<td v-if="splitRevenue">{{ formatPriceString(contract.transaction_fees.plus(contract.contract_cost), 4) }}</td>
 				<td v-if="!splitRevenue">{{ formatPriceString(contract.total_revenue, 4) }}</td>
 				<td v-if="splitRevenue">{{ formatPriceString(contract.download_revenue, 4) }}</td>
 				<td v-if="splitRevenue">{{ formatPriceString(contract.upload_revenue, 4) }}</td>
@@ -73,7 +73,7 @@ export default {
 				risked_collateral: new BigNumber(0),
 				locked_collateral: new BigNumber(0),
 				burnt_collateral: new BigNumber(0),
-				transaction_fees_added: new BigNumber(0),
+				transaction_fees: new BigNumber(0),
 				totals_cost: new BigNumber(0),
 				total_revenue: new BigNumber(0),
 				download_revenue: new BigNumber(0),
@@ -86,7 +86,7 @@ export default {
 				totals.risked_collateral = totals.risked_collateral.plus(c.risked_collateral);
 				totals.locked_collateral = totals.locked_collateral.plus(c.locked_collateral);
 				totals.burnt_collateral = totals.burnt_collateral.plus(c.burnt_collateral);
-				totals.transaction_fees_added = totals.transaction_fees_added.plus(c.transaction_fees_added);
+				totals.transaction_fees = totals.transaction_fees.plus(c.transaction_fees);
 				totals.totals_cost = totals.totals_cost.plus(c.contract_cost);
 				totals.total_revenue = totals.total_revenue.plus(c.total_revenue);
 				totals.download_revenue = totals.download_revenue.plus(c.download_revenue);

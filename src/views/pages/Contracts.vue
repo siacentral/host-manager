@@ -3,7 +3,7 @@
 		<div class="controls">
 			<div class="control control-inline">
 				<select v-model="filterMode">
-					<option value="obligationUnresolved">Ongoing</option>
+					<option value="obligationUnresolved">Active</option>
 					<option value="obligationSucceeded">Successful</option>
 					<option value="obligationFailed">Failed</option>
 				</select>
@@ -17,47 +17,65 @@
 				<label for="chk-show-unused">Show Unused</label>
 			</div>
 		</div>
-		<div :class="{ 'display-grid': true, 'grid-4': !splitRevenue }">
+		<div class="display-grid grid-4">
 			<div class="grid-item">
 				<div class="item-title">Contract Count</div>
 				<div class="item-value">{{ filtered.length }}</div>
 			</div>
-			<div class="grid-item">
-				<div class="item-title">Success Rate</div>
-				<div class="item-value">
-					{{ successRate }}
+			<template v-if="filterMode === 'obligationFailed'">
+				<div class="grid-item">
+					<div class="item-title">Lost Revenue</div>
+					<div class="item-value">{{ formatPriceString(stats.lost_revenue.total, 4) }}</div>
 				</div>
-			</div>
-			<div class="grid-item" v-if="!splitRevenue && filterMode === 'obligationFailed'">
-				<div class="item-title">Lost Revenue</div>
-				<div class="item-value">{{ formatPriceString(lostRevenue, 4) }}</div>
-			</div>
-			<div class="grid-item" v-else-if="!splitRevenue && filterMode === 'obligationSucceeded'">
-				<div class="item-title">Earned Revenue</div>
-				<div class="item-value">{{ formatPriceString(earnedRevenue, 4) }}</div>
-			</div>
-			<div class="grid-item" v-else-if="!splitRevenue">
-				<div class="item-title">Potential Revenue</div>
-				<div class="item-value">{{ formatPriceString(potentialRevenue, 4) }}</div>
-			</div>
-			<div class="grid-item">
-				<div class="item-title">Revenue (Last 30 Days)</div>
-				<div class="item-value">
-					{{ formatPriceString(recentRevenue, 4)  }}
+				<div class="grid-item">
+					<div class="item-title">Last 30 Days</div>
+					<div class="item-value">
+						{{ formatPriceString(stats.lost_revenue.days_30, 4)  }}
+					</div>
 				</div>
-			</div>
-			<div class="grid-item" v-if="splitRevenue">
-				<div class="item-title">Storage Revenue</div>
-				<div class="item-value">{{ formatPriceString(storageRevenue, 4) }}</div>
-			</div>
-			<div class="grid-item" v-if="splitRevenue">
-				<div class="item-title">Download Revenue</div>
-				<div class="item-value">{{ formatPriceString(downloadRevenue, 4) }}</div>
-			</div>
-			<div class="grid-item" v-if="splitRevenue">
-				<div class="item-title">Upload Revenue</div>
-				<div class="item-value">{{ formatPriceString(uploadRevenue, 4) }}</div>
-			</div>
+				<div class="grid-item">
+					<div class="item-title">Last 60 Days</div>
+					<div class="item-value">
+						{{ formatPriceString(stats.lost_revenue.days_60, 4)  }}
+					</div>
+				</div>
+			</template>
+			<template v-else-if="filterMode === 'obligationSucceeded'">
+				<div class="grid-item">
+					<div class="item-title">Earned Revenue</div>
+					<div class="item-value">{{ formatPriceString(stats.earned_revenue.total, 4) }}</div>
+				</div>
+				<div class="grid-item">
+					<div class="item-title">Last 30 Days</div>
+					<div class="item-value">
+						{{ formatPriceString(stats.earned_revenue.days_30, 4)  }}
+					</div>
+				</div>
+				<div class="grid-item">
+					<div class="item-title">Last 60 Days</div>
+					<div class="item-value">
+						{{ formatPriceString(stats.earned_revenue.days_60, 4)  }}
+					</div>
+				</div>
+			</template>
+			<template v-else>
+				<div class="grid-item">
+					<div class="item-title">Potential Revenue</div>
+					<div class="item-value">{{ formatPriceString(stats.potential_revenue.total, 4) }}</div>
+				</div>
+				<div class="grid-item">
+					<div class="item-title">Next 30 Days</div>
+					<div class="item-value">
+						{{ formatPriceString(stats.potential_revenue.days_30, 4)  }}
+					</div>
+				</div>
+				<div class="grid-item">
+					<div class="item-title">Next 60 Days</div>
+					<div class="item-value">
+						{{ formatPriceString(stats.potential_revenue.days_60, 4)  }}
+					</div>
+				</div>
+			</template>
 		</div>
 		<div class="contracts">
 			<empty-state v-if="filtered.length === 0" text="You have no contracts matching that filter" icon="file-contract" />
@@ -69,28 +87,17 @@
 </template>
 
 <script>
-import log from 'electron-log';
-
 import { mapState } from 'vuex';
-import { BigNumber } from 'bignumber.js';
 
 import ContractGrid from '@/components/contracts/ContractGrid';
 import EmptyState from '@/components/EmptyState';
 
 import { formatPriceString, formatByteString } from '@/utils/format';
-import { refreshHostContracts } from '@/data/contracts';
 
 export default {
 	components: {
 		ContractGrid,
 		EmptyState
-	},
-	async beforeMount() {
-		try {
-			await refreshHostContracts();
-		} catch (ex) {
-			log.error('contracts beforeMount', ex.message);
-		}
 	},
 	data() {
 		return {
@@ -100,8 +107,7 @@ export default {
 		};
 	},
 	computed: {
-		...mapState('hostContracts', ['contracts', 'successfulContracts',
-			'failedContracts', 'potentialRevenue', 'earnedRevenue', 'lostRevenue', 'recentRevenue']),
+		...mapState('hostContracts', ['contracts', 'stats']),
 		filtered() {
 			const contracts = this.contracts.filter(c => c.status === this.filterMode && (this.showUnused || !c.unused));
 
@@ -126,28 +132,13 @@ export default {
 			return contracts;
 		},
 		successRate() {
-			const num = this.successfulContracts;
-			let denom = this.successfulContracts + this.failedContracts;
+			const num = this.stats.contracts.successful;
+			let denom = this.stats.contracts.successful + this.stats.contracts.failed;
 
 			if (denom <= 0)
 				denom = 1;
 
 			return `${Math.ceil((num / denom) * 100)}%`;
-		},
-		storageRevenue() {
-			return this.filtered.reduce((val, c) => {
-				return val.plus(c.storage_revenue);
-			}, new BigNumber(0));
-		},
-		downloadRevenue() {
-			return this.filtered.reduce((val, c) => {
-				return val.plus(c.download_revenue);
-			}, new BigNumber(0));
-		},
-		uploadRevenue() {
-			return this.filtered.reduce((val, c) => {
-				return val.plus(c.upload_revenue);
-			}, new BigNumber(0));
 		}
 	},
 	methods: {
