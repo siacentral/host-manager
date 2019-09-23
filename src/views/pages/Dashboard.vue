@@ -53,11 +53,20 @@ export default {
 		};
 	},
 	computed: {
-		...mapState(['blockHeight', 'config']),
-		...mapState('hostContracts', ['potentialRevenue', 'earnedRevenue', 'lostRevenue',
-			'riskedCollateral', 'lockedCollateral', 'burntCollateral', 'ongoingContracts',
-			'successfulContracts', 'failedContracts']),
-		...mapState('hostStorage', ['totalStorage', 'usedStorage']),
+		...mapState({
+			config: state => state.config,
+			potentialRevenue: state => state.hostContracts.potentialRevenue,
+			earnedRevenue: state => state.hostContracts.earnedRevenue,
+			lostRevenue: state => state.hostContracts.lostRevenue,
+			riskedCollateral: state => state.hostContracts.riskedCollateral,
+			lockedCollateral: state => state.hostContracts.lockedCollateral,
+			burntCollateral: state => state.hostContracts.burntCollateral,
+			ongoingContracts: state => state.hostContracts.ongoingContracts,
+			successfulContracts: state => state.hostContracts.successfulContracts,
+			failedContracts: state => state.hostContracts.failedContracts,
+			totalStorage: state => state.hostStorage.totalStorage,
+			usedStorage: state => state.hostStorage.usedStorage
+		}),
 		contractsGraph() {
 			let ongoingPct = 0,
 				failedPct = 0,
