@@ -54,6 +54,15 @@ export async function refreshDaemonVersion() {
 	}
 }
 
+async function getLocalHash(height) {
+	const resp = await apiClient.getBlock(height);
+
+	if (resp.statusCode !== 200)
+		throw new Error(resp.body.message || `unable to get block ${height}`);
+
+	return resp.body.id;
+}
+
 export async function checkConsensusSync() {
 	const alerts = [];
 
@@ -61,13 +70,18 @@ export async function checkConsensusSync() {
 		if (!Store.state.block || Store.state.block.height === 0)
 			return;
 
-		const { hash, height } = JSON.parse(JSON.stringify(Store.state.block)),
+		// the block hash returned by /consensus does not always match up with the current block height
+		// to work around this we need to specifically request the hash of the current block height.
+		const { height } = JSON.parse(JSON.stringify(Store.state.block)),
+			localHash = await getLocalHash(height),
 			resp = await getBlock(height);
 
 		if (resp.body.type !== 'success')
 			throw new Error(resp.body.message);
 
-		if (hash === resp.body.block.id)
+		console.log(height, localHash, resp.body.block.id);
+
+		if (localHash === resp.body.block.id)
 			return;
 
 		alerts.push({

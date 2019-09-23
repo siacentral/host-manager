@@ -137,6 +137,21 @@ export default class SiaApiClient {
 		});
 	}
 
+	async getBlock(height) {
+		const apiPassword = await this.getDefaultAPIPassword();
+
+		return sendJSONRequest(`${this.config.siad_api_addr}/consensus/blocks?height=${height}`, {
+			method: 'GET',
+			headers: {
+				'User-Agent': this.config.siad_api_agent
+			},
+			auth: {
+				username: '',
+				password: apiPassword
+			}
+		});
+	}
+
 	async getGateway() {
 		const apiPassword = await this.getDefaultAPIPassword();
 
