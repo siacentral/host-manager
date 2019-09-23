@@ -29,7 +29,7 @@
 
 <script>
 import log from 'electron-log';
-import { mapGetters, mapActions } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 
 import AboutModal from '@/components/AboutModal';
 import AlertsPanel from '@/components/Alerts';
@@ -53,7 +53,8 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters(['newAlertsCount'])
+		...mapGetters(['newAlertsCount']),
+		...mapState(['update'])
 	},
 	methods: {
 		...mapActions(['clearNewAlerts']),
