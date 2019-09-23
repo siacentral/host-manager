@@ -30,6 +30,10 @@ const store = new Vuex.Store({
 			hash: null,
 			height: 0
 		},
+		update: {
+			downloaded: false,
+			version: null
+		},
 		lastBlock: 0,
 		synced: false,
 		syncTime: 0,
@@ -107,6 +111,9 @@ const store = new Vuex.Store({
 		setSyncTime(state, time) {
 			state.syncTime = time;
 		},
+		setUpdate(state, update) {
+			state.update = update;
+		},
 		pushNotification(state, notification) {
 			state.notifications.push(notification);
 
@@ -165,6 +172,9 @@ const store = new Vuex.Store({
 		},
 		setSyncTime(context, time) {
 			context.commit('setSyncTime', time);
+		},
+		setUpdate(context, update) {
+			context.commit('setUpdate', update);
 		},
 		pushNotification(context, notification) {
 			context.commit('pushNotification', notification);
