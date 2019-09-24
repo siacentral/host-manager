@@ -2,49 +2,51 @@
 	<div class="dashboard-stats">
 		<button class="close-button" @click="$emit('close')"><icon icon="times" /></button>
 		<div class="stats-content">
-			<div class="stats-grid">
+			<div class="stats-grid contract-grid">
 				<div class="stats-header contract-header">Contracts</div>
-				<div class="stat-item stat-contract">
+				<div class="stat-item">
 					<div class="item-title">Active</div>
 					<div class="item-value">{{ contractCounts.active }}</div>
 				</div>
-				<div class="stat-item stat-contract">
+				<div class="stat-item">
 					<div class="item-title">Unused</div>
 					<div class="item-value">
 						{{ contractCounts.unused  }}
 					</div>
 				</div>
-				<div class="stat-item stat-contract">
+				<div class="stat-item">
 					<div class="item-title">Successful</div>
 					<div class="item-value">
 						{{ contractCounts.successful  }}
 					</div>
 				</div>
-				<div class="stat-item stat-contract">
+				<div class="stat-item">
 					<div class="item-title">Failed</div>
 					<div class="item-value">{{ contractCounts.failed }}</div>
 				</div>
 				<div class="stats-header contract-header">Expiring/Expired Contracts</div>
-				<div class="stat-item stat-contract">
+				<div class="stat-item">
 					<div class="item-title">Past 30 Days</div>
 					<div class="item-value">{{ contractCounts.past_30_days }}</div>
 				</div>
-				<div class="stat-item stat-contract">
+				<div class="stat-item">
 					<div class="item-title">Past 60 Days</div>
 					<div class="item-value">
 						{{ contractCounts.past_60_days  }}
 					</div>
 				</div>
-				<div class="stat-item stat-contract">
+				<div class="stat-item">
 					<div class="item-title">Next 30 Days</div>
 					<div class="item-value">
 						{{ contractCounts.next_30_days  }}
 					</div>
 				</div>
-				<div class="stat-item stat-contract">
+				<div class="stat-item">
 					<div class="item-title">Next 60 Days</div>
 					<div class="item-value">{{ contractCounts.next_60_days }}</div>
 				</div>
+				</div>
+				<div class="stats-grid">
 				<div class="stats-header">Potential Revenue</div>
 				<div class="stats-header">Earned Revenue</div>
 				<div class="stat-item">
@@ -227,14 +229,22 @@ export default {
 
 	.stats-grid {
 		display: grid;
-		min-height: 100%;
-		grid-template-columns: repeat(12, auto);
-		grid-gap: 15px 30px;
-		overflow-y: auto;
-		overflow-x: hidden;
-		justify-content: center;
+		max-width: 1000px;
+		margin: auto;
+		grid-template-columns: repeat(6, auto);
+		grid-gap: 15px;
+		overflow: auto;
+		justify-content: space-between;
 		align-content: center;
 		align-items: center;
+
+		&.contract-grid {
+			grid-template-columns: repeat(4, auto);
+
+			.stats-header {
+				grid-column: auto / span 4;
+			}
+		}
 	}
 
 	.contracts-section {
@@ -242,9 +252,9 @@ export default {
 	}
 
 	.stat-item {
-		grid-column: auto / span 2;
 		text-align: left;
 		border: none;
+		white-space: nowrap;
 
 		&.stat-contract {
 			grid-column: auto / span 3;
@@ -257,12 +267,12 @@ export default {
 		}
 
 		.item-value {
-			font-size: 1.2rem;
+			font-size: 1rem;
 		}
 	}
 
 	.stats-header {
-		grid-column: auto / span 6;
+		grid-column: auto / span 3;
 		margin-top: 30px;
 		color: rgba(255, 255, 255, 0.54);
 
