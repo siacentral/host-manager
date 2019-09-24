@@ -109,12 +109,33 @@ export function formatByteString(val, dec) {
 };
 
 export function formatByteSpeed(val, dec) {
+	if (Store && Store.state && Store.state.config && Store.state.config.data_unit === 'decimal')
+		return numberToString(val, 1000, ['B', 'KB/s', 'MB/s', 'GB/s', 'TB/s', 'PB/s'], dec);
+
 	return numberToString(val, 1024, ['B/s', 'KiB/s', 'MiB/s', 'GiB/s', 'TiB/s', 'PiB/s'], dec);
 }
 
 const numFormatter = new Intl.NumberFormat({
-	maximumFractionDigits: 20
-});
+		maximumFractionDigits: 20
+	}),
+	currencySuffixes = [
+		{
+			mul: 1e12,
+			suffix: 'T'
+		},
+		{
+			mul: 1e9,
+			suffix: 'B'
+		},
+		{
+			mul: 1e6,
+			suffix: 'M'
+		},
+		{
+			mul: 1e3,
+			suffix: 'K'
+		}
+	];
 
 export function formatNumber(val, dec) {
 	if (!dec)
@@ -124,13 +145,31 @@ export function formatNumber(val, dec) {
 }
 
 export function formatSiacoinString(val, dec) {
+	let suffix = '',
+		mul = new BigNumber(1);
+
 	if (!isFinite(dec))
 		dec = 2;
 
 	if (!val || val.isEqualTo(0))
 		return '0 SC';
 
-	return `${numFormatter.format(sigDecimalRound(val.dividedBy(1e24), dec))} SC`;
+	const siacoins = val.dividedBy(1e24);
+
+	if (siacoins.gte(1e4)) {
+		for (let i = 0; i < currencySuffixes.length; i++) {
+			const suf = currencySuffixes[i];
+
+			if (!siacoins.gte(suf.mul))
+				continue;
+
+			mul = mul.times(suf.mul);
+			suffix = suf.suffix;
+			break;
+		}
+	}
+
+	return `${numFormatter.format(sigDecimalRound(siacoins.dividedBy(mul), dec))} ${suffix}SC`;
 };
 
 function sigDecimalRound(val, num) {
