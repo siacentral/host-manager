@@ -9,13 +9,14 @@
 				<div class="version">Sia Daemon Version: {{ `v${daemonVersion}` }}</div>
 			</div>
 			<div class="about-content">
-				<p>Thank you for trying out Sia Host Manager. A 3rd party open-source host management
-					utility for the Sia storage network created and maintained by Sia Central.</p>
+				<p>Thank you for trying out Sia Host Manager, a 3rd party open-source host management
+					utility for the Sia storage network.</p>
 				<p>It is designed from the ground up to provide a better experience for hosts on the
 					Sia network. Sia Host Manager gives you access to all of the controls that Sia
 					has to offer in a smart and user friendly package.</p>
 				<p>By combining data from the host with data from the blockchain it is able to
-					provide more accurate, in depth financials and health alerts.</p>
+					provide in-depth financials and health alerts.</p>
+				<p>Created and maintained by Sia Central</p>
 			</div>
 			<div class="buttons">
 				<button class="btn btn-inline" v-if="daemonManaged" @click="onOpenDataFolder">Open Data Folder</button>
