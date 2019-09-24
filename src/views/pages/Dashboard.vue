@@ -1,7 +1,7 @@
 <template>
 	<div class="page page-dashboard">
 		<div class="wallet-controls">
-			<button class="btn btn-inline" @click="showExtra = true"><icon icon="coins" /> Revenue Statistics</button>
+			<button class="btn btn-inline" @click="showExtra = true"><icon icon="coins" /> Host Analytics</button>
 			<button class="btn btn-inline" @click="modal = 'receiveTransaction'"><icon icon="wallet" /> Receive Siacoin</button>
 		</div>
 		<donut-graph class="graph" :data="contractsGraph" :defaultIndex="0" icon="file-contract" />
