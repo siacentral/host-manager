@@ -84,17 +84,19 @@ async function longRefresh() {
 }
 
 function getSCValue(key, pin) {
+	const byteFactor = Store.state.config && Store.state.config.data_unit === 'decimal' ? 1e12 : 1099511627776;
+
 	const { value, currency } = pin;
 
 	switch (key) {
 	// per tb / month
 	case 'minstorageprice':
 	case 'collateral':
-		return parseCurrencyString(value, currency).div(1e12).div(4320);
+		return parseCurrencyString(value, currency).div(byteFactor).div(4320);
 	// per tb
 	case 'mindownloadbandwidthprice':
 	case 'minuploadbandwidthprice':
-		return parseCurrencyString(value, currency).div(1e12);
+		return parseCurrencyString(value, currency).div(byteFactor);
 	// sc
 	default:
 		return parseCurrencyString(value, currency);

@@ -231,30 +231,32 @@ export function formatDataPriceString(val, dec) {
 	if (!val)
 		val = new BigNumber(0);
 
-	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
+	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase(),
+		byteFactor = Store.state.config && Store.state.config.data_unit === 'decimal' ? 1e12 : 1099511627776;
 
 	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCryptoString(val.times(1e12), dec);
+		return formatCryptoString(val.times(byteFactor), dec);
 
 	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCurrencyString(val.times(1e12), dec);
+		return formatCurrencyString(val.times(byteFactor), dec);
 
-	return formatSiacoinString(val.times(1e12), dec);
+	return formatSiacoinString(val.times(byteFactor), dec);
 };
 
 export function formatMonthlyPriceString(val, dec) {
 	if (!val)
 		val = new BigNumber(0);
 
-	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
+	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase(),
+		byteFactor = Store.state.config && Store.state.config.data_unit === 'decimal' ? 1e12 : 1099511627776;
 
 	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCryptoString(val.times(1e12).times(4320), dec);
+		return formatCryptoString(val.times(byteFactor).times(4320), dec);
 
 	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCurrencyString(val.times(1e12).times(4320), dec);
+		return formatCurrencyString(val.times(byteFactor).times(4320), dec);
 
-	return formatSiacoinString(val.times(1e12).times(4320), dec);
+	return formatSiacoinString(val.times(byteFactor).times(4320), dec);
 };
 
 export function formatPriceString(val, dec) {

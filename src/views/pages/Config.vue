@@ -28,36 +28,30 @@
 				:showPin="true"
 				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['minstorageprice'] != null"
 				:value="currentConfig.storagePrice"
-				:avgValue="formatPriceString(averageSettings.storage_price.times(1e12).times(4320), 2)"
-				sublabel="per tb/month"
+				:avgValue="formatMonthlyPriceString(averageSettings.storage_price, 2)"
+				:sublabel="perMonthLabel"
 				:error="errors['minstorageprice']"
-				description="The amount of money that the renter will be charged
-					for storing 1 terabyte of data for a month. Payment is not received until after
-					the contract has expired and a valid proof has been submitted."
+				:description="storageDesc"
 				@change="onChangeMonthlyPrice" />
 			<config-item title="Download Price"
 				configKey="mindownloadbandwidthprice"
 				:showPin="true"
 				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['mindownloadbandwidthprice'] != null"
 				:value="currentConfig.downloadPrice"
-				:avgValue="formatPriceString(averageSettings.download_price.times(1e12), 2)"
-				sublabel="per tb/month"
+				:avgValue="formatDataPriceString(averageSettings.download_price, 2)"
+				:sublabel="dataLabel"
 				:error="errors['mindownloadbandwidthprice']"
-				description="The amount of money that the renter will be
-					charged to download 1 terabyte of stored data. Payment is not received until after
-					the contract has expired and a valid proof has been submitted."
+				:description="downloadDesc"
 				@change="onChangeDataPrice" />
 			<config-item title="Upload Price"
 				configKey="minuploadbandwidthprice"
 				:showPin="true"
 				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['minuploadbandwidthprice'] != null"
 				:value="currentConfig.uploadPrice"
-				:avgValue="formatPriceString(averageSettings.upload_price.times(1e12), 2)"
-				sublabel="per tb/month"
+				:avgValue="formatDataPriceString(averageSettings.upload_price, 2)"
+				:sublabel="dataLabel"
 				:error="errors['minuploadbandwidthprice']"
-				description="The amount of money that the renter will be
-					charged to upload 1 terabyte of data to store. Payment is not received until after
-					the contract has expired and a valid proof has been submitted."
+				:description="uploadDesc"
 				@change="onChangeDataPrice" />
 			<config-item title="Base RPC Price"
 				configKey="minbaserpcprice"
@@ -111,13 +105,10 @@
 				:showPin="true"
 				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['collateral'] != null"
 				:value="currentConfig.collateral"
-				:avgValue="formatPriceString(averageSettings.collateral.times(1e12).times(4320), 2)"
-				sublabel="per tb/month"
+				:avgValue="formatMonthlyPriceString(averageSettings.collateral, 2)"
+				:sublabel="perMonthLabel"
 				:error="errors['collateral']"
-				description="The amount of collateral the host will
-					risk for 1 terabyte of stored data per month. A good amount is 2x Storage Price.
-					Any risked collateral will be lost if a valid storage proof is not
-					submitted after contract expiration"
+				:description="collateralDesc"
 				@change="onChangeMonthlyPrice" />
 			<div class="config-header">Duration</div>
 			<config-item title="Max Duration"
@@ -167,7 +158,7 @@ import log from 'electron-log';
 
 import { mapState, mapActions } from 'vuex';
 import { writeConfig } from '@/utils';
-import { formatByteString, formatPriceString, formatBlockTimeString } from '@/utils/format';
+import { formatByteString, formatBlockTimeString, formatPriceString, formatDataPriceString, formatMonthlyPriceString } from '@/utils/format';
 import { parseCurrencyString, parseByteString, parseBlockTimeString } from '@/utils/parse';
 import SiaApiClient from '@/sia/api';
 import { refreshHostConfig } from '@/data/config';
@@ -185,7 +176,46 @@ export default {
 			appConfig: state => state.config,
 			hostConfig: state => state.hostConfig.config,
 			averageSettings: state => state.explorer.averageSettings
-		})
+		}),
+		storageDesc() {
+			const dataUnit = this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
+
+			return `The amount of money that the renter will be charged for storing 1 ${dataUnit} of
+				data for a month. Payment is not received until after the contract has expired and a
+				valid proof has been submitted.`;
+		},
+		uploadDesc() {
+			const dataUnit = this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
+
+			return `The amount of money that the renter will be charged to upload 1 ${dataUnit} of data
+				to store. Payment is not received until after the contract has expired and a valid
+				proof has been submitted.`;
+		},
+		downloadDesc() {
+			const dataUnit = this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
+
+			return `The amount of money that the renter will be
+				charged to download 1 ${dataUnit} of stored data. Payment is not received until after
+				the contract has expired and a valid proof has been submitted.`;
+		},
+		collateralDesc() {
+			const dataUnit = this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
+
+			return `The amount of collateral the host will
+				risk for 1 ${dataUnit} of stored data per month. A good amount is 2x Storage Price.
+				Any risked collateral will be lost if a valid storage proof is not
+				submitted after contract expiration`;
+		},
+		perMonthLabel() {
+			const dataUnit = this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
+
+			return `per ${dataUnit}/month`;
+		},
+		dataLabel() {
+			const dataUnit = this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
+
+			return `per ${dataUnit}`;
+		}
 	},
 	data() {
 		return {
@@ -207,6 +237,8 @@ export default {
 		formatBlockTimeString,
 		formatByteString,
 		formatPriceString,
+		formatDataPriceString,
+		formatMonthlyPriceString,
 		async onModalClose() {
 			try {
 				this.modal = null;
@@ -221,18 +253,20 @@ export default {
 			}
 		},
 		updateConfig() {
+			const byteFactor = this.appConfig.data_unit === 'decimal' ? 1e12 : 1099511627776;
+
 			this.acceptContracts = this.hostConfig.acceptingcontracts;
 
 			this.currentConfig = {
 				contractPrice: formatPriceString(this.hostConfig.mincontractprice, 2),
-				storagePrice: formatPriceString(this.hostConfig.minstorageprice.times(1e12).times(4320), 2),
-				downloadPrice: formatPriceString(this.hostConfig.mindownloadbandwidthprice.times(1e12), 2),
-				uploadPrice: formatPriceString(this.hostConfig.minuploadbandwidthprice.times(1e12), 2),
+				storagePrice: formatPriceString(this.hostConfig.minstorageprice.times(byteFactor).times(4320), 2),
+				downloadPrice: formatPriceString(this.hostConfig.mindownloadbandwidthprice.times(byteFactor), 2),
+				uploadPrice: formatPriceString(this.hostConfig.minuploadbandwidthprice.times(byteFactor), 2),
 				collateralBudget: formatPriceString(this.hostConfig.collateralbudget, 2),
 				baseRPCPrice: formatPriceString(this.hostConfig.minbaserpcprice, 2),
 				sectorAccessPrice: formatPriceString(this.hostConfig.minsectoraccessprice, 2),
 				maxCollateral: formatPriceString(this.hostConfig.maxcollateral, 2),
-				collateral: formatPriceString(this.hostConfig.collateral.times(1e12).times(4320), 2),
+				collateral: formatPriceString(this.hostConfig.collateral.times(byteFactor).times(4320), 2),
 				maxDuration: formatBlockTimeString(this.hostConfig.maxduration),
 				windowSize: formatBlockTimeString(this.hostConfig.windowsize),
 				maxDownloadSize: formatByteString(this.hostConfig.maxdownloadbatchsize, 2),
@@ -321,10 +355,11 @@ export default {
 			const { key, value, pinned } = obj;
 
 			try {
-				const val = parseCurrencyString(value);
+				const val = parseCurrencyString(value),
+					byteFactor = this.appConfig.data_unit === 'decimal' ? 1e12 : 1099511627776;
 				let pin = null;
 
-				this.config[key] = val.div(1e12).div(4320).toFixed(0).toString(10);
+				this.config[key] = val.div(byteFactor).div(4320).toFixed(0).toString(10);
 
 				if (pinned) {
 					pin = {
@@ -344,10 +379,11 @@ export default {
 			const { key, value, pinned } = obj;
 
 			try {
-				const val = parseCurrencyString(value);
+				const val = parseCurrencyString(value),
+					byteFactor = this.appConfig.data_unit === 'decimal' ? 1e12 : 1099511627776;
 				let pin = null;
 
-				this.config[key] = val.div(1e12).toFixed(0).toString(10);
+				this.config[key] = val.div(byteFactor).toFixed(0).toString(10);
 
 				if (pinned) {
 					pin = {
