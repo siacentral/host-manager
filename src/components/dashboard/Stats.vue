@@ -40,7 +40,6 @@
 			</div>
 			<div class="stats-grid">
 				<div class="stats-header">Potential Revenue</div>
-				<div class="stats-header">Earned Revenue</div>
 				<div class="stat-item">
 					<div class="item-title">Total</div>
 					<div class="item-value">{{ formatPriceString(stats.potential_revenue.total, 4) }}</div>
@@ -53,6 +52,19 @@
 					<div class="item-title">Next 60 Days</div>
 					<div class="item-value">{{ formatPriceString(stats.potential_revenue.days_60, 4)  }}</div>
 				</div>
+				<div class="stat-item">
+					<div class="item-title">Storage</div>
+					<div class="item-value">{{ formatPriceString(stats.potential_revenue.storage, 4) }}</div>
+				</div>
+				<div class="stat-item">
+					<div class="item-title">Upload</div>
+					<div class="item-value">{{ formatPriceString(stats.potential_revenue.upload, 4)  }}</div>
+				</div>
+				<div class="stat-item">
+					<div class="item-title">Download</div>
+					<div class="item-value">{{ formatPriceString(stats.potential_revenue.download, 4)  }}</div>
+				</div>
+				<div class="stats-header">Earned Revenue</div>
 				<div class="stat-item">
 					<div class="item-title">Total</div>
 					<div class="item-value">{{ formatPriceString(stats.earned_revenue.total, 4) }}</div>
@@ -67,18 +79,6 @@
 				</div>
 				<div class="stat-item">
 					<div class="item-title">Storage</div>
-					<div class="item-value">{{ formatPriceString(stats.potential_revenue.total, 4) }}</div>
-				</div>
-				<div class="stat-item">
-					<div class="item-title">Upload</div>
-					<div class="item-value">{{ formatPriceString(stats.potential_revenue.upload, 4)  }}</div>
-				</div>
-				<div class="stat-item">
-					<div class="item-title">Download</div>
-					<div class="item-value">{{ formatPriceString(stats.potential_revenue.download, 4)  }}</div>
-				</div>
-				<div class="stat-item">
-					<div class="item-title">Storage</div>
 					<div class="item-value">{{ formatPriceString(stats.earned_revenue.storage, 4) }}</div>
 				</div>
 				<div class="stat-item">
@@ -90,7 +90,6 @@
 					<div class="item-value">{{ formatPriceString(stats.earned_revenue.download, 4)  }}</div>
 				</div>
 				<div class="stats-header">Lost Revenue</div>
-				<div class="stats-header">Collateral</div>
 				<div class="stat-item">
 					<div class="item-title">Total</div>
 					<div class="item-value">{{ formatPriceString(stats.lost_revenue.total, 4) }}</div>
@@ -104,18 +103,6 @@
 					<div class="item-value">{{ formatPriceString(stats.lost_revenue.days_60, 4)  }}</div>
 				</div>
 				<div class="stat-item">
-					<div class="item-title">Locked</div>
-					<div class="item-value">{{ formatPriceString(stats.locked_collateral, 4) }}</div>
-				</div>
-				<div class="stat-item">
-					<div class="item-title">Risked</div>
-					<div class="item-value">{{ formatPriceString(stats.risked_collateral, 4)  }}</div>
-				</div>
-				<div class="stat-item">
-					<div class="item-title">Lost</div>
-					<div class="item-value">{{ formatPriceString(stats.lost_collateral, 4)  }}</div>
-				</div>
-				<div class="stat-item">
 					<div class="item-title">Storage</div>
 					<div class="item-value">{{ formatPriceString(stats.lost_revenue.storage, 4) }}</div>
 				</div>
@@ -126,6 +113,19 @@
 				<div class="stat-item">
 					<div class="item-title">Download</div>
 					<div class="item-value">{{ formatPriceString(stats.lost_revenue.download, 4)  }}</div>
+				</div>
+				<div class="stats-header">Collateral</div>
+				<div class="stat-item">
+					<div class="item-title">Locked</div>
+					<div class="item-value">{{ formatPriceString(stats.locked_collateral, 4) }}</div>
+				</div>
+				<div class="stat-item">
+					<div class="item-title">Risked</div>
+					<div class="item-value">{{ formatPriceString(stats.risked_collateral, 4)  }}</div>
+				</div>
+				<div class="stat-item">
+					<div class="item-title">Lost</div>
+					<div class="item-value">{{ formatPriceString(stats.lost_collateral, 4)  }}</div>
 				</div>
 			</div>
 		</div>
@@ -195,24 +195,22 @@ export default {
 		display: grid;
 		max-width: 1000px;
 		margin: auto;
-		grid-template-columns: repeat(6, auto);
+		grid-template-columns: repeat(2, auto);
 		grid-gap: 15px;
 		overflow: auto;
 		justify-content: space-between;
 		align-content: center;
 		align-items: center;
-
-		&.contract-grid {
-			grid-template-columns: repeat(4, auto);
-
-			.stats-header {
-				grid-column: auto / span 4;
-			}
-		}
 	}
 
-	.contracts-section {
-		grid-column: 1 / span 2;
+	@media screen and (min-width: 801px) {
+		.stats-grid {
+			grid-template-columns: repeat(3, auto);
+
+			&.contract-grid {
+				grid-template-columns: repeat(4, auto);
+			}
+		}
 	}
 
 	.stat-item {
@@ -236,13 +234,10 @@ export default {
 	}
 
 	.stats-header {
-		grid-column: auto / span 3;
-		margin-top: 30px;
+		grid-column: 1 / -1;
+		margin: 30px 0 5px;
+		font-size: 1.1rem;
 		color: rgba(255, 255, 255, 0.54);
-
-		&.contract-header {
-			grid-column: 1 / span 12;
-		}
 	}
 }
 </style>
