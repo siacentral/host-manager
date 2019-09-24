@@ -190,11 +190,6 @@ export async function parseHostContracts() {
 				else
 					stats.contracts.active++;
 
-				const remainingDays = Math.floor((chainContract.expiration_height - lastHeight) / 144);
-
-				chainContract.expiration_timestamp = new Date();
-				chainContract.expiration_timestamp.setDate(currentDate.getDate() + remainingDays);
-
 				if (chainContract.expiration_timestamp <= days30Future) {
 					stats.potential_revenue.days_30 = stats.potential_revenue.days_30.plus(chainContract.total_revenue);
 					stats.contracts.next_30_days++;
