@@ -39,23 +39,14 @@ async function unlockHostWallet(password) {
 	}
 }
 
-export async function getLastWalletAddress() {
+export async function createWalletAddress() {
 	try {
-		const resp = await apiClient.getWalletAddresses();
+		const resp = await apiClient.createWalletAddress();
 
 		if (resp.statusCode !== 200)
 			throw new Error(resp.body.message);
 
-		if (resp.body.addresses.length === 0) {
-			const newAddrResp = await apiClient.createWalletAddress();
-
-			if (resp.statusCode !== 200)
-				throw new Error(resp.body.message);
-
-			return newAddrResp.body.address;
-		}
-
-		return resp.body.addresses[resp.body.addresses.length - 1];
+		return resp.body.address;
 	} catch (ex) {
 		log.error('getLastWalletAddress', ex.message);
 	}

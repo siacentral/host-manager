@@ -3,7 +3,7 @@ import log from 'electron-log';
 import { refreshBlockHeight, refreshLastBlock, refreshDaemonVersion, checkConsensusSync } from './consensus';
 import { refreshHostContracts } from './contracts';
 import { refreshHostStorage } from './storage';
-import { refreshHostWallet, getLastWalletAddress } from './wallet';
+import { refreshHostWallet, createWalletAddress } from './wallet';
 import { refreshHostConfig } from './config';
 import { refreshExplorer } from './explorer';
 import { getCoinPrice } from '@/api/siacentral';
@@ -31,7 +31,7 @@ export async function refreshData() {
 	Store.dispatch('setRefreshingData', false);
 
 	if (!Store.state.hostWallet.lastAddress)
-		Store.dispatch('hostWallet/setLastAddress', await getLastWalletAddress());
+		Store.dispatch('hostWallet/setLastAddress', await createWalletAddress());
 }
 
 async function shortRefresh() {
