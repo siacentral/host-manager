@@ -1,13 +1,11 @@
 <template>
 	<div class="page page-dashboard">
 		<div class="wallet-controls">
+			<button class="btn btn-inline" @click="showExtra = true"><icon icon="coins" /> Revenue Statistics</button>
 			<button class="btn btn-inline" @click="modal = 'receiveTransaction'"><icon icon="wallet" /> Receive Siacoin</button>
 		</div>
 		<donut-graph class="graph" :data="contractsGraph" :defaultIndex="0" icon="file-contract" />
 		<donut-graph class="graph" :data="storageGraph" :defaultIndex="0" icon="hdd" />
-		<div class="stats-buttons">
-			<button @click="showExtra = true">More</button>
-		</div>
 		<div class="display-grid">
 			<div class="grid-item">
 				<div class="item-title">Potential Revenue</div>
@@ -73,7 +71,7 @@ export default {
 				failedPct = 0,
 				successfulPct = 0,
 				unusedPct = 0,
-				totalContracts = this.contractStats.contracts.total;
+				totalContracts = this.contractStats.contracts.total || 0;
 
 			if (totalContracts > 0) {
 				ongoingPct = this.contractStats.contracts.active / totalContracts;
@@ -146,28 +144,11 @@ export default {
 	display: grid;
 	width: 100%;
 	height: 100%;
-	grid-template-rows: auto minmax(0, 1fr) repeat(2, auto);
+	grid-template-rows: auto minmax(0, 1fr) auto;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	align-items: center;
 	grid-gap: 15px;
 	overflow: hidden;
-}
-
-.stats-buttons {
-	position: relative;
-	width: 100%;
-	grid-column: 1 / span 2;
-	text-align: center;
-
-	button {
-		display: inline-block;
-		color: rgba(255, 255, 255, 0.54);
-		font-size: 1rem;
-		outline: none;
-		border: none;
-		background: none;
-		padding: 0 15px;
-	}
 }
 
 .graph {

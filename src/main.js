@@ -10,12 +10,12 @@ import { attachDaemonIPC } from '@/data/daemon';
 import { attachUpdateIPC } from '@/data/autoupdate';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faUpload, faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
+import { faCoins, faUpload, faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
 	faChartPie, faHdd, faFileContract, faWrench, faCogs, faSearch,
 	faUnlock, faDatabase, faPlus, faExpand, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome';
 
-library.add(faUpload, faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes, faChartPie,
+library.add(faCoins, faUpload, faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes, faChartPie,
 	faHdd, faFileContract, faWrench, faCogs, faSearch, faUnlock,
 	faDatabase, faPlus, faExpand, faTrash, faSync);
 
