@@ -189,6 +189,10 @@ export default {
 					await fs.promises.unlink(tempPath);
 				} catch (ex) {}
 
+				await fs.promises.mkdir(this.config.siad_data_path, {
+					recursive: true
+				});
+
 				const out = fs.createWriteStream(tempPath);
 
 				out.on('error', this.onError);
