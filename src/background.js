@@ -6,7 +6,7 @@ import log from 'electron-log';
 import { createTray } from './background/tray';
 import { openWindow } from './background/window';
 import { attachDaemonIPC, shutdownDaemon } from './background/daemon';
-import { startUpdateCheck } from './background/autoupdate';
+import { attachUpdateIPC } from './background/autoupdate';
 
 const isDevelopment = !!~process.defaultApp;
 
@@ -50,7 +50,7 @@ app.on('ready', async() => {
 	}
 
 	attachDaemonIPC();
-	startUpdateCheck();
+	attachUpdateIPC();
 	openWindow();
 	createTray();
 

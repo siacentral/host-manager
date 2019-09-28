@@ -5,15 +5,16 @@ import { setShutdown } from './tray';
 import { sendIPC } from './window';
 import { shutdownDaemon } from './daemon';
 
-export function startUpdateCheck() {
-	if (!app.isPackaged)
-		return;
+let updateTimeout, checkingForUpdates = false;
 
+export function attachUpdateIPC() {
 	ipcMain.on('installUpdate', onInstallUpdate);
+	ipcMain.on('checkUpdates', onCheckForUpdates);
 
-	autoUpdater.on('update-downloaded', onUpdateDownloaded);
+	autoUpdater.on('update-available', onUpdateAvailable);
+	autoUpdater.on('download-progress', onUpdateProgress);
+	autoUpdater.on('update-downloaded', onUpdateReady);
 	autoUpdater.on('error', onUpdateError);
-	checkForUpdates();
 }
 
 async function onInstallUpdate() {
@@ -30,14 +31,44 @@ async function onInstallUpdate() {
 	}
 }
 
-function checkForUpdates() {
-	autoUpdater.checkForUpdates();
+function onCheckForUpdates() {
+	if (!app.isPackaged || checkingForUpdates)
+		return;
 
-	setTimeout(checkForUpdates, 14400000);
+	try {
+		checkingForUpdates = true;
+
+		clearTimeout(updateTimeout);
+		autoUpdater.checkForUpdates();
+	} catch (ex) {
+		log.error('onCheckForUpdates', ex.message);
+	} finally {
+		checkingForUpdates = false;
+		updateTimeout = setTimeout(onCheckForUpdates, 14400000);
+	}
 }
 
-function onUpdateDownloaded(info) {
-	sendIPC('updateAvailable', info);
+function onUpdateAvailable(info) {
+	sendIPC('updateData', {
+		version: info.version,
+		releaseDate: info.releaseDate,
+		available: true,
+		ready: false
+	});
+}
+
+function onUpdateReady(info) {
+	log.info(`update ${info.version} downloaded and waiting to install`);
+	sendIPC('updateData', {
+		version: info.version,
+		releaseDate: info.releaseDate,
+		available: true,
+		ready: true
+	});
+}
+
+function onUpdateProgress(progress) {
+	sendIPC('updateDownloadProgress', progress);
 }
 
 function onUpdateError(err) {
