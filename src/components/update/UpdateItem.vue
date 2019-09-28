@@ -1,11 +1,18 @@
 <template>
 	<div class="app-update-wrapper">
-		<div class="app-update-info" @click="showModal = true">
+		<div class="app-update-info" @click="showModal = (update && update.ready)">
 			<div class="update-icon">
 				<icon icon="upload" />
 			</div>
-			<div class="update-description">
-				Update ready to install
+			<div>
+				<transition name="fade" mode="out-in">
+					<div class="update-description" :key="updateText">{{ updateText }}</div>
+				</transition>
+				<transition name="fade" mode="out-in">
+					<div class="update-progress" v-if="!update.ready && updateProgress && updateProgress.percent">
+						<progress-bar :progress="updateProgress.percent" />
+					</div>
+				</transition>
 			</div>
 		</div>
 		<update-modal v-if="showModal" @close="showModal = false" />
@@ -13,11 +20,30 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
+import ProgressBar from '@/components/ProgressBar';
 import UpdateModal from './UpdateModal';
 
 export default {
 	components: {
+		ProgressBar,
 		UpdateModal
+	},
+	computed: {
+		...mapState([
+			'update',
+			'updateProgress'
+		]),
+		updateText() {
+			if (this.update && this.update.ready)
+				return `Update is ready to install!`;
+
+			if (this.updateProgress && this.updateProgress.percent)
+				return 'Update downloading...';
+
+			return 'Update available...';
+		}
 	},
 	data() {
 		return {
@@ -29,10 +55,6 @@ export default {
 
 <style lang="stylus" scoped>
 .app-update-info {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
     padding: 10px;
     display: grid;
     grid-template-columns: 20px minmax(0, 1fr);
@@ -42,12 +64,20 @@ export default {
     grid-gap: 10px;
 	cursor: pointer;
 
-	svg {
-		width: 20px;
+	.update-icon {
+		grid-row: 1 / -1;
+
+		svg {
+			width: 20px;
+		}
 	}
 
 	.update-description {
 		font-size: 0.9rem;
+	}
+
+	.update-progress {
+		margin-top: 10px;
 	}
 }
 </style>

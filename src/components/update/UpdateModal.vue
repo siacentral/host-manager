@@ -2,7 +2,7 @@
 	<modal title="Update Sia Host Manager" modalStyle="small" @close="$emit('close')">
 		<div class="update-modal">
 			<div class="update-content">
-				<p>Sia Host Manager {{ update.version }} has been downloaded and is ready to install.
+				<p>Sia Host Manager v{{ update.version }} has been downloaded and is ready to install.
 					This update will be installed automatically the next time Sia Host Manager is
 					started, or you can install it immediately.</p>
 				<p>Your host be offline and inaccessible during the update.</p>
@@ -29,7 +29,7 @@ export default {
 	computed: {
 		...mapState(['update']),
 		changelogURL() {
-			return `https://github.com/siacentral/host-manager/releases/tag/${this.update.version}`;
+			return `https://github.com/siacentral/host-manager/releases/tag/v${this.update.version}`;
 		}
 	},
 	methods: {

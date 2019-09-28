@@ -14,16 +14,18 @@
 			<a href="#" class="sub-nav-item" @click.prevent="modal = 'about'"><icon icon="info" /></a>
 			<a href="#" class="sub-nav-item" @click.prevent="modal = 'settings'"><icon icon="cogs" /></a>
 		</div>
-		<router-link class="nav-item" :to="{ name: 'dashboard' }"><icon icon="chart-pie" /> Dashboard</router-link>
-		<router-link class="nav-item" :to="{ name: 'storage' }"><icon icon="hdd" /> Storage</router-link>
-		<router-link class="nav-item" :to="{ name: 'contracts' }"><icon icon="file-contract" /> Contracts</router-link>
-		<router-link class="nav-item" :to="{ name: 'config' }"><icon icon="wrench" /> Configuration</router-link>
+		<div class="nav-items">
+			<router-link class="nav-item" :to="{ name: 'dashboard' }"><icon icon="chart-pie" /> Dashboard</router-link>
+			<router-link class="nav-item" :to="{ name: 'storage' }"><icon icon="hdd" /> Storage</router-link>
+			<router-link class="nav-item" :to="{ name: 'contracts' }"><icon icon="file-contract" /> Contracts</router-link>
+			<router-link class="nav-item" :to="{ name: 'config' }"><icon icon="wrench" /> Configuration</router-link>
+		</div>
+		<transition mode="out-in" name="fade" appear>
+			<update-item v-if="update && update.available" />
+		</transition>
 		<settings-modal v-if="modal === 'settings'" @close="modal = null" />
 		<about-modal v-if="modal === 'about'" @close="modal = null" />
 		<alerts-panel v-if="modal === 'alerts'" @close="modal = null" />
-		<transition mode="out-in" name="fade" appear>
-			<update-item v-if="update && update.downloaded" />
-		</transition>
 	</nav>
 </template>
 
@@ -73,11 +75,13 @@ export default {
 <style lang="stylus" scoped>
 nav.primary {
     position: absolute;
+	display: grid;
     top: 0;
     left: 0;
     bottom: 0;
+    grid-template-rows: repeat(3, min-content) minmax(0, 1fr) repeat(2, min-content);
     width: 200px;
-	padding: 30px 0;
+	padding-top: 30px;
 	background: bg-accent;
 	box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.22);
 
