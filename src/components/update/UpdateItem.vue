@@ -5,7 +5,7 @@
 				<icon icon="upload" />
 			</div>
 			<div class="update-description">
-				Update available. Click to install
+				Update ready to install
 			</div>
 		</div>
 		<update-modal v-if="showModal" @close="showModal = false" />
@@ -35,12 +35,16 @@ export default {
     right: 0;
     padding: 10px;
     display: grid;
-    grid-template-columns: 30px minmax(0, 1fr);
+    grid-template-columns: 20px minmax(0, 1fr);
     align-items: center;
     background: #191919;
 	color: primary;
-    grid-gap: 8px;
+    grid-gap: 10px;
 	cursor: pointer;
+
+	svg {
+		width: 20px;
+	}
 
 	.update-description {
 		font-size: 0.9rem;
