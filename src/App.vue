@@ -26,6 +26,7 @@ import { mapActions, mapState, mapGetters } from 'vuex';
 import log from 'electron-log';
 
 import { launch, running } from '@/data/daemon';
+import { checkForUpdates } from '@/data/autoupdate';
 import { refreshData } from '@/data';
 import Loader from '@/views/Loader';
 import NotificationQueue from '@/components/NotificationQueue';
@@ -95,6 +96,10 @@ export default {
 	},
 	beforeMount() {
 		this.tryLoad();
+
+		setTimeout(() => {
+			checkForUpdates();
+		}, 30000);
 	},
 	computed: {
 		...mapGetters(['alerts']),

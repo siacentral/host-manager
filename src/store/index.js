@@ -31,9 +31,11 @@ const store = new Vuex.Store({
 			height: 0
 		},
 		update: {
-			downloaded: false,
+			available: false,
+			ready: false,
 			version: null
 		},
+		updateProgress: null,
 		lastBlock: 0,
 		synced: false,
 		syncTime: 0,
@@ -114,6 +116,9 @@ const store = new Vuex.Store({
 		setUpdate(state, update) {
 			state.update = update;
 		},
+		setUpdateProgress(state, progress) {
+			state.updateProgress = progress;
+		},
 		pushNotification(state, notification) {
 			state.notifications.push(notification);
 
@@ -175,6 +180,9 @@ const store = new Vuex.Store({
 		},
 		setUpdate(context, update) {
 			context.commit('setUpdate', update);
+		},
+		setUpdateProgress(context, progress) {
+			context.commit('setUpdateProgress', progress);
 		},
 		pushNotification(context, notification) {
 			context.commit('pushNotification', notification);
