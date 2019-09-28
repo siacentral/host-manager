@@ -195,7 +195,7 @@ export default {
 		display: grid;
 		max-width: 1000px;
 		margin: auto;
-		grid-template-columns: repeat(2, auto);
+		grid-template-columns: repeat(2, min-content);
 		grid-gap: 15px;
 		overflow: auto;
 		justify-content: space-between;
@@ -205,10 +205,10 @@ export default {
 
 	@media screen and (min-width: 801px) {
 		.stats-grid {
-			grid-template-columns: repeat(3, auto);
+			grid-template-columns: repeat(3, min-content);
 
 			&.contract-grid {
-				grid-template-columns: repeat(4, auto);
+				grid-template-columns: repeat(4, min-content);
 			}
 		}
 	}
@@ -217,10 +217,6 @@ export default {
 		text-align: left;
 		border: none;
 		white-space: nowrap;
-
-		&.stat-contract {
-			grid-column: auto / span 3;
-		}
 
 		.item-title {
 			margin-bottom: 10px;
@@ -233,11 +229,14 @@ export default {
 		}
 	}
 
-	.stats-header {
+	.stats-header, .stats-desc {
 		grid-column: 1 / -1;
-		margin: 30px 0 5px;
-		font-size: 1.1rem;
 		color: rgba(255, 255, 255, 0.54);
+
+		&.stats-header {
+			margin: 30px 0 0;
+			font-size: 1.1rem;
+		}
 	}
 }
 </style>
