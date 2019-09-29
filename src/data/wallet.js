@@ -20,6 +20,9 @@ export async function refreshHostWallet() {
 		if (!walletUnlocked) {
 			await unlockHostWallet(Store.state.config.siad_wallet_password);
 			await loadHostWallet();
+		} else if (walletUnlocked && !Store.state.hostWallet.scanning) {
+			if (typeof Store.state.hostWallet.lastAddress !== 'string' || Store.state.hostWallet.lastAddress.trim().length === 0)
+				Store.dispatch('hostWallet/setLastAddress', await createWalletAddress());
 		}
 	} catch (ex) {
 		log.error('refreshHostWallet', ex.message);

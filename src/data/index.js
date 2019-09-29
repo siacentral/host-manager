@@ -3,7 +3,7 @@ import log from 'electron-log';
 import { refreshBlockHeight, refreshLastBlock, refreshDaemonVersion, checkConsensusSync } from './consensus';
 import { refreshHostContracts } from './contracts';
 import { refreshHostStorage } from './storage';
-import { refreshHostWallet, createWalletAddress } from './wallet';
+import { refreshHostWallet } from './wallet';
 import { refreshHostConfig } from './config';
 import { refreshExplorer } from './explorer';
 import { getCoinPrice } from '@/api/siacentral';
@@ -46,9 +46,6 @@ async function shortRefresh() {
 			refreshHostWallet(),
 			refreshHostStorage()
 		]);
-
-		if (typeof Store.state.hostWallet.lastAddress !== 'string' || Store.state.hostWallet.lastAddress.trim().length === 0)
-			Store.dispatch('hostWallet/setLastAddress', await createWalletAddress());
 	} catch (ex) {
 		log.error('data refresh - short', ex.message);
 	} finally {
