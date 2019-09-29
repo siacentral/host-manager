@@ -29,9 +29,6 @@ export async function refreshData() {
 
 	Store.dispatch('setLoaded', true);
 	Store.dispatch('setRefreshingData', false);
-
-	if (typeof Store.state.hostWallet.lastAddress !== 'string' || Store.staet.hostWallet.lastAddress.trim().length === 0)
-		Store.dispatch('hostWallet/setLastAddress', await createWalletAddress());
 }
 
 async function shortRefresh() {
@@ -49,6 +46,9 @@ async function shortRefresh() {
 			refreshHostWallet(),
 			refreshHostStorage()
 		]);
+
+		if (typeof Store.state.hostWallet.lastAddress !== 'string' || Store.state.hostWallet.lastAddress.trim().length === 0)
+			Store.dispatch('hostWallet/setLastAddress', await createWalletAddress());
 	} catch (ex) {
 		log.error('data refresh - short', ex.message);
 	} finally {
