@@ -156,8 +156,6 @@ export default {
 				case 'review':
 					const config = {};
 
-					await this.unlockWallet(this.unlockPassword);
-
 					if (this.autoUnlock)
 						config.siad_wallet_password = this.unlockPassword;
 
@@ -248,6 +246,8 @@ export default {
 			if (resp.statusCode !== 200)
 				throw new Error(resp.body.message || 'Error creating wallet');
 
+			await this.unlockWallet(this.unlockPassword);
+
 			this.seed = resp.body.primaryseed;
 			this.mode = 'review';
 		},
@@ -259,6 +259,8 @@ export default {
 
 			if (resp.statusCode !== 200)
 				throw new Error(resp.body.message || 'Error recovering seed');
+
+			await this.unlockWallet(this.unlockPassword);
 
 			this.seed = resp.body.primaryseed;
 			this.mode = 'review';
