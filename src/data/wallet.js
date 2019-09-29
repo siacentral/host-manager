@@ -9,7 +9,7 @@ export async function refreshHostWallet() {
 		await loadHostWallet();
 
 		const walletExists = Store.state.hostWallet.encrypted,
-			walletUnlocked = Store.state.hostWallet.unlocked || Store.state.hostWallet.rescanning;
+			walletUnlocked = Store.state.hostWallet.encrypted && Store.state.hostWallet.unlocked;
 
 		if (!walletExists) {
 			Store.dispatch('setup/setFirstRun', true);
@@ -17,8 +17,10 @@ export async function refreshHostWallet() {
 			return;
 		}
 
-		if (!walletUnlocked)
-			unlockHostWallet(Store.state.config.siad_wallet_password);
+		if (!walletUnlocked) {
+			await unlockHostWallet(Store.state.config.siad_wallet_password);
+			await loadHostWallet();
+		}
 	} catch (ex) {
 		log.error('refreshHostWallet', ex.message);
 	}
