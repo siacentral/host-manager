@@ -30,7 +30,7 @@ export async function refreshData() {
 	Store.dispatch('setLoaded', true);
 	Store.dispatch('setRefreshingData', false);
 
-	if (!Store.state.hostWallet.lastAddress)
+	if (typeof Store.state.hostWallet.lastAddress !== 'string' || Store.staet.hostWallet.lastAddress.trim().length === 0)
 		Store.dispatch('hostWallet/setLastAddress', await createWalletAddress());
 }
 
