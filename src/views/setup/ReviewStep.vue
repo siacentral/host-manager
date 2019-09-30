@@ -69,6 +69,8 @@ export default {
 	},
 	async mounted() {
 		try {
+			this.setConfig(this.config);
+
 			if (await running()) {
 				this.syncDaemon();
 				return;
@@ -76,7 +78,7 @@ export default {
 
 			ipcRenderer.once('daemonLoaded', this.onDaemonLoaded);
 
-			launch(this.config);
+			launch();
 		} catch (ex) {
 			log.error('review step mounted', ex.message);
 			this.error = ex.message;
@@ -93,8 +95,6 @@ export default {
 					throw new Error('Unable to authenticate check API address or password');
 
 				await refreshData(this.config);
-
-				this.setConfig(this.config);
 
 				this.$emit('done', {
 					inc: 1,

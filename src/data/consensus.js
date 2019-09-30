@@ -36,7 +36,7 @@ export async function refreshBlockHeight() {
 
 		if (ex.message.indexOf('ECONNREFUSED') >= 0) {
 			log.error('daemon connection lost attempting reload');
-			launch(Store.state.config);
+			launch();
 		}
 	}
 }

@@ -44,18 +44,20 @@ export function attachDaemonIPC() {
 	ipcRenderer.on('daemonError', onDaemonCritical);
 }
 
-export function launch(config) {
-	ipcRenderer.send('launchDaemon', config);
+export function launch() {
+	ipcRenderer.send('launchDaemon', Store.state.config);
 }
 
-export async function running(config) {
+export async function running() {
 	try {
-		const client = new SiaApiClient(config);
+		const client = new SiaApiClient(Store.state.config);
 
 		await client.getDaemonVersion();
 
 		return true;
-	} catch (ex) {}
+	} catch (ex) {
+		log.error('daemon running', ex.message);
+	}
 
 	return false;
 }

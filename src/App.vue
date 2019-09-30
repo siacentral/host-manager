@@ -53,12 +53,14 @@ export default {
 				if (!this.config)
 					return;
 
+				console.log(this.config);
+
 				if (await running()) {
 					await refreshData();
 					return;
 				}
 
-				launch(this.config);
+				launch();
 			} catch (ex) {
 				log.error('try load', ex.message);
 				this.setCriticalError(ex.message);
