@@ -46,7 +46,9 @@
 				<td v-if="splitRevenue">{{ formatPriceString(contract.upload_revenue, 4) }}</td>
 				<td v-if="splitRevenue">{{ formatPriceString(contract.storage_revenue, 4) }}</td>
 				<td class="fit-text">
-					<span :class="getTagClasses(tag)" v-for="(tag, i) in contract.tags" :key="i">{{ tag.text }}</span>
+					<div class="tag-wrapper">
+						<span :class="getTagClasses(tag)" v-for="(tag, i) in contract.tags" :key="i">{{ tag.text }}</span>
+					</div>
 				</td>
 				<td class="fit-text"><a :href="getSiaStatsLink(contract)" target="_blank"><icon icon="external-link-alt" />SiaStats</a></td>
 			</tr>
@@ -138,6 +140,12 @@ a {
 	}
 }
 
+.tag-wrapper {
+	display: grid;
+	grid-template-columns: min-content;
+	grid-gap: 5px;
+}
+
 span.tag {
 	padding: 3px 8px;
 	border: 1px solid #4c4c4c;
@@ -147,6 +155,7 @@ span.tag {
 	font-size: 0.8rem;
 	margin-right: 5px;
 	pointer-events: none;
+	text-align: center;
 
 	&:last-of-type {
 		margin-right: 0;
