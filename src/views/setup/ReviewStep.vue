@@ -70,7 +70,7 @@ export default {
 	async mounted() {
 		try {
 			if (await running()) {
-				this.onDaemonLoaded();
+				this.syncDaemon();
 				return;
 			}
 
@@ -85,14 +85,14 @@ export default {
 	methods: {
 		...mapActions(['setConfig']),
 		...mapActions('setup', ['setFirstRun']),
-		async onDaemonLoaded() {
-			const client = new SiaApiClient(this.config);
-
+		async syncDaemon() {
 			try {
+				const client = new SiaApiClient(this.config);
+
 				if (!(await client.checkCredentials()))
 					throw new Error('Unable to authenticate check API address or password');
 
-				await refreshData();
+				await refreshData(this.config);
 
 				this.setConfig(this.config);
 
@@ -100,14 +100,24 @@ export default {
 					inc: 1,
 					createWallet: !this.walletUnlocked && !this.walletEncrypted
 				});
+
+				return true;
 			} catch (ex) {
 				log.error('on daemon loaded', ex.message);
 				this.error = ex.message;
-
-				try {
-					await client.stopDaemon();
-				} catch (ex) {}
 			}
+
+			return false;
+		},
+		async onDaemonLoaded() {
+			if (await this.syncDaemon())
+				return;
+
+			try {
+				const client = new SiaApiClient(this.config);
+
+				await client.stopDaemon();
+			} catch (ex) {}
 		}
 	},
 	watch: {
