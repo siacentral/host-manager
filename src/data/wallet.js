@@ -20,12 +20,31 @@ export async function refreshHostWallet() {
 		if (!walletUnlocked) {
 			await unlockHostWallet(Store.state.config.siad_wallet_password);
 			await loadHostWallet();
-		} else if (walletUnlocked && !Store.state.hostWallet.scanning) {
-			if (typeof Store.state.hostWallet.lastAddress !== 'string' || Store.state.hostWallet.lastAddress.trim().length === 0)
-				Store.dispatch('hostWallet/setLastAddress', await createWalletAddress());
-		}
+		} else if (walletUnlocked && !Store.state.hostWallet.scanning)
+			await loadWalletAddress();
 	} catch (ex) {
 		log.error('refreshHostWallet', ex.message);
+	}
+}
+
+async function loadWalletAddress() {
+	try {
+		if (typeof Store.state.hostWallet.lastAddress === 'string' && Store.state.hostWallet.lastAddress.trim().length !== 0)
+			return;
+
+		let resp = await apiClient.getWalletAddresses(1);
+
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message || 'unable to load seed address');
+
+		let address = Array.isArray(resp.body.addresses) ? resp.body.addresses[0] : null;
+
+		if (typeof address !== 'string' || address.trim().length === 0)
+			address = await createWalletAddress();
+
+		Store.dispatch('hostWallet/setLastAddress', address);
+	} catch (ex) {
+		log.error('loadWalletAddress', ex.message);
 	}
 }
 

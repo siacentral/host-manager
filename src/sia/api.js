@@ -78,7 +78,9 @@ export default class SiaApiClient {
 
 	async checkCredentials() {
 		try {
-			const resp = await this.getWalletAddresses();
+			const resp = await this.getWalletAddresses(1);
+
+			console.log(resp.body);
 
 			if (resp.statusCode === 200)
 				return true;
@@ -272,10 +274,10 @@ export default class SiaApiClient {
 		});
 	}
 
-	async getWalletAddresses() {
+	async getWalletAddresses(count) {
 		const apiPassword = await this.getDefaultAPIPassword();
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/addresses`, {
+		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/seedaddrs?count=${count}`, {
 			method: 'GET',
 			headers: {
 				'User-Agent': this.config.siad_api_agent
