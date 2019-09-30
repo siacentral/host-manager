@@ -56,6 +56,9 @@ export default class SiaApiClient {
 			siad_api_addr: opts.siad_api_addr || 'localhost:9980',
 			siad_api_agent: opts.siad_api_agent || 'Sia-Agent'
 		};
+
+		if (typeof opts.siad_api_password === 'string' && opts.siad_api_password.trim().length !== 0)
+			this._defaultApiPassword = opts.siad_api_password;
 	}
 
 	async getDefaultAPIPassword() {
@@ -76,16 +79,33 @@ export default class SiaApiClient {
 		return this._defaultApiPassword;
 	}
 
+	async walletUnlockConditions(addr) {
+		const apiPassword = await this.getDefaultAPIPassword();
+
+		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/unlockconditions/${addr}`, {
+			method: 'GET',
+			headers: {
+				'User-Agent': this.config.siad_api_agent
+			},
+			auth: {
+				username: '',
+				password: apiPassword
+			}
+		});
+	}
+
 	async checkCredentials() {
 		try {
-			const resp = await this.getWalletAddresses(1);
-
-			console.log(resp.body);
+			// hard coded address doesn't matter since we just want to check the API credentials
+			const resp = await this.walletUnlockConditions('2d6c6d705c80f17448d458e47c3fb1a02a24e018a82d702cda35262085a3167d98cc7a2ba339');
 
 			if (resp.statusCode === 200)
 				return true;
 
-			if (resp.body.message && resp.body.message.indexOf('wallet must be unlocked before it can be used') >= 0)
+			if (resp.body.message && resp.body.message.indexOf('wallet must be unlocked before it can be used') !== -1)
+				return true;
+
+			if (resp.body.message && resp.body.message.indexOf('no record of UnlockConditions for that UnlockHash') !== -1)
 				return true;
 		} catch (ex) {
 			log.error('check api credentials', ex.message);
