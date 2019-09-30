@@ -13,9 +13,10 @@ import SiaApiClient from '@/sia/api';
 
 let longTimeout, shortTimeout, loadingLong, loadingShort, priceTimeout;
 
-export const apiClient = new SiaApiClient(Store.state.config);
+export let apiClient;
 
-export async function refreshData() {
+export async function refreshData(config) {
+	apiClient = new SiaApiClient(config || Store.state.config);
 	const credentialsValid = await apiClient.checkCredentials();
 
 	if (!credentialsValid)
