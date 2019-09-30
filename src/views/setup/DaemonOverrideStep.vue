@@ -23,6 +23,10 @@
 			<label>API User Agent</label>
 			<input type="text" v-model="userAgent" placeholder="Sia-Agent" />
 		</div>
+		<div class="control">
+			<label>API Password</label>
+			<input type="text" v-model="apiPassword" placeholder="automatic" />
+		</div>
 		<template v-slot:controls>
 			<button class="btn btn-inline" @click="onNext(-1)">Previous</button>
 			<button class="btn btn-success btn-inline" @click="onNext(1)">Next</button>
@@ -51,7 +55,8 @@ export default {
 			userAgent: null,
 			hostPort: null,
 			rpcPort: null,
-			apiAddr: null
+			apiAddr: null,
+			apiPassword: null
 		};
 	},
 	methods: {
@@ -62,7 +67,8 @@ export default {
 					'siad_api_agent': this.userAgent,
 					'siad_host_port': this.hostPort,
 					'siad_rpc_port': this.rpcPort,
-					'siad_api_addr': this.apiAddr
+					'siad_api_addr': this.apiAddr,
+					'siad_api_password': this.apiPassword
 				}
 			});
 		}
