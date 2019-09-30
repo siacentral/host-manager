@@ -17,10 +17,10 @@ export async function refreshHostWallet() {
 			return;
 		}
 
-		if (!walletUnlocked) {
+		if (!walletUnlocked && !Store.state.hostWallet.rescanning) {
 			await unlockHostWallet(Store.state.config.siad_wallet_password);
 			await loadHostWallet();
-		} else if (walletUnlocked && !Store.state.hostWallet.scanning)
+		} else if (walletUnlocked && !Store.state.hostWallet.rescanning)
 			await loadWalletAddress();
 	} catch (ex) {
 		log.error('refreshHostWallet', ex.message);
