@@ -39,8 +39,10 @@ async function loadWalletAddress() {
 
 		let address = Array.isArray(resp.body.addresses) ? resp.body.addresses[0] : null;
 
-		if (typeof address !== 'string' || address.trim().length === 0)
+		if (typeof address !== 'string' || address.trim().length === 0) {
 			address = await createWalletAddress();
+			log.info('created new wallet address');
+		}
 
 		Store.dispatch('hostWallet/setLastAddress', address);
 	} catch (ex) {
