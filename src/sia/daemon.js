@@ -1,4 +1,3 @@
-import log from 'electron-log';
 import process from 'process';
 import { spawn } from 'child_process';
 import { decode } from '@stablelib/utf8';
@@ -22,8 +21,6 @@ function buildArgs(config) {
 
 	if (typeof config.siad_api_addr === 'string' && config.siad_api_addr.length > 0)
 		args.push('--api-addr', config.siad_api_addr);
-
-	log.info(args);
 
 	return args;
 }

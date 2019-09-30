@@ -53,8 +53,6 @@ export default {
 				if (!this.config)
 					return;
 
-				console.log(this.config);
-
 				if (await running()) {
 					await refreshData();
 					return;
