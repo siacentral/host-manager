@@ -19,6 +19,7 @@
 				<p>Created and maintained by Sia Central</p>
 			</div>
 			<div class="buttons">
+				<button class="btn btn-inline" @click="onOpenLogFolder">Application Log</button>
 				<button class="btn btn-inline" v-if="daemonManaged" @click="onOpenDataFolder">Open Data Folder</button>
 				<a class="btn btn-inline" href="https://github.com/siacentral/host-manager">GitHub</a>
 				<a class="btn btn-inline" href="https://siacentral.com/host-manager">Website</a>
@@ -30,6 +31,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import { remote, shell } from 'electron';
+import { getLogPath } from '@/utils';
 import log from 'electron-log';
 
 import SiaCentral from '@/assets/siacentral.svg';
@@ -54,6 +56,18 @@ export default {
 	},
 	methods: {
 		...mapActions(['pushNotification']),
+		onOpenLogFolder() {
+			try {
+				shell.openItem(getLogPath());
+			} catch (ex) {
+				log.error('onOpenLogFolder', ex.message);
+				this.pushNotification({
+					message: ex.message,
+					icon: 'info',
+					severity: 'danger'
+				});
+			}
+		},
 		onOpenDataFolder() {
 			try {
 				shell.openItem(this.config.siad_data_path);
