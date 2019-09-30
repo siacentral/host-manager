@@ -214,7 +214,7 @@ export default {
 	}
 
 	.stat-item {
-		text-align: left;
+		text-align: right;
 		border: none;
 		white-space: nowrap;
 
