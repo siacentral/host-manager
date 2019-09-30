@@ -154,7 +154,7 @@ export default {
 		},
 		loaderProgress() {
 			if (this.walletScanning)
-				return this.scanHeight / (this.lastBlock + 5);
+				return this.scanHeight / this.lastBlock;
 
 			if (!this.daemonLoaded && this.daemonManaged)
 				return this.daemonLoadPercent || 0;
