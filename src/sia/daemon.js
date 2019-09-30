@@ -1,3 +1,4 @@
+import log from 'electron-log';
 import process from 'process';
 import { spawn } from 'child_process';
 import { decode } from '@stablelib/utf8';
@@ -7,20 +8,22 @@ import SiaApiClient from './api';
 function buildArgs(config) {
 	const args = [];
 
-	if (config.siad_data_path && config.siad_data_path.length > 0)
+	if (typeof config.siad_data_path === 'string' && config.siad_data_path.length > 0)
 		args.push('-d', config.siad_data_path);
 
-	if (config.siad_api_agent && config.siad_api_agent.length > 0)
+	if (typeof config.siad_api_agent === 'string' && config.siad_api_agent.length > 0)
 		args.push('--agent', config.siad_api_agent);
 
-	if (config.siad_host_port && config.siad_host_port.length > 0)
+	if (typeof config.siad_host_port === 'string' && config.siad_host_port.length > 0)
 		args.push('--host-addr', config.siad_host_port);
 
-	if (config.siad_rpc_port && config.siad_rpc_port.length > 0)
+	if (typeof config.siad_rpc_port === 'string' && config.siad_rpc_port.length > 0)
 		args.push('--rpc-addr', config.siad_rpc_port);
 
-	if (config.siad_api_addr && config.siad_api_addr.length > 0)
+	if (typeof config.siad_api_addr === 'string' && config.siad_api_addr.length > 0)
 		args.push('--api-addr', config.siad_api_addr);
+
+	log.info(args);
 
 	return args;
 }
@@ -28,8 +31,11 @@ function buildArgs(config) {
 function buildEnv(config) {
 	const env = JSON.parse(JSON.stringify(process.env));
 
-	if (config.siad_wallet_password && config.siad_wallet_password.length > 0)
+	if (typeof config.siad_wallet_password === 'string' && config.siad_wallet_password.length > 0)
 		env['SIA_WALLET_PASSWORD'] = config.siad_wallet_password;
+
+	if (typeof config.siad_api_password === 'string' && config.siad_api_password.length > 0)
+		env['SIA_API_PASSWORD'] = config.siad_api_password;
 
 	return env;
 }
