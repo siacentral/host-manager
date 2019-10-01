@@ -169,7 +169,7 @@ export function formatSiacoinString(val, dec) {
 		}
 	}
 
-	return `${numFormatter.format(sigDecimalRound(siacoins.dividedBy(mul), dec))} ${suffix}SC`;
+	return `${numFormatter.format(sigDecimalRound(siacoins.dividedBy(mul), dec))}${suffix} SC`;
 };
 
 function sigDecimalRound(val, num) {
@@ -188,13 +188,30 @@ function sigDecimalRound(val, num) {
 
 export function formatCryptoString(val, dec) {
 	const currency = Store.state.config.currency || 'btc';
+	let suffix = '',
+		mul = new BigNumber(1);
 
 	dec = dec || 4;
 
 	if (val.isEqualTo(0) || !Store.state.coinPrice[currency])
 		return `0 ${currency.toUpperCase()}`;
 
-	return `${numFormatter.format(sigDecimalRound(val.dividedBy(1e24).times(Store.state.coinPrice[currency]), dec).toNumber())} ${currency.toUpperCase()}`;
+	const value = val.dividedBy(1e24).times(Store.state.coinPrice[currency]);
+
+	if (value.gte(1e4)) {
+		for (let i = 0; i < currencySuffixes.length; i++) {
+			const suf = currencySuffixes[i];
+
+			if (!value.gte(suf.mul))
+				continue;
+
+			mul = mul.times(suf.mul);
+			suffix = suf.suffix;
+			break;
+		}
+	}
+
+	return `${numFormatter.format(sigDecimalRound(value.dividedBy(mul).toNumber(), dec))}${suffix} ${currency.toUpperCase()}`;
 }
 
 export function formatCurrencyString(val) {
@@ -204,7 +221,7 @@ export function formatCurrencyString(val) {
 	if (val.isEqualTo(0) || !Store.state.coinPrice[currency])
 		return formatter.format(0);
 
-	const value = sigDecimalRound(val.dividedBy(1e24).times(Store.state.coinPrice[currency]), 2).toNumber();
+	const value = sigDecimalRound(val.dividedBy(1e24).times(Store.state.coinPrice[currency]), 2);
 
 	return formatter.format(value);
 };
