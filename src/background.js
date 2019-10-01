@@ -52,7 +52,7 @@ app.on('ready', async() => {
 	attachDaemonIPC();
 	attachUpdateIPC();
 	openWindow();
-	createTray();
+	await createTray();
 
 	powerSaveID = powerSaveBlocker.start('prevent-app-suspension');
 });

@@ -2,7 +2,7 @@ import { app, ipcMain } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import { sendIPC } from './window';
-import { shutdown } from './tray';
+import { createTray, shutdown } from './tray';
 import SiaDaemon from '../sia/daemon';
 
 let daemon;
@@ -24,14 +24,16 @@ function getPath() {
 	return path.join(process.resourcesPath, 'bin', binary);
 }
 
+export function running() {
+	if (!daemon)
+		return false;
+
+	return daemon.available();
+}
+
 async function onLaunchDaemon(ev, config) {
 	try {
-		if (shutdown)
-			return;
-
-		const running = daemon && (await daemon.available());
-
-		if (running)
+		if (shutdown || await running())
 			return;
 
 		if (!daemon) {
@@ -47,6 +49,7 @@ async function onLaunchDaemon(ev, config) {
 			daemon.on('loaded', (stats) => {
 				log.info(`daemon loaded after ${Math.floor((Date.now() - stats.start) / 1000)} seconds`);
 				sendIPC('daemonLoaded', stats);
+				createTray();
 			});
 
 			daemon.on('exit', (code, stats) => {

@@ -5,7 +5,7 @@ import log from 'electron-log';
 import { decode } from '@stablelib/utf8';
 import SiaApiClient from '../sia/api';
 import { openWindow, sendIPC } from './window';
-import { shutdownDaemon } from './daemon';
+import { shutdownDaemon, running } from './daemon';
 
 export var mainTray;
 export var shutdown = false;
@@ -14,17 +14,20 @@ export function setShutdown(val) {
 	shutdown = val;
 }
 
-export function createTray() {
-	const menu = Menu.buildFromTemplate([
-		{ label: 'Show Desktop', click: openWindow },
-		{ label: 'Restart Daemon', click: onRestart },
-		{ label: 'Exit', click: onExit }
-	]);
-	mainTray = new Tray(path.join(__static, 'icons/siacentral_white_16.png'));
+export async function createTray() {
+	if (!mainTray)
+		mainTray = new Tray(path.join(__static, 'icons/siacentral_white_16.png'));
 
+	const menuTemplate = [
+		{ label: 'Show Desktop', click: openWindow }
+	];
+
+	if (await running())
+		menuTemplate.push({ label: 'Restart Daemon', click: onRestart });
+
+	menuTemplate.push({ label: 'Exit', click: onExit });
 	mainTray.on('double-click', openWindow);
-
-	mainTray.setContextMenu(menu);
+	mainTray.setContextMenu(Menu.buildFromTemplate(menuTemplate));
 }
 
 async function onExit() {
