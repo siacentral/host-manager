@@ -41,7 +41,7 @@ async function loadWalletAddress() {
 
 		if (typeof address !== 'string' || address.trim().length === 0) {
 			address = await createWalletAddress();
-			log.info('created new wallet address');
+			log.info('loadWalletAddress', 'created new wallet address');
 		}
 
 		Store.dispatch('hostWallet/setLastAddress', address);
