@@ -97,9 +97,7 @@ export default {
 	beforeMount() {
 		this.tryLoad();
 
-		setTimeout(() => {
-			checkForUpdates();
-		}, 30000);
+		checkForUpdates();
 	},
 	computed: {
 		...mapGetters(['alerts']),
