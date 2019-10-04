@@ -1,3 +1,32 @@
+## October 2019
+
+### v1.0.5
+
+Some features, bug fixes and more fine tuning!
+
+#### Features
+
++ Automatic updates - Host Manager will now check for updates every 4 hours. An icon will appear in the lower left when an update is ready to install
++ Added a new setting for data units - storage sizes and prices can now be shown in TiB or TB. Defaults to TiB (1024 GiB = 1 TiB)
++ Added a new screen called "Host Analytics" shows detailed breakdowns of contracts and revenue.
++ Added a new button to About dialog "Application Log" which opens the application log when clicked.
+
+#### Changes
+
++ Connectivity icon in navigation bar will no longer show an error for issues not related to connectability (wrong version, not accepting contracts, etc).
++ Currency values above 10000 will now be shown with a "KSC" suffix to prevent overflow with extremely large values.
++ Host Manager will no longer generate a new address at startup. It will reuse the last generated address unless none exists.
++ Restart Daemon will only show in the tray if Sia is being managed by Host Manager.
+
+#### Bug Fixes
+
++ Fixed lock up when Sia crashes while loading due to configuration issue
++ When setting up the Import step would not allow you to select "No" to use custom settings.
++ Fixed an issue with bootstrapping a fresh install of Host Manager throwing an error that the directory doesn't exist.
++ Fixed an error with a notification showing that the wrong chain is synced even when synced from scratch.
++ Fixed issue with setup not accepting a blank data path for default location
++ User Agent and API Password settings will now actually work and override the defaults when starting the daemon or accessing the API
+
 ## September 2019
 
 ### v1.0.4
