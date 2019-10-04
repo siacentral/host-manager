@@ -104,13 +104,26 @@ async function loadHostWallet() {
 			});
 		}
 
+		const confirmedBalance = new BigNumber(resp.body.confirmedsiacoinbalance),
+			balanceDelta = new BigNumber(resp.body.unconfirmedincomingsiacoins).minus(resp.body.unconfirmedoutgoingsiacoins);
+
+		// make sure we have more than 1 SC in the wallet
+		if (confirmedBalance.lte(1e24)) {
+			alerts.push({
+				category: 'wallet',
+				severity: 'danger',
+				icon: 'wallet',
+				message: 'Wallet has no funds. Host will not be able to accept contracts or submit storage proofs.'
+			});
+		}
+
 		Store.dispatch('hostWallet/setAlerts', alerts);
 		Store.dispatch('hostWallet/setUnlocked', resp.body.unlocked);
 		Store.dispatch('hostWallet/setEncrypted', resp.body.encrypted);
 		Store.dispatch('hostWallet/setRescanning', resp.body.rescanning);
 		Store.dispatch('hostWallet/setHeight', resp.body.height);
-		Store.dispatch('hostWallet/setBalance', new BigNumber(resp.body.confirmedsiacoinbalance));
-		Store.dispatch('hostWallet/setBalanceDelta', new BigNumber(resp.body.unconfirmedincomingsiacoins).minus(resp.body.unconfirmedoutgoingsiacoins));
+		Store.dispatch('hostWallet/setBalance', confirmedBalance);
+		Store.dispatch('hostWallet/setBalanceDelta', balanceDelta);
 	} catch (ex) {
 		log.error('loadHostWallet', ex.message);
 	}
