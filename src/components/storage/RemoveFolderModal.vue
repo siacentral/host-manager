@@ -32,7 +32,7 @@ import Modal from '@/components/Modal';
 import { formatByteString } from '@/utils/format';
 import SiaApiClient from '@/sia/api';
 import { mapActions, mapState } from 'vuex';
-import { refreshHostStorage } from '@/data/storage';
+import { refreshHostStorage } from '@/sync/storage';
 
 export default {
 	components: {

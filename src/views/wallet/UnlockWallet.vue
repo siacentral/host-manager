@@ -30,7 +30,7 @@
 import { mapActions, mapState } from 'vuex';
 import { writeConfig } from '@/utils';
 import SiaApiClient from '@/sia/api';
-import { refreshHostWallet } from '@/data/wallet';
+import { refreshHostWallet } from '@/sync/wallet';
 
 export default {
 	data() {

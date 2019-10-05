@@ -24,7 +24,7 @@ import DaemonOverrideStep from '@/views/setup/DaemonOverrideStep';
 import ReviewStep from '@/views/setup/ReviewStep';
 import CreateWalletStep from '@/views/setup/CreateWalletStep';
 import { readSiaUIConfig, writeConfig } from '@/utils';
-import { refreshData } from '@/data';
+import { refreshData } from '@/sync';
 
 export default {
 	components: {

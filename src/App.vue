@@ -25,9 +25,9 @@ import { remote } from 'electron';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import log from 'electron-log';
 
-import { launch, running } from '@/data/daemon';
-import { checkForUpdates } from '@/data/autoupdate';
-import { refreshData } from '@/data';
+import { launch, running } from '@/sync/daemon';
+import { checkForUpdates } from '@/sync/autoupdate';
+import { refreshData } from '@/sync';
 import Loader from '@/views/Loader';
 import NotificationQueue from '@/components/NotificationQueue';
 import PrimaryView from '@/views/PrimaryView';

@@ -161,7 +161,7 @@ import { writeConfig } from '@/utils';
 import { formatByteString, formatBlockTimeString, formatPriceString, formatDataPriceString, formatMonthlyPriceString } from '@/utils/format';
 import { parseCurrencyString, parseByteString, parseBlockTimeString } from '@/utils/parse';
 import SiaApiClient from '@/sia/api';
-import { refreshHostConfig } from '@/data/config';
+import { refreshHostConfig } from '@/sync/config';
 
 import AnnounceHostModal from '@/components/config/AnnounceHostModal';
 import ConfigItem from '@/components/config/ConfigItem';

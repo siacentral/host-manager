@@ -2,7 +2,7 @@ import log from 'electron-log';
 import { apiClient } from './index';
 import { getBlock } from '@/api/siacentral';
 import Store from '@/store';
-import { launch } from '@/data/daemon';
+import { launch } from '@/sync/daemon';
 
 let startTime, startBlock, finalBlock;
 

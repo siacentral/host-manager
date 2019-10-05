@@ -24,7 +24,7 @@ import { BigNumber } from 'bignumber.js';
 import { formatByteString } from '@/utils/format';
 import { parseByteString } from '@/utils/parse';
 import { mapActions, mapState } from 'vuex';
-import { refreshHostStorage } from '@/data/storage';
+import { refreshHostStorage } from '@/sync/storage';
 import SiaApiClient from '@/sia/api';
 
 export default {

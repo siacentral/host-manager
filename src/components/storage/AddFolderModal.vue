@@ -51,7 +51,7 @@ import { mkdirIfNotExist } from '@/utils';
 import { parseByteString } from '@/utils/parse';
 import { formatByteString } from '@/utils/format';
 import SiaApiClient from '@/sia/api';
-import { refreshHostStorage } from '@/data/storage';
+import { refreshHostStorage } from '@/sync/storage';
 import { remote } from 'electron';
 import { mapActions, mapState } from 'vuex';
 import path from 'path';

@@ -31,8 +31,8 @@ import log from 'electron-log';
 import { ipcRenderer } from 'electron';
 import { mapActions, mapState } from 'vuex';
 
-import { refreshData } from '@/data';
-import { launch, running } from '@/data/daemon';
+import { refreshData } from '@/sync';
+import { launch, running } from '@/sync/daemon';
 import SiaApiClient from '@/sia/api';
 import ProgressBar from '@/components/ProgressBar';
 

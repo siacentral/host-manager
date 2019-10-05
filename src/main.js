@@ -6,8 +6,8 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import { readConfig, checkSiaDataFolders, getConsensusPath } from '@/utils';
-import { attachDaemonIPC } from '@/data/daemon';
-import { attachUpdateIPC } from '@/data/autoupdate';
+import { attachDaemonIPC } from '@/sync/daemon';
+import { attachUpdateIPC } from '@/sync/autoupdate';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faCoins, faUpload, faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
