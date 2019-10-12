@@ -48,7 +48,8 @@ export default {
 		...mapActions('setup', ['setFirstRun']),
 		async tryLoad() {
 			try {
-				this.$router.replace({ name: 'dashboard' });
+				if (this.$route.name !== 'dashboard')
+					this.$router.replace({ name: 'dashboard' });
 
 				if (!this.config)
 					return;
