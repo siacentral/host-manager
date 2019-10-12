@@ -6,21 +6,26 @@
 
 ::-webkit-scrollbar {
 	width: 8px;
-	background-color: rgba(0,0,0,0);
+	height: 8px;
+	background-color: darken(bg-dark-accent, 5);
 	-webkit-border-radius: 100px;
 
 	&:hover {
-		background-color: rgba(0, 0, 0, 0.09);	
+		background-color: darken(bg-dark-accent, 8);	
 	}
 }
 
-::-webkit-scrollbar-thumb:vertical {
-	background: rgba(0,0,0,0.5);
+::-webkit-scrollbar-thumb:vertical, ::-webkit-scrollbar-thumb:horizontal {
+	background: rgba(255, 255, 255, 0.2);
 	-webkit-border-radius: 100px;
 }
-::-webkit-scrollbar-thumb:vertical:active {
-	background: rgba(0,0,0,0.61);
+::-webkit-scrollbar-thumb:vertical:hover, ::-webkit-scrollbar-thumb:horizontal:hover {
+	background: rgba(255, 255, 255, 0.4);
 	-webkit-border-radius: 100px;
+}
+
+::-webkit-scrollbar-corner {
+	background: bg-dark-accent;
 }
 
 html, body {
