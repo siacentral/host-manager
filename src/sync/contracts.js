@@ -4,7 +4,7 @@ import { BigNumber } from 'bignumber.js';
 import Store from '@/store';
 import { apiClient } from './index';
 import { getConfirmedContracts, getBlock } from '@/api/siacentral';
-import { formatPriceString } from '@/utils/format';
+import { formatPriceString, formatFriendlyStatus } from '@/utils/format';
 
 async function getLastHeight() {
 	const resp = await getBlock();
@@ -23,23 +23,10 @@ export async function refreshHostContracts() {
 	}
 }
 
-function toFriendlyStatus(status) {
-	switch (status.toLowerCase()) {
-	case 'obligationsucceeded':
-		return 'Successful';
-	case 'obligationfailed':
-		return 'Failed';
-	case 'obligationrejected':
-		return 'Rejected';
-	case 'obligationunresolved':
-		return 'Active';
-	}
-
-	return status;
-}
-
 function mergeContracts(chain, sia) {
+	chain.block_height = new BigNumber(chain.block_height);
 	chain.proof_height = new BigNumber(chain.proof_height);
+	chain.block_timestamp = new Date(chain.block_timestamp);
 	chain.expiration_timestamp = new Date(chain.expiration_timestamp);
 	chain.negotiation_timestamp = new Date(chain.negotiation_timestamp);
 	chain.proof_deadline_timestamp = new Date(chain.proof_deadline_timestamp);
@@ -284,8 +271,8 @@ export async function parseHostContracts() {
 				continue;
 
 			const statuses = key.split('-'),
-				actualStatus = toFriendlyStatus(statuses[0].trim()),
-				siaStatus = toFriendlyStatus(statuses[1].trim());
+				actualStatus = formatFriendlyStatus(statuses[0].trim()),
+				siaStatus = formatFriendlyStatus(statuses[1].trim());
 			let prefix;
 
 			if (count === 1)

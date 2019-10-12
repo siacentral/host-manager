@@ -3,6 +3,21 @@ import Decimal from 'decimal.js-light';
 
 import Store from '@/store';
 
+export function formatFriendlyStatus(status) {
+	switch (status.toLowerCase()) {
+	case 'obligationsucceeded':
+		return 'Successful';
+	case 'obligationfailed':
+		return 'Failed';
+	case 'obligationrejected':
+		return 'Rejected';
+	case 'obligationunresolved':
+		return 'Active';
+	}
+
+	return status;
+}
+
 export function numberToString(number, divisor, units, decimals) {
 	decimals = isFinite(decimals) ? decimals : -1;
 
