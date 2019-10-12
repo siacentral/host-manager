@@ -43,18 +43,18 @@
 
 <script>
 import log from 'electron-log';
-
-import Modal from '@/components/Modal';
-import ProgressBar from '@/components/ProgressBar';
+import path from 'path';
 import { BigNumber } from 'bignumber.js';
+import { mapActions, mapState } from 'vuex';
+import { remote } from 'electron';
+
 import { mkdirIfNotExist } from '@/utils';
 import { parseByteString } from '@/utils/parse';
 import { formatByteString } from '@/utils/format';
 import SiaApiClient from '@/sia/api';
 import { refreshHostStorage } from '@/sync/storage';
-import { remote } from 'electron';
-import { mapActions, mapState } from 'vuex';
-import path from 'path';
+import ProgressBar from '@/components/ProgressBar';
+import Modal from '@/components/Modal';
 
 const dialog = remote.dialog;
 
