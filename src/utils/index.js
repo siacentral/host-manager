@@ -2,6 +2,7 @@ import { decode } from '@stablelib/utf8';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { remote } from 'electron';
+import BigNumber from 'bignumber.js';
 
 const app = remote.app,
 	dialog = remote.dialog,
@@ -47,6 +48,49 @@ export async function readConfig() {
 			siad_data_path: path.join(siacentralPath, 'sia'),
 			...JSON.parse(decode(buf))
 		};
+
+	// validate contract filter
+	if (config.contract_filter) {
+		if (!Array.isArray(config.contract_filter.statuses) || config.contract_filter.statuses.length === 0)
+			config.contract_filter.statuses = ['active'];
+
+		if (typeof config.contract_filter.revenue_min === 'string' && config.contract_filter.revenue_min.length > 0) {
+			const val = new BigNumber(config.contract_filter.revenue_min);
+
+			if (!val.isNaN() || !val.isFinite())
+				config.contract_filter.revenue_min = null;
+			else
+				config.contract_filter.revenue_min = val;
+		}
+
+		if (typeof config.contract_filter.revenue_max === 'string' && config.contract_filter.revenue_max.length > 0) {
+			const val = new BigNumber(config.contract_filter.revenue_max);
+
+			if (!val.isNaN() || !val.isFinite())
+				config.contract_filter.revenue_max = null;
+			else
+				config.contract_filter.revenue_max = val;
+		}
+
+		if (config.contract_filter.start_date) {
+			const time = Date.parse(config.contract_filter.start_date);
+
+			if (isNaN(time))
+				config.contract_filter.start_date = null;
+			else
+				config.contract_filter.start_date = new Date(time);
+		}
+
+		if (config.contract_filter.end_date) {
+			const time = Date.parse(config.contract_filter.end_date);
+
+			if (isNaN(time))
+				config.contract_filter.end_date = null;
+			else
+				config.contract_filter.end_date = new Date(time);
+		}
+	} else
+		config.contract_filter = { statuses: ['active'] };
 
 	return config;
 }
