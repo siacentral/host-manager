@@ -10,12 +10,12 @@ import { attachDaemonIPC } from '@/sync/daemon';
 import { attachUpdateIPC } from '@/sync/autoupdate';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faChevronLeft, faChevronRight, faCoins, faUpload, faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
+import { faDownload, faChevronUp, faChevronDown, faChevronLeft, faChevronRight, faCoins, faUpload, faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes,
 	faChartPie, faHdd, faFileContract, faWrench, faCogs, faSearch,
 	faUnlock, faDatabase, faPlus, faExpand, faTrash, faSync } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome';
 
-library.add(faChevronLeft, faChevronRight, faCoins, faUpload, faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes, faChartPie,
+library.add(faDownload, faChevronUp, faChevronDown, faChevronLeft, faChevronRight, faCoins, faUpload, faFilter, faFastForward, faCopy, faSave, faBell, faBullhorn, faInfo, faFolder, faExternalLinkAlt, faWifi, faRedo, faCheckCircle, faWallet, faTimes, faChartPie,
 	faHdd, faFileContract, faWrench, faCogs, faSearch, faUnlock,
 	faDatabase, faPlus, faExpand, faTrash, faSync);
 
