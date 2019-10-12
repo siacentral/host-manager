@@ -33,7 +33,7 @@
 		<div class="contracts">
 			<empty-state v-if="filtered.length === 0" text="You have no contracts matching that filter" icon="file-contract" />
 			<div v-else class="grid-wrapper">
-				<contract-grid :contracts="pageContracts" :totals="totals" />
+				<contract-grid :contracts="pageContracts" :totals="totals" :sortColumn="sortColumn" :sortDescending="sortDescending" @sort="onSort" />
 			</div>
 		</div>
 		<div class="contracts-pagination">
@@ -47,13 +47,14 @@
 
 <script>
 import { mapState } from 'vuex';
+import log from 'electron-log';
 import BigNumber from 'bignumber.js';
 
 import FilterPanel from '@/components/contracts/FilterPanel';
 import ContractGrid from '@/components/contracts/ContractGrid';
 import EmptyState from '@/components/EmptyState';
 
-import { formatPriceString, formatByteString, formatShortDateString } from '@/utils/format';
+import { formatPriceString, formatByteString, formatShortDateString, formatFriendlyStatus } from '@/utils/format';
 import { writeConfig } from '@/utils';
 
 export default {
@@ -72,7 +73,9 @@ export default {
 			splitRevenue: false,
 			showUnused: false,
 			page: 0,
-			perPage: 50
+			perPage: 50,
+			sortColumn: 'expiration_height',
+			sortDescending: true
 		};
 	},
 	beforeMount() {
@@ -135,7 +138,7 @@ export default {
 				if (end > this.filtered.length)
 					end = this.filtered.length;
 
-				return `${start} - ${end} / ${this.filtered.length}`;
+				return `${start} - ${end}`;
 			}
 
 			return `${0} - ${this.filtered.length}`;
@@ -166,105 +169,172 @@ export default {
 	methods: {
 		formatByteString,
 		formatPriceString,
+		filterContracts() {
+			try {
+				const filter = this.config.contract_filter || {},
+					total = {
+						risked_collateral: new BigNumber(0),
+						locked_collateral: new BigNumber(0),
+						lost_collateral: new BigNumber(0),
+						download_revenue: new BigNumber(0),
+						upload_revenue: new BigNumber(0),
+						storage_revenue: new BigNumber(0),
+						potential_revenue: new BigNumber(0),
+						earned_revenue: new BigNumber(0),
+						lost_revenue: new BigNumber(0),
+						total_revenue: new BigNumber(0)
+					},
+					contracts = this.contracts.reduce((val, c) => {
+						let added = false;
+
+						if (filter.statuses.indexOf('unused') === -1 && c.tags.findIndex(t => t.text === 'Unused') !== -1)
+							return val;
+
+						if (filter.start_date && filter.start_date > c.expiration_timestamp)
+							return val;
+
+						if (filter.end_date && filter.end_date < c.expiration_timestamp)
+							return val;
+
+						if (filter.revenue_min && filter.revenue_min.gt(c.total_revenue))
+							return val;
+
+						if (filter.revenue_max && filter.revenue_max.lt(c.total_revenue))
+							return val;
+
+						if (filter.statuses.length === 1 && filter.statuses.indexOf('unused') !== -1 && c.tags.findIndex(t => t.text === 'Unused') !== -1) {
+							val.push(c);
+							added = true;
+						}
+
+						if (!added && filter.statuses.indexOf('active') !== -1 && c.status === 'obligationUnresolved') {
+							total.potential_revenue = total.potential_revenue.plus(c.total_revenue);
+							total.risked_collateral = total.risked_collateral.plus(c.risked_collateral);
+							total.locked_collateral = total.locked_collateral.plus(c.locked_collateral);
+
+							val.push(c);
+							added = true;
+						}
+
+						if (!added && filter.statuses.indexOf('successful') !== -1 && c.status === 'obligationSucceeded') {
+							total.earned_revenue = total.earned_revenue.plus(c.total_revenue);
+
+							val.push(c);
+							added = true;
+						}
+
+						if (!added && filter.statuses.indexOf('failed') !== -1 && c.status === 'obligationFailed') {
+							total.lost_revenue = total.lost_revenue.plus(c.total_revenue);
+							total.lost_collateral = total.lost_collateral.plus(c.burnt_collateral);
+
+							val.push(c);
+							added = true;
+						}
+
+						total.download_revenue = total.download_revenue.plus(c.download_revenue);
+						total.upload_revenue = total.upload_revenue.plus(c.upload_revenue);
+						total.storage_revenue = total.storage_revenue.plus(c.storage_revenue);
+						total.total_revenue = total.total_revenue.plus(c.total_revenue);
+
+						if (c.status === 'obligationUnresolved')
+							total.risked_collateral = total.risked_collateral.plus(c.risked_collateral);
+
+						return val;
+					}, []);
+
+				this.filtered = contracts;
+				this.totals = total;
+
+				this.sortContracts();
+			} catch (ex) {
+				log.error('onFilterContracts', ex.message);
+			}
+		},
+		sortContracts() {
+			console.log(this.sortColumn, this.sortDescending);
+
+			this.filtered.sort((a, b) => {
+				a = a[this.sortColumn];
+				b = b[this.sortColumn];
+
+				switch (this.sortColumn) {
+				case 'status':
+					a = formatFriendlyStatus(a).toLowerCase();
+					b = formatFriendlyStatus(b).toLowerCase();
+
+					if (a > b && this.sortDescending)
+						return -1;
+					else if (a > b)
+						return 1;
+
+					if (a < b && this.sortDescending)
+						return 1;
+					else if (a < b)
+						return -1;
+
+					return 0;
+				case 'block_height':
+				case 'expiration_height':
+				case 'storage_revenue':
+				case 'download_revenue':
+				case 'upload_revenue':
+				case 'total_revenue':
+					const agtB = a.gt(b);
+
+					if (agtB && this.sortDescending)
+						return -1;
+					else if (agtB)
+						return 1;
+
+					const altB = a.lt(b);
+
+					if (altB && this.sortDescending)
+						return 1;
+					else if (altB)
+						return -1;
+
+					return 0;
+				default:
+					return -1;
+				}
+			});
+		},
+		onSort(column) {
+			try {
+				if (this.sortColumn === column)
+					this.sortDescending = !this.sortDescending;
+				else
+					this.sortDescending = true;
+
+				this.sortColumn = column;
+				this.sortContracts();
+			} catch (ex) {
+				log.error('onSort', ex.message);
+			}
+		},
 		async onFilterClose() {
 			if (this.filterClosing)
 				return;
 
-			this.filterClosing = true;
-			await writeConfig(this.config);
-			this.filterClosing = false;
-			this.showFilter = false;
+			try {
+				this.filterClosing = true;
+				await writeConfig(this.config);
+			} catch (ex) {
+				log.error('onFilterClose', ex.message);
+			} finally {
+				this.filterClosing = false;
+				this.showFilter = false;
+			}
 		},
 		onFilterShow() {
-			if (this.filterClosing)
-				return;
+			try {
+				if (this.filterClosing)
+					return;
 
-			this.showFilter = true;
-		},
-		filterContracts() {
-			const filter = this.config.contract_filter || {},
-				total = {
-					risked_collateral: new BigNumber(0),
-					locked_collateral: new BigNumber(0),
-					lost_collateral: new BigNumber(0),
-					download_revenue: new BigNumber(0),
-					upload_revenue: new BigNumber(0),
-					storage_revenue: new BigNumber(0),
-					potential_revenue: new BigNumber(0),
-					earned_revenue: new BigNumber(0),
-					lost_revenue: new BigNumber(0),
-					total_revenue: new BigNumber(0)
-				},
-				contracts = this.contracts.reduce((val, c) => {
-					let added = false;
-
-					if (filter.statuses.indexOf('unused') === -1 && c.tags.findIndex(t => t.text === 'Unused') !== -1)
-						return val;
-
-					if (filter.start_date && filter.start_date > c.expiration_timestamp)
-						return val;
-
-					if (filter.end_date && filter.end_date < c.expiration_timestamp)
-						return val;
-
-					if (filter.revenue_min && filter.revenue_min.gt(c.total_revenue))
-						return val;
-
-					if (filter.revenue_max && filter.revenue_max.lt(c.total_revenue))
-						return val;
-
-					if (filter.statuses.length === 1 && filter.statuses.indexOf('unused') !== -1 && c.tags.findIndex(t => t.text === 'Unused') !== -1) {
-						val.push(c);
-						added = true;
-					}
-
-					if (!added && filter.statuses.indexOf('active') !== -1 && c.status === 'obligationUnresolved') {
-						total.potential_revenue = total.potential_revenue.plus(c.total_revenue);
-						total.risked_collateral = total.risked_collateral.plus(c.risked_collateral);
-						total.locked_collateral = total.locked_collateral.plus(c.locked_collateral);
-
-						val.push(c);
-						added = true;
-					}
-
-					if (!added && filter.statuses.indexOf('successful') !== -1 && c.status === 'obligationSucceeded') {
-						total.earned_revenue = total.earned_revenue.plus(c.total_revenue);
-
-						val.push(c);
-						added = true;
-					}
-
-					if (!added && filter.statuses.indexOf('failed') !== -1 && c.status === 'obligationFailed') {
-						total.lost_revenue = total.lost_revenue.plus(c.total_revenue);
-						total.lost_collateral = total.lost_collateral.plus(c.burnt_collateral);
-
-						val.push(c);
-						added = true;
-					}
-
-					total.download_revenue = total.download_revenue.plus(c.download_revenue);
-					total.upload_revenue = total.upload_revenue.plus(c.upload_revenue);
-					total.storage_revenue = total.storage_revenue.plus(c.storage_revenue);
-					total.total_revenue = total.total_revenue.plus(c.total_revenue);
-
-					if (c.status === 'obligationUnresolved')
-						total.risked_collateral = total.risked_collateral.plus(c.risked_collateral);
-
-					return val;
-				}, []);
-
-			contracts.sort((a, b) => {
-				if (a.expiration_height > b.expiration_height)
-					return -1;
-
-				if (a.expiration_height < b.expiration_height)
-					return 1;
-
-				return 0;
-			});
-
-			this.filtered = contracts;
-			this.totals = total;
+				this.showFilter = true;
+			} catch (ex) {
+				log.error('onFilterShow', ex.message);
+			}
 		}
 	},
 	watch: {

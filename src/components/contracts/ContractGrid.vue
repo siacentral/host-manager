@@ -2,13 +2,41 @@
 	<table>
 		<thead>
 			<tr>
-				<td>Expiration</td>
-				<td>Status</td>
-				<td>Risked Collateral</td>
-				<td>Storage Revenue</td>
-				<td>Download Revenue</td>
-				<td>Upload Revenue</td>
-				<td>Total Revenue</td>
+				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'block_height' }" @click="$emit('sort', 'block_height')">
+					Start Date
+					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'block_height'" />
+					<icon icon="chevron-down" v-else-if="sortColumn === 'block_height'" />
+				</td>
+				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'expiration_height' }" @click="$emit('sort', 'expiration_height')">
+					Expiration Date
+					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'expiration_height'" />
+					<icon icon="chevron-down" v-else-if="sortColumn === 'expiration_height'" />
+				</td>
+				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'status' }" @click="$emit('sort', 'status')">
+					Status
+					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'status'" />
+					<icon icon="chevron-down" v-else-if="sortColumn === 'status'" />
+				</td>
+				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'storage_revenue' }" @click="$emit('sort', 'storage_revenue')">
+					Storage Revenue
+					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'storage_revenue'" />
+					<icon icon="chevron-down" v-else-if="sortColumn === 'storage_revenue'" />
+				</td>
+				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'download_revenue' }" @click="$emit('sort', 'download_revenue')">
+					Download Revenue
+					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'download_revenue'" />
+					<icon icon="chevron-down" v-else-if="sortColumn === 'download_revenue'" />
+				</td>
+				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'upload_revenue' }" @click="$emit('sort', 'upload_revenue')">
+					Upload Revenue
+					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'upload_revenue'" />
+					<icon icon="chevron-down" v-else-if="sortColumn === 'upload_revenue'" />
+				</td>
+				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'total_revenue' }" @click="$emit('sort', 'total_revenue')">
+					Total Revenue
+					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'total_revenue'" />
+					<icon icon="chevron-down" v-else-if="sortColumn === 'total_revenue'" />
+				</td>
 				<td></td><td></td>
 			</tr>
 		</thead>
@@ -16,7 +44,7 @@
 			<tr class="total-row">
 				<td>Total</td>
 				<td></td>
-				<td>{{ formatPriceString(totals.risked_collateral) }}</td>
+				<td></td>
 				<td>{{ formatPriceString(totals.storage_revenue, 4) }}</td>
 				<td>{{ formatPriceString(totals.download_revenue, 4) }}</td>
 				<td>{{ formatPriceString(totals.upload_revenue, 4) }}</td>
@@ -24,10 +52,10 @@
 				<td></td><td></td>
 			</tr>
 			<tr v-for="contract in contracts" :key="contract.obligation_id">
+				<td v-if="contract.block_timestamp">{{ formatShortDateString(contract.block_timestamp) }}</td>
 				<td v-if="contract.expiration_height.minus(block.height).lt(0)">{{ formatShortDateString(contract.expiration_timestamp) }}</td>
-				<td v-else>{{ formatExpirationString(contract.expiration_height.minus(block.height)) }}</td>
-				<td>{{ getFriendlyStatus(contract.status) }}</td>
-				<td>{{ formatPriceString(contract.risked_collateral, 4) }}</td>
+				<td v-else>{{ formatShortDateString(contract.expiration_timestamp) }}</td>
+				<td>{{ formatFriendlyStatus(contract.status) }}</td>
 				<td>{{ formatPriceString(contract.storage_revenue, 4) }}</td>
 				<td>{{ formatPriceString(contract.download_revenue, 4) }}</td>
 				<td>{{ formatPriceString(contract.upload_revenue, 4) }}</td>
@@ -45,13 +73,15 @@
 
 <script>
 import { mapState } from 'vuex';
-import { formatPriceString, formatByteString, formatShortDateString, formatBlockTimeString } from '@/utils/format';
+import { formatPriceString, formatByteString, formatShortDateString, formatBlockTimeString, formatFriendlyStatus } from '@/utils/format';
 
 export default {
 	props: {
 		contracts: Array,
 		totals: Object,
-		splitRevenue: Boolean
+		splitRevenue: Boolean,
+		sortColumn: String,
+		sortDescending: Boolean
 	},
 	computed: {
 		...mapState(['block'])
@@ -60,6 +90,7 @@ export default {
 		formatPriceString,
 		formatByteString,
 		formatShortDateString,
+		formatFriendlyStatus,
 		formatExpirationString(blocks) {
 			if (blocks <= 0)
 				return 'Expired';
@@ -79,20 +110,6 @@ export default {
 
 			return classes;
 		},
-		getFriendlyStatus(status) {
-			switch (status) {
-			case 'obligationUnresolved':
-				return 'Active';
-			case 'obligationSucceeded':
-				return 'Successful';
-			case 'obligationFailed':
-				return 'Failed';
-			case 'obligationRejected':
-				return 'Rejected';
-			}
-
-			return 'Unknown';
-		},
 		getSiaStatsLink(contract) {
 			return `https://siastats.info/navigator?search=${contract.obligation_id}`;
 		}
@@ -101,6 +118,14 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+td.contracts-header {
+	cursor: pointer;
+
+	&.contracts-sort, &:hover {
+		color: primary;
+	}
+}
+
 a {
 	text-decoration: none;
 	font-size: 0.8rem;
