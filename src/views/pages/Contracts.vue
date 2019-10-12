@@ -1,135 +1,157 @@
 <template>
 	<div class="page page-contracts">
 		<div class="controls">
-			<div class="control control-inline">
-				<select v-model="filterMode">
-					<option value="obligationUnresolved">Active</option>
-					<option value="obligationSucceeded">Successful</option>
-					<option value="obligationFailed">Failed</option>
-				</select>
-			</div>
-			<div class="control control-inline">
-				<input type="checkbox" v-model="splitRevenue" id="chk-split-revenue" />
-				<label for="chk-split-revenue">Split Revenue</label>
-			</div>
-			<div class="control control-inline">
-				<input type="checkbox" v-model="showUnused" id="chk-show-unused" />
-				<label for="chk-show-unused">Show Unused</label>
-			</div>
+			<div>{{ filterText }}</div>
+			<button @click="onFilterShow" class="btn btn-inline" :disabled="filterClosing"><icon icon="filter" /> Filter</button>
 		</div>
-		<div class="display-grid grid-4">
-			<div class="grid-item">
-				<div class="item-title">Contract Count</div>
-				<div class="item-value">{{ filtered.length }}</div>
+		<div class="display-grid">
+			<div class="grid-item item-warning">
+				<div class="item-title">Potential Revenue</div>
+				<div class="item-value">{{ formatPriceString(totals.potential_revenue, 4) }}</div>
 			</div>
-			<template v-if="filterMode === 'obligationFailed'">
-				<div class="grid-item">
-					<div class="item-title">Lost Revenue</div>
-					<div class="item-value">{{ formatPriceString(stats.lost_revenue.total, 4) }}</div>
-				</div>
-				<div class="grid-item">
-					<div class="item-title">Last 30 Days</div>
-					<div class="item-value">
-						{{ formatPriceString(stats.lost_revenue.days_30, 4)  }}
-					</div>
-				</div>
-				<div class="grid-item">
-					<div class="item-title">Last 60 Days</div>
-					<div class="item-value">
-						{{ formatPriceString(stats.lost_revenue.days_60, 4)  }}
-					</div>
-				</div>
-			</template>
-			<template v-else-if="filterMode === 'obligationSucceeded'">
-				<div class="grid-item">
-					<div class="item-title">Earned Revenue</div>
-					<div class="item-value">{{ formatPriceString(stats.earned_revenue.total, 4) }}</div>
-				</div>
-				<div class="grid-item">
-					<div class="item-title">Last 30 Days</div>
-					<div class="item-value">
-						{{ formatPriceString(stats.earned_revenue.days_30, 4)  }}
-					</div>
-				</div>
-				<div class="grid-item">
-					<div class="item-title">Last 60 Days</div>
-					<div class="item-value">
-						{{ formatPriceString(stats.earned_revenue.days_60, 4)  }}
-					</div>
-				</div>
-			</template>
-			<template v-else>
-				<div class="grid-item">
-					<div class="item-title">Potential Revenue</div>
-					<div class="item-value">{{ formatPriceString(stats.potential_revenue.total, 4) }}</div>
-				</div>
-				<div class="grid-item">
-					<div class="item-title">Next 30 Days</div>
-					<div class="item-value">
-						{{ formatPriceString(stats.potential_revenue.days_30, 4)  }}
-					</div>
-				</div>
-				<div class="grid-item">
-					<div class="item-title">Next 60 Days</div>
-					<div class="item-value">
-						{{ formatPriceString(stats.potential_revenue.days_60, 4)  }}
-					</div>
-				</div>
-			</template>
+			<div class="grid-item">
+				<div class="item-title">Earned Revenue</div>
+				<div class="item-value">{{ formatPriceString(totals.earned_revenue, 4) }}</div>
+			</div>
+			<div class="grid-item item-negative">
+				<div class="item-title">Lost Revenue</div>
+				<div class="item-value">{{ formatPriceString(totals.lost_revenue, 4) }}</div>
+			</div>
+			<div class="grid-item item-warning">
+				<div class="item-title">Risked Collateral</div>
+				<div class="item-value">{{ formatPriceString(totals.risked_collateral, 4) }}</div>
+			</div>
+			<div class="grid-item">
+				<div class="item-title">Locked Collateral</div>
+				<div class="item-value">{{ formatPriceString(totals.locked_collateral, 4) }}</div>
+			</div>
+			<div class="grid-item item-negative">
+				<div class="item-title">Burnt Collateral</div>
+				<div class="item-value">{{ formatPriceString(totals.lost_collateral, 4) }}</div>
+			</div>
 		</div>
 		<div class="contracts">
 			<empty-state v-if="filtered.length === 0" text="You have no contracts matching that filter" icon="file-contract" />
 			<div v-else class="grid-wrapper">
-				<contract-grid :contracts="filtered" :filterMode="filterMode" :splitRevenue="splitRevenue" />
+				<contract-grid :contracts="pageContracts" :totals="totals" />
 			</div>
 		</div>
+		<div class="contracts-pagination">
+			<button class="btn btn-inline" @click="page -= 1" :disabled="page === 0 || filtered.length < perPage"><icon icon="chevron-left" /></button>
+			<div class="page-text">{{ pageText }}</div>
+			<button class="btn btn-inline" @click="page += 1" :disabled="perPage + (page * perPage) >= filtered.length || filtered.length < perPage"><icon icon="chevron-right" /></button>
+		</div>
+		<filter-panel v-if="showFilter" @close="onFilterClose" />
 	</div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
+import BigNumber from 'bignumber.js';
 
+import FilterPanel from '@/components/contracts/FilterPanel';
 import ContractGrid from '@/components/contracts/ContractGrid';
 import EmptyState from '@/components/EmptyState';
 
-import { formatPriceString, formatByteString } from '@/utils/format';
+import { formatPriceString, formatByteString, formatShortDateString } from '@/utils/format';
+import { writeConfig } from '@/utils';
 
 export default {
 	components: {
 		ContractGrid,
-		EmptyState
+		EmptyState,
+		FilterPanel
 	},
 	data() {
 		return {
+			showFilter: false,
+			filterClosing: false,
 			filterMode: 'obligationUnresolved',
+			filtered: [],
+			totals: {},
 			splitRevenue: false,
-			showUnused: false
+			showUnused: false,
+			page: 0,
+			perPage: 50
 		};
 	},
+	beforeMount() {
+		this.filterContracts();
+	},
 	computed: {
-		...mapState('hostContracts', ['contracts', 'stats']),
-		filtered() {
-			const contracts = this.contracts.filter(c => c.status === this.filterMode && (this.showUnused || !c.unused));
+		...mapState({
+			contracts: state => state.hostContracts.contracts,
+			stats: state => state.hostContracts.stats,
+			config: state => state.config
+		}),
+		filterText() {
+			const filter = this.config.contract_filter || {};
+			let statusFilter = '',
+				dateFilter = '',
+				valueFilter = '';
 
-			contracts.sort((a, b) => {
-				if (this.filterMode === 'obligationUnresolved') {
-					if (a.expiration_height > b.expiration_height)
-						return 1;
+			if (Array.isArray(filter.statuses) && filter.statuses.length !== 0) {
+				if (filter.statuses.length === 1)
+					statusFilter = `${filter.statuses[0]} contracts`;
+				else if (filter.statuses.length === 2)
+					statusFilter = `${filter.statuses[0]} and ${filter.statuses[1]} contracts`;
+				else
+					statusFilter = `${filter.statuses.slice(0, filter.statuses.length - 1).join(', ')}, and ${filter.statuses[filter.statuses.length - 1]} contracts`;
+			}
 
-					if (a.expiration_height < b.expiration_height)
-						return -1;
-				} else {
-					if (a.expiration_height < b.expiration_height)
-						return 1;
+			if (filter.start_date && filter.end_date) {
+				const start = formatShortDateString(filter.start_date),
+					end = formatShortDateString(filter.end_date);
 
-					if (a.expiration_height > b.expiration_height)
-						return -1;
-				}
+				if (start === end)
+					dateFilter = `on ${start}`;
+				else
+					dateFilter = `between ${start} and ${end}`;
+			} else if (filter.start_date)
+				dateFilter = `after ${formatShortDateString(filter.start_date)}`;
+			else if (filter.end_date)
+				dateFilter = `before ${formatShortDateString(filter.end_date)}`;
 
-				return 0;
-			});
+			if (filter.revenue_min && filter.revenue_max) {
+				const min = formatPriceString(filter.revenue_min),
+					max = formatPriceString(filter.revenue_max);
 
-			return contracts;
+				if (min === max)
+					valueFilter = `with revenue equal to ${min}`;
+				else
+					valueFilter = `with revenue between ${min} and ${max}`;
+			} else if (filter.revenue_min)
+				valueFilter = `with revenue greater than ${formatPriceString(filter.revenue_min)}`;
+			else if (filter.revenue_max)
+				valueFilter = `with revenue less than ${formatPriceString(filter.revenue_max)}`;
+
+			return `Showing ${this.filtered.length} ${statusFilter} ${dateFilter} ${valueFilter}`;
+		},
+		pageText() {
+			if (this.filtered.length > this.perPage) {
+				let start = this.page * this.perPage,
+					end = start + this.perPage;
+
+				if (end > this.filtered.length)
+					end = this.filtered.length;
+
+				return `${start} - ${end} / ${this.filtered.length}`;
+			}
+
+			return `${0} - ${this.filtered.length}`;
+		},
+		pageContracts() {
+			if (this.filtered.length > this.perPage) {
+				let start = this.page * this.perPage,
+					end = start + this.perPage;
+
+				if (end >= this.filtered.length)
+					end = this.filtered.length;
+
+				return this.filtered.slice(start, end);
+			}
+
+			return this.filtered;
 		},
 		successRate() {
 			const num = this.stats.contracts.successful;
@@ -138,20 +160,143 @@ export default {
 			if (denom <= 0)
 				denom = 1;
 
-			return `${Math.ceil((num / denom) * 100)}%`;
+			return `${Math.ceil((num / denom) * this.perPage)}%`;
 		}
 	},
 	methods: {
 		formatByteString,
-		formatPriceString
+		formatPriceString,
+		async onFilterClose() {
+			if (this.filterClosing)
+				return;
+
+			this.filterClosing = true;
+			await writeConfig(this.config);
+			this.filterClosing = false;
+			this.showFilter = false;
+		},
+		onFilterShow() {
+			if (this.filterClosing)
+				return;
+
+			this.showFilter = true;
+		},
+		filterContracts() {
+			const filter = this.config.contract_filter || {},
+				total = {
+					risked_collateral: new BigNumber(0),
+					locked_collateral: new BigNumber(0),
+					lost_collateral: new BigNumber(0),
+					download_revenue: new BigNumber(0),
+					upload_revenue: new BigNumber(0),
+					storage_revenue: new BigNumber(0),
+					potential_revenue: new BigNumber(0),
+					earned_revenue: new BigNumber(0),
+					lost_revenue: new BigNumber(0),
+					total_revenue: new BigNumber(0)
+				},
+				contracts = this.contracts.reduce((val, c) => {
+					let added = false;
+
+					if (filter.statuses.indexOf('unused') === -1 && c.tags.findIndex(t => t.text === 'Unused') !== -1)
+						return val;
+
+					if (filter.start_date && filter.start_date > c.expiration_timestamp)
+						return val;
+
+					if (filter.end_date && filter.end_date < c.expiration_timestamp)
+						return val;
+
+					if (filter.revenue_min && filter.revenue_min.gt(c.total_revenue))
+						return val;
+
+					if (filter.revenue_max && filter.revenue_max.lt(c.total_revenue))
+						return val;
+
+					if (filter.statuses.length === 1 && filter.statuses.indexOf('unused') !== -1 && c.tags.findIndex(t => t.text === 'Unused') !== -1) {
+						val.push(c);
+						added = true;
+					}
+
+					if (!added && filter.statuses.indexOf('active') !== -1 && c.status === 'obligationUnresolved') {
+						total.potential_revenue = total.potential_revenue.plus(c.total_revenue);
+						total.risked_collateral = total.risked_collateral.plus(c.risked_collateral);
+						total.locked_collateral = total.locked_collateral.plus(c.locked_collateral);
+
+						val.push(c);
+						added = true;
+					}
+
+					if (!added && filter.statuses.indexOf('successful') !== -1 && c.status === 'obligationSucceeded') {
+						total.earned_revenue = total.earned_revenue.plus(c.total_revenue);
+
+						val.push(c);
+						added = true;
+					}
+
+					if (!added && filter.statuses.indexOf('failed') !== -1 && c.status === 'obligationFailed') {
+						total.lost_revenue = total.lost_revenue.plus(c.total_revenue);
+						total.lost_collateral = total.lost_collateral.plus(c.burnt_collateral);
+
+						val.push(c);
+						added = true;
+					}
+
+					total.download_revenue = total.download_revenue.plus(c.download_revenue);
+					total.upload_revenue = total.upload_revenue.plus(c.upload_revenue);
+					total.storage_revenue = total.storage_revenue.plus(c.storage_revenue);
+					total.total_revenue = total.total_revenue.plus(c.total_revenue);
+
+					if (c.status === 'obligationUnresolved')
+						total.risked_collateral = total.risked_collateral.plus(c.risked_collateral);
+
+					return val;
+				}, []);
+
+			contracts.sort((a, b) => {
+				if (a.expiration_height > b.expiration_height)
+					return -1;
+
+				if (a.expiration_height < b.expiration_height)
+					return 1;
+
+				return 0;
+			});
+
+			this.filtered = contracts;
+			this.totals = total;
+		}
+	},
+	watch: {
+		config() {
+			this.filterContracts();
+		},
+		contracts() {
+			this.filterContracts();
+		},
+		filtered() {
+			if (this.page * this.perPage >= this.filtered.length)
+				this.page = 0;
+		},
+		page() {
+			console.log(this.page);
+		}
 	}
 };
 </script>
 
 <style lang="stylus" scoped>
 .controls {
+	display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+	grid-gap: 15px;
+    justify-content: space-between;
+    align-items: center;
 	padding: 15px;
-	text-align: right;
+
+	button {
+		margin: 0;
+	}
 
 	.control {
 		margin-right: 15px;
@@ -164,7 +309,7 @@ export default {
 }
 .page-contracts {
 	display: grid;
-	grid-template-rows: auto auto minmax(0, 1fr);
+	grid-template-rows: auto auto minmax(0, 1fr) auto;
 	grid-template-columns: 100%;
 	grid-gap: 0;
 	overflow: hidden;
@@ -179,6 +324,38 @@ export default {
 		height: 100%;
 		overflow: auto;
 	}
+}
+
+.contracts-pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 15px;
+
+	.btn.btn {
+		margin: 0;
+
+		> svg {
+			margin: 0;
+		}
+	}
+
+	.page-text {
+		margin: 0 15px;
+	}
+}
+
+.slide-left-enter-active {
+	transition: all .5s ease;
+}
+
+.slide-left-leave-active {
+	transition: all .5s ease;
+}
+
+.slide-left-enter, .slide-left-leave-to {
+	transform: translateX(300px);
+	opacity: 0;
 }
 
 </style>
