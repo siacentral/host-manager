@@ -7,7 +7,7 @@
 		<donut-graph class="graph" :data="contractsGraph" :defaultIndex="0" icon="file-contract" />
 		<donut-graph class="graph" :data="storageGraph" :defaultIndex="0" icon="hdd" />
 		<div class="display-grid">
-			<div class="grid-item">
+			<div class="grid-item item-warning">
 				<div class="item-title">Potential Revenue</div>
 				<div class="item-value">{{ formatPriceString(contractStats.potential_revenue.total, 4) }}</div>
 			</div>
@@ -19,7 +19,7 @@
 				<div class="item-title">Lost Revenue</div>
 				<div class="item-value">{{ formatPriceString(contractStats.lost_revenue.total, 4) }}</div>
 			</div>
-			<div class="grid-item">
+			<div class="grid-item item-warning">
 				<div class="item-title">Risked Collateral</div>
 				<div class="item-value">{{ formatPriceString(contractStats.risked_collateral, 4) }}</div>
 			</div>
