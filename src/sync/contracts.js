@@ -54,7 +54,8 @@ function mergeContracts(chain, sia) {
 	chain.download_revenue = new BigNumber(sia.potentialdownloadrevenue);
 	chain.upload_revenue = new BigNumber(sia.potentialuploadrevenue);
 	chain.storage_revenue = new BigNumber(sia.potentialstoragerevenue);
-	chain.total_revenue = chain.storage_revenue.plus(chain.download_revenue).plus(chain.upload_revenue);
+	chain.total_revenue = chain.storage_revenue.plus(chain.download_revenue)
+		.plus(chain.upload_revenue).plus(chain.contract_cost);
 	chain.locked_collateral = new BigNumber(sia.lockedcollateral);
 	chain.risked_collateral = new BigNumber(sia.riskedcollateral);
 	chain.burnt_collateral = new BigNumber(chain.missed_proof_outputs[2].value);
