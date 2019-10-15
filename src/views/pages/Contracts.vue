@@ -1,8 +1,9 @@
 <template>
 	<div class="page page-contracts">
 		<div class="controls">
-			<div>{{ filterText }}</div>
-			<button @click="onFilterShow" class="btn btn-inline" :disabled="filterClosing"><icon icon="filter" /> Filter</button>
+			<div class="filter-text">{{ filterText }}</div>
+			<button @click="onExport" class="btn btn-inline" :disabled="filterClosing || exporting"><icon icon="download" /> Export</button>
+			<button @click="onFilterShow" class="btn btn-inline" :disabled="filterClosing || exporting"><icon icon="filter" /> Filter</button>
 		</div>
 		<div class="display-grid">
 			<div class="grid-item item-warning">
@@ -67,11 +68,9 @@ export default {
 		return {
 			showFilter: false,
 			filterClosing: false,
-			filterMode: 'obligationUnresolved',
+			exporting: false,
 			filtered: [],
 			totals: {},
-			splitRevenue: false,
-			showUnused: false,
 			page: 0,
 			perPage: 50,
 			sortColumn: 'expiration_height',
@@ -251,8 +250,6 @@ export default {
 			}
 		},
 		sortContracts() {
-			console.log(this.sortColumn, this.sortDescending);
-
 			this.filtered.sort((a, b) => {
 				a = a[this.sortColumn];
 				b = b[this.sortColumn];
@@ -298,6 +295,18 @@ export default {
 					return -1;
 				}
 			});
+		},
+		async onExport() {
+			if (this.exporting)
+				return;
+
+			try {
+				this.exporting = true;
+			} catch (ex) {
+				log.error('onExport', ex.message);
+			} finally {
+				this.exporting = false;
+			}
 		},
 		onSort(column) {
 			try {
@@ -357,15 +366,23 @@ export default {
 
 <style lang="stylus" scoped>
 .controls {
-	display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-	grid-gap: 15px;
+	display: flex;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     justify-content: space-between;
     align-items: center;
 	padding: 15px;
 
+	.filter-text {
+		flex: 1;
+	}
+
 	button {
 		margin: 0;
+		margin-right: 15px;
+
+		&:last-child {
+			margin: 0;
+		}
 	}
 
 	.control {
