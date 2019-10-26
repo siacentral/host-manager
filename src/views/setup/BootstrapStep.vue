@@ -187,11 +187,11 @@ export default {
 
 				try {
 					await fs.promises.unlink(tempPath);
+					// windows throws an error when mkdir on a root path. we should ignore that error
+					await fs.promises.mkdir(this.config.siad_data_path, {
+						recursive: true
+					});
 				} catch (ex) {}
-
-				await fs.promises.mkdir(this.config.siad_data_path, {
-					recursive: true
-				});
 
 				const out = fs.createWriteStream(tempPath);
 
