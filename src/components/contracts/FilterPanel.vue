@@ -26,6 +26,7 @@
 						<button class="btn btn-inline" @click="setDatePreset('today')">Today</button>
 						<button class="btn btn-inline" @click="setDatePreset('week')">This Week</button>
 						<button class="btn btn-inline" @click="setDatePreset('month')">This Month</button>
+						<button class="btn btn-inline" @click="setDatePreset('year')">This Year</button>
 					</div>
 					<div class="control control-split">
 						<input type="date" v-model="startDateStr" />
@@ -145,6 +146,12 @@ export default {
 				end = new Date();
 
 			switch (preset) {
+			case 'year':
+				start.setMonth(0, 1);
+				start.setHours(0, 0, 0, 0);
+				end.setFullYear(start.getFullYear() + 1, 0, 1);
+				end.setHours(0, 0, 0, -1);
+				break;
 			case 'month':
 				start.setDate(1);
 				start.setHours(0, 0, 0, 0);
@@ -325,6 +332,12 @@ export default {
 
 .filter-presets {
 	margin-bottom: 10px;
+
+	.btn {
+		font-size: 0.9rem;
+		padding: 5px 8px;
+		margin: 0 8px 10px 0;
+	}
 }
 
 .control {
