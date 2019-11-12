@@ -305,8 +305,6 @@ export default {
 			try {
 				this.exporting = true;
 
-				console.log(this.filtered[0]);
-
 				const filePath = await showSaveDialogAsync({
 					title: 'Export Contracts',
 					defaultPath: 'contracts.csv',
