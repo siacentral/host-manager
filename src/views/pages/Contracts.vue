@@ -48,15 +48,17 @@
 
 <script>
 import { mapState } from 'vuex';
+import { promises as fs } from 'fs';
 import log from 'electron-log';
 import BigNumber from 'bignumber.js';
+import { EOL } from 'os';
 
 import FilterPanel from '@/components/contracts/FilterPanel';
 import ContractGrid from '@/components/contracts/ContractGrid';
 import EmptyState from '@/components/EmptyState';
 
 import { formatPriceString, formatByteString, formatShortDateString, formatFriendlyStatus } from '@/utils/format';
-import { writeConfig } from '@/utils';
+import { writeConfig, showSaveDialogAsync } from '@/utils';
 
 export default {
 	components: {
@@ -74,7 +76,7 @@ export default {
 			page: 0,
 			perPage: 50,
 			sortColumn: 'expiration_height',
-			sortDescending: true
+			sortDescending: false
 		};
 	},
 	beforeMount() {
@@ -302,6 +304,49 @@ export default {
 
 			try {
 				this.exporting = true;
+
+				console.log(this.filtered[0]);
+
+				const filePath = await showSaveDialogAsync({
+					title: 'Export Contracts',
+					defaultPath: 'contracts.csv',
+					buttonLabel: 'Export',
+					filters: [
+						{ name: 'CSV', extensions: ['csv'] },
+						{ name: 'All Files', extensions: ['*'] }
+					]
+				});
+
+				if (!filePath)
+					return;
+
+				const csv = [['"Contract ID"', '"Status"', '"Start Date"', '"End Date"', '"Proof Deadline"',
+					'"Locked Collateral"', '"Risked Collateral"', '"Contract Cost"', '"Transaction Fees"',
+					'"Storage Revenue"', '"Upload Revenue"', '"Download Revenue"', '"Total Revenue"',
+					'Tags'].join(',')];
+
+				this.filtered.forEach(c => {
+					const row = [
+						`"${c.obligation_id}"`,
+						`"${formatFriendlyStatus(c.status)}"`,
+						`"${formatShortDateString(c.block_timestamp)}"`,
+						`"${formatShortDateString(c.expiration_timestamp)}"`,
+						`"${formatShortDateString(c.proof_deadline_timestamp)}"`,
+						`${c.locked_collateral.toString(10)}`,
+						`${c.risked_collateral.toString(10)}`,
+						`${c.contract_cost.toString(10)}`,
+						`${c.transaction_fees.toString(10)}`,
+						`${c.storage_revenue.toString(10)}`,
+						`${c.upload_revenue.toString(10)}`,
+						`${c.download_revenue.toString(10)}`,
+						`${c.total_revenue.toString(10)}`,
+						`"${c.tags.join(', ')}"`
+					];
+
+					csv.push(row.join(','));
+				});
+
+				await fs.writeFile(filePath, csv.join(EOL));
 			} catch (ex) {
 				log.error('onExport', ex.message);
 			} finally {
