@@ -3,8 +3,11 @@ import { BigNumber } from 'bignumber.js';
 import Store from '@/store';
 
 export function parseNumberString(str, mul, units) {
-	const unit = str.replace(/[^a-z]/gi, '');
-	let num = new BigNumber(str.replace(/[^0-9.]/g, ''), 10),
+	const unit = str.replace(/[^a-z]/gi, ''),
+		decimalSep = (1.1).toLocaleString().substring(1, 2),
+		repRegex = new RegExp(`[^0-9${decimalSep}]`, 'g');
+
+	let num = new BigNumber(str.replace(repRegex, '').replace(decimalSep, '.'), 10),
 		found = false;
 
 	if (num.isNaN())
