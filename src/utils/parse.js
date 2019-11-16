@@ -62,16 +62,8 @@ export function parseCurrencyString(str, currency) {
 
 	const price = Store.state.coinPrice[currency];
 
-	if (price) {
-		str = (str || '').replace(/[^0-9.]/gi, '');
-
-		if (!str || str.length === 0 || !isFinite(str))
-			str = '0';
-
-		const val = new BigNumber(str).div(price).times(1e24);
-
-		return val;
-	}
+	if (price)
+		return parseNumberString(str, 1).div(price).times(1e24);
 
 	return parseSiacoinString(str);
 }
