@@ -399,9 +399,6 @@ export default {
 		filtered() {
 			if (this.page * this.perPage >= this.filtered.length)
 				this.page = 0;
-		},
-		page() {
-			console.log(this.page);
 		}
 	}
 };
