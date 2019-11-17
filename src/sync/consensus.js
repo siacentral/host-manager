@@ -98,15 +98,9 @@ export async function checkConsensusSync() {
 
 export async function refreshLastBlock() {
 	try {
-		const resp = await getBlock();
-		let height = 0;
+		const block = await getBlock();
 
-		if (resp.body.type === 'success')
-			height = resp.body.height;
-
-		finalBlock = height;
-
-		Store.dispatch('setLastBlock', height);
+		Store.dispatch('setLastBlock', block.height);
 	} catch (ex) {
 		log.error('refreshLastBlock', ex.message);
 	}

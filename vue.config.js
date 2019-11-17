@@ -1,10 +1,5 @@
 const path = require('path');
 
-if (process.env.API_ENV === 'local')
-	process.env.VUE_APP_API_BASE_URL = 'http://localhost:8081/api/v1';
-else
-	process.env.VUE_APP_API_BASE_URL = 'https://api.siacentral.com/api/v1';
-
 module.exports = {
 	parallel: false,
 	chainWebpack: config => {

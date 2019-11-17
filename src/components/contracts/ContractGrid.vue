@@ -2,10 +2,10 @@
 	<table>
 		<thead>
 			<tr>
-				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'block_height' }" @click="$emit('sort', 'block_height')">
+				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'negotiation_height' }" @click="$emit('sort', 'negotiation_height')">
 					Start Date
-					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'block_height'" />
-					<icon icon="chevron-down" v-else-if="sortColumn === 'block_height'" />
+					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'negotiation_height'" />
+					<icon icon="chevron-down" v-else-if="sortColumn === 'negotiation_height'" />
 				</td>
 				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'expiration_height' }" @click="$emit('sort', 'expiration_height')">
 					Expiration Date
@@ -52,9 +52,8 @@
 				<td></td><td></td>
 			</tr>
 			<tr v-for="contract in contracts" :key="contract.obligation_id">
-				<td v-if="contract.block_timestamp">{{ formatShortDateString(contract.block_timestamp) }}</td>
-				<td v-if="contract.expiration_height.minus(block.height).lt(0)">{{ formatShortDateString(contract.expiration_timestamp) }}</td>
-				<td v-else>{{ formatShortDateString(contract.expiration_timestamp) }}</td>
+				<td>{{ formatShortDateString(contract.negotation_timestamp) }}</td>
+				<td>{{ formatShortDateString(contract.expiration_timestamp) }}</td>
 				<td>{{ formatFriendlyStatus(contract.status) }}</td>
 				<td>{{ formatPriceString(contract.storage_revenue, 4) }}</td>
 				<td>{{ formatPriceString(contract.download_revenue, 4) }}</td>

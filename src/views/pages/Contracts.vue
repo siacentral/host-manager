@@ -188,7 +188,7 @@ export default {
 					contracts = this.contracts.reduce((val, c) => {
 						let added = false;
 
-						if (filter.statuses.indexOf('unused') === -1 && c.tags.findIndex(t => t.text === 'Unused') !== -1)
+						if (filter.statuses.indexOf('unused') === -1 && c.unused)
 							return val;
 
 						if (filter.start_date && filter.start_date > c.expiration_timestamp)
@@ -203,7 +203,7 @@ export default {
 						if (filter.revenue_max && filter.revenue_max.lt(c.total_revenue))
 							return val;
 
-						if (filter.statuses.length === 1 && filter.statuses.indexOf('unused') !== -1 && c.tags.findIndex(t => t.text === 'Unused') !== -1) {
+						if (filter.statuses.length === 1 && filter.statuses.indexOf('unused') !== -1 && c.unused) {
 							val.push(c);
 							added = true;
 						}
@@ -253,6 +253,7 @@ export default {
 		},
 		sortContracts() {
 			this.filtered.sort((a, b) => {
+				console.log(this.sortColumn);
 				a = a[this.sortColumn];
 				b = b[this.sortColumn];
 
@@ -272,8 +273,20 @@ export default {
 						return -1;
 
 					return 0;
-				case 'block_height':
+				case 'negotiation_height':
 				case 'expiration_height':
+					console.log(a, b);
+					if (a > b && this.sortDescending)
+						return -1;
+					else if (a > b)
+						return 1;
+
+					if (a < b && this.sortDescending)
+						return 1;
+					else if (a < b)
+						return -1;
+
+					return 0;
 				case 'storage_revenue':
 				case 'download_revenue':
 				case 'upload_revenue':
