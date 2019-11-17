@@ -27,7 +27,7 @@ export async function sendJSONRequest(url, opts) {
 
 			try {
 				r.body = JSON.parse(body);
-			} catch (ex) {}
+			} catch (ex) { }
 
 			if (r.statusCode >= 200 && r.statusCode < 300)
 				r.statusCode = 200;
@@ -80,24 +80,38 @@ export default class SiaApiClient {
 	}
 
 	async walletUnlockConditions(addr) {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/unlockconditions/${addr}`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/unlockconditions/${addr}`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async checkCredentials() {
 		try {
 			// hard coded address doesn't matter since we just want to check the API credentials
-			const resp = await this.walletUnlockConditions('2d6c6d705c80f17448d458e47c3fb1a02a24e018a82d702cda35262085a3167d98cc7a2ba339');
+			const apiPassword = await this.getDefaultAPIPassword(),
+				resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/unlockconditions/2d6c6d705c80f17448d458e47c3fb1a02a24e018a82d702cda35262085a3167d98cc7a2ba339`, {
+					method: 'GET',
+					headers: {
+						'User-Agent': this.config.siad_api_agent
+					},
+					auth: {
+						username: '',
+						password: apiPassword
+					}
+				});
 
 			if (resp.statusCode === 200)
 				return true;
@@ -115,269 +129,344 @@ export default class SiaApiClient {
 	}
 
 	async getDaemonVersion() {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/daemon/version`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/daemon/version`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async stopDaemon() {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/daemon/stop`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/daemon/stop`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async getConsensus() {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/consensus`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/consensus`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async getBlock(height) {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/consensus/blocks?height=${height}`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/consensus/blocks?height=${height}`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
+	}
+
+	async getLastBlock() {
+		const consensus = await this.getConsensus();
+
+		return this.getBlock(consensus.height);
 	}
 
 	async getGateway() {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/gateway`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/gateway`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async getHostDB() {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/hostdb`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/hostdb`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async getHost() {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/host`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/host`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async getHostContracts() {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/host/contracts`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/host/contracts`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async getHostStorage() {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/host/storage`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/host/storage`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async getTransactionpoolFee() {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/tpool/fee`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/tpool/fee`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
+
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async getWallet() {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/wallet`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async createWalletAddress() {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/address`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/address`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async getWalletAddresses(count) {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/seedaddrs?count=${count}`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/seedaddrs?count=${count}`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async unlockWallet(encryptionpassword) {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/unlock`, {
+				method: 'POST',
+				timeout: 10000,
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				},
+				form: {
+					encryptionpassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/unlock`, {
-			method: 'POST',
-			timeout: 10000,
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			},
-			form: {
-				encryptionpassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async createWallet(encryptionpassword) {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/init`, {
+				method: 'POST',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				},
+				form: {
+					encryptionpassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/init`, {
-			method: 'POST',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			},
-			form: {
-				encryptionpassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async recoverWallet(seed, encryptionpassword) {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/init/seed`, {
+				method: 'POST',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				},
+				form: {
+					encryptionpassword,
+					seed
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/wallet/init/seed`, {
-			method: 'POST',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			},
-			form: {
-				encryptionpassword,
-				seed
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async getTPoolFees() {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/tpool/fee`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/tpool/fee`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async announceHost(address) {
@@ -388,7 +477,7 @@ export default class SiaApiClient {
 		if (address && typeof address === 'string')
 			form.netaddress = address;
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/host/announce`, {
+		const resp = await sendJSONRequest(`${this.config.siad_api_addr}/host/announce`, {
 			method: 'POST',
 			headers: {
 				'User-Agent': this.config.siad_api_agent
@@ -399,60 +488,77 @@ export default class SiaApiClient {
 			},
 			form
 		});
+
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async updateHost(config) {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/host`, {
+				method: 'POST',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				},
+				form: config
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/host`, {
-			method: 'POST',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			},
-			form: config
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async addStorageFolder(path, size) {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/host/storage/folders/add`, {
+				method: 'POST',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				},
+				form: {
+					path,
+					size: size.toString(10)
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/host/storage/folders/add`, {
-			method: 'POST',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			},
-			form: {
-				path,
-				size: size.toString(10)
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async resizeStorageFolder(path, size) {
-		const apiPassword = await this.getDefaultAPIPassword();
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/host/storage/folders/resize`, {
+				method: 'POST',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				},
+				form: {
+					path,
+					newsize: size.toString(10)
+				}
+			});
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/host/storage/folders/resize`, {
-			method: 'POST',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			},
-			form: {
-				path,
-				newsize: size.toString(10)
-			}
-		});
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 
 	async removeStorageFolder(path, force) {
@@ -465,7 +571,7 @@ export default class SiaApiClient {
 		if (force && typeof force === 'boolean')
 			form.force = 'true';
 
-		return sendJSONRequest(`${this.config.siad_api_addr}/host/storage/folders/remove`, {
+		const resp = await sendJSONRequest(`${this.config.siad_api_addr}/host/storage/folders/remove`, {
 			method: 'POST',
 			headers: {
 				'User-Agent': this.config.siad_api_agent
@@ -476,5 +582,10 @@ export default class SiaApiClient {
 			},
 			form
 		});
+
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
 	}
 }
