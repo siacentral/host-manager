@@ -280,17 +280,9 @@ export default {
 			try {
 				this.updating = true;
 
-				const client = new SiaApiClient(this.appConfig),
-					resp = await client.updateHost(this.config);
+				const client = new SiaApiClient(this.appConfig);
 
-				if (resp.statusCode !== 200) {
-					this.pushNotification({
-						message: resp.body.message,
-						icon: 'cogs',
-						style: 'danger'
-					});
-					return;
-				}
+				await client.updateHost(this.config);
 
 				const configPins = { ...this.appConfig.host_pricing_pins };
 

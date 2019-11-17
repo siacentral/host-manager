@@ -64,12 +64,9 @@ export default {
 				if (this.validateName !== this.folder.path)
 					return;
 
-				const client = new SiaApiClient(this.config),
-					resp = await client.removeStorageFolder(this.folder.path, this.forceDelete);
+				const client = new SiaApiClient(this.config);
 
-				if (resp.statusCode !== 200)
-					throw new Error(resp.body.message);
-
+				await client.removeStorageFolder(this.folder.path, this.forceDelete);
 				await refreshHostStorage();
 
 				this.pushNotification({

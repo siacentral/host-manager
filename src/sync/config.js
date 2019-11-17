@@ -6,13 +6,10 @@ import Store from '@/store';
 
 export async function refreshHostConfig() {
 	try {
-		const resp = await apiClient.getHost(),
+		const host = await apiClient.getHost(),
 			alerts = [];
 
-		if (resp.statusCode !== 200)
-			throw new Error(resp.body.message || 'unable to load host config');
-
-		if (!resp.body.internalsettings.acceptingcontracts) {
+		if (!host.internalsettings.acceptingcontracts) {
 			alerts.push({
 				severity: 'warning',
 				category: 'configuration',
@@ -21,8 +18,8 @@ export async function refreshHostConfig() {
 			});
 		}
 
-		const lockedCollateral = new BigNumber(resp.body.financialmetrics.lockedstoragecollateral),
-			collateralBudget = new BigNumber(resp.body.internalsettings.collateralbudget).times(0.9);
+		const lockedCollateral = new BigNumber(host.financialmetrics.lockedstoragecollateral),
+			collateralBudget = new BigNumber(host.internalsettings.collateralbudget).times(0.9);
 
 		if (lockedCollateral.gte(collateralBudget)) {
 			alerts.push({
@@ -33,24 +30,24 @@ export async function refreshHostConfig() {
 			});
 		}
 
-		Store.dispatch('setNetAddress', resp.body.externalsettings.netaddress);
+		Store.dispatch('setNetAddress', host.externalsettings.netaddress);
 		Store.dispatch('hostConfig/setAlerts', alerts);
 		Store.dispatch('hostConfig/setConfig', {
-			acceptingcontracts: resp.body.internalsettings.acceptingcontracts,
-			netaddress: resp.body.internalsettings.netaddress,
-			maxduration: resp.body.internalsettings.maxduration,
-			windowsize: resp.body.internalsettings.windowsize,
-			maxrevisebatchsize: new BigNumber(resp.body.internalsettings.maxrevisebatchsize),
-			maxdownloadbatchsize: new BigNumber(resp.body.internalsettings.maxdownloadbatchsize),
-			mincontractprice: new BigNumber(resp.body.internalsettings.mincontractprice),
-			mindownloadbandwidthprice: new BigNumber(resp.body.internalsettings.mindownloadbandwidthprice),
-			minuploadbandwidthprice: new BigNumber(resp.body.internalsettings.minuploadbandwidthprice),
-			minstorageprice: new BigNumber(resp.body.internalsettings.minstorageprice),
-			collateral: new BigNumber(resp.body.internalsettings.collateral),
-			maxcollateral: new BigNumber(resp.body.internalsettings.maxcollateral),
-			collateralbudget: new BigNumber(resp.body.internalsettings.collateralbudget),
-			minbaserpcprice: new BigNumber(resp.body.internalsettings.minbaserpcprice),
-			minsectoraccessprice: new BigNumber(resp.body.internalsettings.minsectoraccessprice)
+			acceptingcontracts: host.internalsettings.acceptingcontracts,
+			netaddress: host.internalsettings.netaddress,
+			maxduration: host.internalsettings.maxduration,
+			windowsize: host.internalsettings.windowsize,
+			maxrevisebatchsize: new BigNumber(host.internalsettings.maxrevisebatchsize),
+			maxdownloadbatchsize: new BigNumber(host.internalsettings.maxdownloadbatchsize),
+			mincontractprice: new BigNumber(host.internalsettings.mincontractprice),
+			mindownloadbandwidthprice: new BigNumber(host.internalsettings.mindownloadbandwidthprice),
+			minuploadbandwidthprice: new BigNumber(host.internalsettings.minuploadbandwidthprice),
+			minstorageprice: new BigNumber(host.internalsettings.minstorageprice),
+			collateral: new BigNumber(host.internalsettings.collateral),
+			maxcollateral: new BigNumber(host.internalsettings.maxcollateral),
+			collateralbudget: new BigNumber(host.internalsettings.collateralbudget),
+			minbaserpcprice: new BigNumber(host.internalsettings.minbaserpcprice),
+			minsectoraccessprice: new BigNumber(host.internalsettings.minsectoraccessprice)
 		});
 	} catch (ex) {
 		log.error('refreshHostConfig', ex.message);

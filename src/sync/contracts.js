@@ -3,7 +3,7 @@ import { BigNumber } from 'bignumber.js';
 
 import Store from '@/store';
 import { apiClient } from './index';
-import { getBlock, getBlocks } from '@/api/siacentral';
+import { getBlocks } from '@/api/siacentral';
 import { formatPriceString, formatFriendlyStatus } from '@/utils/format';
 
 export async function refreshHostContracts() {
@@ -161,12 +161,14 @@ export async function parseHostContracts() {
 	};
 
 	try {
-		const currentBlock = await getBlock(),
+		const currentBlock = await apiClient.getLastBlock(),
 			alerts = [],
 			invalidStatusMap = {},
 			requiredBlocks = [];
 
-		const filtered = (await loadHostContracts()).reduce((confirmed, c) => {
+		currentBlock.timestamp = new Date(currentBlock.timestamp * 1000);
+
+		const filtered = (await apiClient.getHostContracts()).contracts.reduce((confirmed, c) => {
 			if ((!c.originconfirmed && !c.proofconfirmed && !c.revisionconfirmed) || !c.transactionid || c.transactionid.length === 0)
 				return confirmed;
 
@@ -251,7 +253,10 @@ export async function parseHostContracts() {
 				expirationBlock = blockMap[contract.expiration_height],
 				proofDeadlineBlock = blockMap[contract.proof_deadline];
 
-			contract.negotation_timestamp = new Date(negotiationBlock.timestamp);
+			if (negotiationBlock)
+				contract.negotation_timestamp = new Date(negotiationBlock.timestamp);
+			else
+				contract.negotation_timestamp = calcBlockTimestamp(currentBlock, contract.negotiation_height);
 
 			if (expirationBlock)
 				contract.expiration_timestamp = new Date(expirationBlock.timestamp);
@@ -316,13 +321,4 @@ export async function parseHostContracts() {
 	} finally {
 		Store.dispatch('hostContracts/setStats', stats);
 	}
-}
-
-async function loadHostContracts() {
-	const resp = await apiClient.getHostContracts();
-
-	if (resp.statusCode !== 200)
-		throw new Error(resp.body.error);
-
-	return resp.body.contracts || [];
 }

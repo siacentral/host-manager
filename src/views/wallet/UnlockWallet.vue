@@ -65,15 +65,9 @@ export default {
 					await writeConfig(newConf);
 				}
 
-				const client = new SiaApiClient(this.config),
-					resp = await client.unlockWallet(this.password);
+				const client = new SiaApiClient(this.config);
 
-				if (resp.statusCode !== 200) {
-					if (resp.body.message && resp.body.message.indexOf('provided encryption key is incorrect') >= 0)
-						throw new Error('Encryption Password is incorrect!');
-
-					throw new Error(resp.body.message || 'Error unlocking wallet');
-				}
+				await client.unlockWallet(this.password);
 
 				refreshHostWallet();
 			} catch (ex) {

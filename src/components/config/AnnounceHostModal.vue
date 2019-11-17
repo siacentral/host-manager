@@ -128,16 +128,10 @@ export default {
 					throw new Error('unknown announce type');
 				}
 
-				const client = new SiaApiClient(this.config),
-					configResp = await client.updateHost(hostConfig);
+				const client = new SiaApiClient(this.config);
 
-				if (configResp.statusCode !== 200)
-					throw new Error(configResp.body.message);
-
-				const announceResp = await client.announceHost(address);
-
-				if (announceResp.statusCode !== 200)
-					throw new Error(announceResp.body.message);
+				await client.updateHost(hostConfig);
+				await client.announceHost(address);
 
 				this.pushNotification({
 					message: `Successfully announced to the network`,

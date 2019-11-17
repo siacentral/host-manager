@@ -14,7 +14,7 @@ export async function refreshHostStorage() {
 }
 
 async function loadHostStorage() {
-	const resp = await apiClient.getHostStorage(),
+	const storage = await apiClient.getHostStorage(),
 		storageAlerts = [];
 
 	let usedStorage = new BigNumber(0),
@@ -25,10 +25,7 @@ async function loadHostStorage() {
 		failedWrites = 0,
 		readPct = 0, writePct = 0;
 
-	if (resp.statusCode !== 200)
-		throw new Error(resp.body.message);
-
-	const folders = (resp.body.folders || []).map(f => {
+	const folders = (storage.folders || []).map(f => {
 		let progress = 0;
 
 		// this appears to only work on exceptionally slow add or resizes. Remove does not use this for whatever reason

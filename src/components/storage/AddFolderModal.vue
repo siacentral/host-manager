@@ -160,11 +160,9 @@ export default {
 			// all folders must be a factor of 64 sectors
 			size = new BigNumber(Math.floor(size.div(sectorSize * granularity).toNumber())).times(sectorSize * granularity);
 
-			const client = new SiaApiClient(this.config),
-				resp = await client.addStorageFolder(path, size);
+			const client = new SiaApiClient(this.config);
 
-			if (resp.statusCode !== 200)
-				throw new Error(resp.body.message || 'Unable to create storage folder');
+			await client.addStorageFolder(path, size);
 		},
 		validate() {
 			let errors = {};

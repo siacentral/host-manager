@@ -49,11 +49,9 @@ async function onRestart() {
 
 		const buf = await fs.readFile(path.join(app.getPath('userData'), 'config.json')),
 			config = JSON.parse(decode(buf)),
-			client = new SiaApiClient(config),
-			resp = await client.stopDaemon();
+			client = new SiaApiClient(config);
 
-		if (resp.statusCode !== 200)
-			throw new Error(resp.body.error || 'unknown error');
+		await client.stopDaemon();
 	} catch (ex) {
 		log.error('daemon restart', ex.message);
 		sendIPC('statusUpdate', null);

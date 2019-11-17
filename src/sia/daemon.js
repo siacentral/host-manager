@@ -115,10 +115,7 @@ export default class SiaDaemon {
 			client = new SiaApiClient(this._config);
 
 		try {
-			const resp = await client.stopDaemon();
-
-			if (resp.statusCode !== 200)
-				throw new Error(resp.body.error || 'error shutting down');
+			await client.stopDaemon();
 		} catch (ex) {
 			this._proc.kill();
 		}

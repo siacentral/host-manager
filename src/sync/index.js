@@ -134,11 +134,7 @@ async function updatePinnedPricing() {
 		if (!changed)
 			return true;
 
-		const resp = await apiClient.updateHost(newConfig);
-
-		if (resp.statusCode !== 200)
-			throw new Error(resp.body.message || 'unable to set pinned pricing');
-
+		await apiClient.updateHost(newConfig);
 		await refreshHostConfig();
 	} catch (ex) {
 		log.error('update pinned pricing', ex.message);
@@ -149,12 +145,9 @@ async function refreshCoinPrice() {
 	try {
 		clearTimeout(priceTimeout);
 
-		const resp = await getCoinPrice();
+		const prices = await getCoinPrice();
 
-		if (resp.statusCode !== 200)
-			return;
-
-		Store.dispatch('setCoinPrice', resp.body.price);
+		Store.dispatch('setCoinPrice', prices);
 
 		await updatePinnedPricing(Store.state.hostConfig.config);
 	} catch (ex) {

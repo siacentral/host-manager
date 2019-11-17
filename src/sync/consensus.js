@@ -8,29 +8,26 @@ let startTime, startBlock, finalBlock;
 
 export async function refreshBlockHeight() {
 	try {
-		const resp = await apiClient.getConsensus();
-
-		if (resp.statusCode !== 200)
-			return;
+		const consensus = await apiClient.getConsensus();
 
 		if (finalBlock > 0) {
 			if (!startTime || !startBlock) {
 				startTime = Date.now();
-				startBlock = resp.body.height;
+				startBlock = consensus.height;
 			}
 
-			const syncedBlocks = resp.body.height - startBlock,
+			const syncedBlocks = consensus.height - startBlock,
 				blockTime = (Date.now() - startTime) / (syncedBlocks <= 0 ? 1 : syncedBlocks),
-				remainingBlocks = finalBlock - resp.body.height;
+				remainingBlocks = finalBlock - consensus.height;
 
 			Store.dispatch('setSyncTime', remainingBlocks * blockTime);
 		}
 
 		Store.dispatch('setBlock', {
-			hash: resp.body.currentblock,
-			height: resp.body.height
+			hash: consensus.currentblock,
+			height: consensus.height
 		});
-		Store.dispatch('setSynced', resp.body.synced);
+		Store.dispatch('setSynced', consensus.synced);
 	} catch (ex) {
 		log.error('refreshBlockHeight', ex.message);
 
@@ -43,24 +40,12 @@ export async function refreshBlockHeight() {
 
 export async function refreshDaemonVersion() {
 	try {
-		const resp = await apiClient.getDaemonVersion();
+		const daemon = await apiClient.getDaemonVersion();
 
-		if (resp.statusCode !== 200)
-			return;
-
-		Store.dispatch('hostDaemon/setVersion', resp.body.version);
+		Store.dispatch('hostDaemon/setVersion', daemon.version);
 	} catch (ex) {
 		log.error('refreshDaemonVersion', ex.message);
 	}
-}
-
-async function getLocalHash(height) {
-	const resp = await apiClient.getBlock(height);
-
-	if (resp.statusCode !== 200)
-		throw new Error(resp.body.message || `unable to get block ${height}`);
-
-	return resp.body.id;
 }
 
 export async function checkConsensusSync() {
@@ -70,16 +55,10 @@ export async function checkConsensusSync() {
 		if (!Store.state.block || Store.state.block.height === 0)
 			return;
 
-		// the block hash returned by /consensus does not always match up with the current block height
-		// to work around this we need to specifically request the hash of the current block height.
-		const { height } = JSON.parse(JSON.stringify(Store.state.block)),
-			localHash = await getLocalHash(height),
-			resp = await getBlock(height);
+		const remoteBlock = await getBlock(),
+			localBlock = await apiClient.getBlock(remoteBlock.height);
 
-		if (resp.body.type !== 'success')
-			throw new Error(resp.body.message);
-
-		if (localHash === resp.body.block.id)
+		if (remoteBlock.id === localBlock.id)
 			return;
 
 		alerts.push({

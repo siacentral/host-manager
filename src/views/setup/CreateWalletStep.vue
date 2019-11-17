@@ -241,37 +241,29 @@ export default {
 		},
 		async createWallet() {
 			const client = new SiaApiClient(this.appConfig),
-				resp = await client.createWallet(this.unlockPassword);
-
-			if (resp.statusCode !== 200)
-				throw new Error(resp.body.message || 'Error creating wallet');
+				wallet = await client.createWallet(this.unlockPassword);
 
 			await this.unlockWallet(this.unlockPassword);
 
-			this.seed = resp.body.primaryseed;
+			this.seed = wallet.primaryseed;
 			this.mode = 'review';
 		},
 		async recoverWallet() {
 			this.recoverSeed = this.recoverSeed.trim();
 
 			const client = new SiaApiClient(this.appConfig),
-				resp = await client.recoverWallet(this.recoverSeed, this.unlockPassword);
-
-			if (resp.statusCode !== 200)
-				throw new Error(resp.body.message || 'Error recovering seed');
+				wallet = await client.recoverWallet(this.recoverSeed, this.unlockPassword);
 
 			await this.unlockWallet(this.unlockPassword);
 
-			this.seed = resp.body.primaryseed;
+			this.seed = wallet.primaryseed;
 			this.mode = 'review';
 		},
 		async unlockWallet(password) {
 			try {
-				const client = new SiaApiClient(this.appConfig),
-					resp = await client.unlockWallet(password);
+				const client = new SiaApiClient(this.appConfig);
 
-				if (resp.statusCode !== 200)
-					throw new Error(resp.body.message);
+				await client.unlockWallet(password);
 
 				return true;
 			} catch (ex) {

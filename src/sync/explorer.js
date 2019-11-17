@@ -16,13 +16,12 @@ export async function refreshExplorer() {
 
 export async function checkHostConnectability() {
 	try {
-		const resp = await getConnectability(Store.state.netAddress);
+		const report = await getConnectability(Store.state.netAddress);
 
-		if (!resp.body)
+		if (!report)
 			return;
 
 		const alerts = [],
-			report = resp.body,
 			connectable = report.connected && report.exists_in_hostdb && report.settings_scanned;
 
 		report.message = report.message === 'success' ? null : report.message;
@@ -46,36 +45,33 @@ export async function checkHostConnectability() {
 
 async function loadExplorerHost() {
 	try {
-		const resp = await getHost(Store.state.netAddress);
+		const publicHost = await getHost(Store.state.netAddress);
 
-		if (resp.body.type !== 'success')
-			throw new Error(resp.body.message);
-
-		if (resp.body.host.settings) {
-			resp.body.host.settings = {
-				netaddress: resp.body.host.settings.netaddress,
-				version: resp.body.host.settings.version,
-				accepting_contracts: resp.body.host.settings.accepting_contracts,
-				max_download_batch_size: resp.body.host.settings.max_download_batch_size,
-				max_duration: resp.body.host.settings.max_duration,
-				max_revise_batch_size: resp.body.host.settings.max_revise_batch_size,
-				remaining_storage: resp.body.host.settings.remaining_storage,
-				sector_size: resp.body.host.settings.sector_size,
-				total_storage: resp.body.host.settings.total_storage,
-				window_size: resp.body.host.settings.window_size,
-				revision_number: resp.body.host.settings.revision_number,
-				base_rpc_price: new BigNumber(resp.body.host.settings.base_rpc_price),
-				collateral: new BigNumber(resp.body.host.settings.collateral),
-				max_collateral: new BigNumber(resp.body.host.settings.max_collateral),
-				contract_price: new BigNumber(resp.body.host.settings.contract_price),
-				download_price: new BigNumber(resp.body.host.settings.download_price),
-				sector_access_price: new BigNumber(resp.body.host.settings.sector_access_price),
-				storage_price: new BigNumber(resp.body.host.settings.storage_price),
-				upload_price: new BigNumber(resp.body.host.settings.upload_price)
+		if (publicHost.settings) {
+			publicHost.settings = {
+				netaddress: publicHost.settings.netaddress,
+				version: publicHost.settings.version,
+				accepting_contracts: publicHost.settings.accepting_contracts,
+				max_download_batch_size: publicHost.settings.max_download_batch_size,
+				max_duration: publicHost.settings.max_duration,
+				max_revise_batch_size: publicHost.settings.max_revise_batch_size,
+				remaining_storage: publicHost.settings.remaining_storage,
+				sector_size: publicHost.settings.sector_size,
+				total_storage: publicHost.settings.total_storage,
+				window_size: publicHost.settings.window_size,
+				revision_number: publicHost.settings.revision_number,
+				base_rpc_price: new BigNumber(publicHost.settings.base_rpc_price),
+				collateral: new BigNumber(publicHost.settings.collateral),
+				max_collateral: new BigNumber(publicHost.settings.max_collateral),
+				contract_price: new BigNumber(publicHost.settings.contract_price),
+				download_price: new BigNumber(publicHost.settings.download_price),
+				sector_access_price: new BigNumber(publicHost.settings.sector_access_price),
+				storage_price: new BigNumber(publicHost.settings.storage_price),
+				upload_price: new BigNumber(publicHost.settings.upload_price)
 			};
 		}
 
-		Store.dispatch('explorer/setHost', resp.body.host);
+		Store.dispatch('explorer/setHost', publicHost);
 	} catch (ex) {
 		log.error('loadExplorerHost', ex.message);
 	}
@@ -83,24 +79,21 @@ async function loadExplorerHost() {
 
 async function loadAverageSettings() {
 	try {
-		const resp = await getAverageSettings();
-
-		if (resp.body.type !== 'success')
-			throw new Error(resp.body.message);
+		const averageSettings = await getAverageSettings();
 
 		const settings = {
-			max_duration: resp.body.settings.max_duration,
-			window_size: resp.body.settings.window_size,
-			max_revise_batch_size: new BigNumber(resp.body.settings.max_revise_batch_size),
-			max_download_batch_size: new BigNumber(resp.body.settings.max_download_batch_size),
-			contract_price: new BigNumber(resp.body.settings.contract_price),
-			download_price: new BigNumber(resp.body.settings.download_price),
-			upload_price: new BigNumber(resp.body.settings.upload_price),
-			storage_price: new BigNumber(resp.body.settings.storage_price),
-			collateral: new BigNumber(resp.body.settings.collateral),
-			max_collateral: new BigNumber(resp.body.settings.max_collateral),
-			base_rpc_price: new BigNumber(resp.body.settings.base_rpc_price),
-			sector_access_price: new BigNumber(resp.body.settings.sector_access_price)
+			max_duration: averageSettings.max_duration,
+			window_size: averageSettings.window_size,
+			max_revise_batch_size: new BigNumber(averageSettings.max_revise_batch_size),
+			max_download_batch_size: new BigNumber(averageSettings.max_download_batch_size),
+			contract_price: new BigNumber(averageSettings.contract_price),
+			download_price: new BigNumber(averageSettings.download_price),
+			upload_price: new BigNumber(averageSettings.upload_price),
+			storage_price: new BigNumber(averageSettings.storage_price),
+			collateral: new BigNumber(averageSettings.collateral),
+			max_collateral: new BigNumber(averageSettings.max_collateral),
+			base_rpc_price: new BigNumber(averageSettings.base_rpc_price),
+			sector_access_price: new BigNumber(averageSettings.sector_access_price)
 		};
 
 		Store.dispatch('explorer/setAverageSettings', settings);

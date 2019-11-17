@@ -32,12 +32,8 @@ async function loadWalletAddress() {
 		if (typeof Store.state.hostWallet.lastAddress === 'string' && Store.state.hostWallet.lastAddress.trim().length !== 0)
 			return;
 
-		let resp = await apiClient.getWalletAddresses(1);
-
-		if (resp.statusCode !== 200)
-			throw new Error(resp.body.message || 'unable to load seed address');
-
-		let address = Array.isArray(resp.body.addresses) ? resp.body.addresses[0] : null;
+		let wallet = await apiClient.getWalletAddresses(1),
+			address = Array.isArray(wallet.addresses) ? wallet.addresses[0] : null;
 
 		if (typeof address !== 'string' || address.trim().length === 0) {
 			address = await createWalletAddress();
@@ -52,10 +48,7 @@ async function loadWalletAddress() {
 
 async function unlockHostWallet(password) {
 	try {
-		const resp = await apiClient.unlockWallet(password);
-
-		if (resp.statusCode !== 200)
-			throw new Error(resp.body.message);
+		await apiClient.unlockWallet(password);
 
 		return true;
 	} catch (ex) {
@@ -67,12 +60,9 @@ async function unlockHostWallet(password) {
 
 export async function createWalletAddress() {
 	try {
-		const resp = await apiClient.createWalletAddress();
+		const address = await apiClient.createWalletAddress();
 
-		if (resp.statusCode !== 200)
-			throw new Error(resp.body.message);
-
-		return resp.body.address;
+		return address.address;
 	} catch (ex) {
 		log.error('getLastWalletAddress', ex.message);
 	}
@@ -80,13 +70,10 @@ export async function createWalletAddress() {
 
 async function loadHostWallet() {
 	try {
-		const resp = await apiClient.getWallet(),
+		const wallet = await apiClient.getWallet(),
 			alerts = [];
 
-		if (resp.statusCode !== 200)
-			throw new Error(resp.body.message);
-
-		if (!resp.body.unlocked) {
+		if (!wallet.unlocked) {
 			alerts.push({
 				category: 'wallet',
 				severity: 'danger',
@@ -95,7 +82,7 @@ async function loadHostWallet() {
 			});
 		}
 
-		if (resp.body.rescanning) {
+		if (wallet.rescanning) {
 			alerts.push({
 				category: 'wallet',
 				severity: 'warning',
@@ -104,8 +91,8 @@ async function loadHostWallet() {
 			});
 		}
 
-		const confirmedBalance = new BigNumber(resp.body.confirmedsiacoinbalance),
-			balanceDelta = new BigNumber(resp.body.unconfirmedincomingsiacoins).minus(resp.body.unconfirmedoutgoingsiacoins);
+		const confirmedBalance = new BigNumber(wallet.confirmedsiacoinbalance),
+			balanceDelta = new BigNumber(wallet.unconfirmedincomingsiacoins).minus(wallet.unconfirmedoutgoingsiacoins);
 
 		// make sure we have more than 1 SC in the wallet
 		if (confirmedBalance.lte(1e24)) {
@@ -118,10 +105,10 @@ async function loadHostWallet() {
 		}
 
 		Store.dispatch('hostWallet/setAlerts', alerts);
-		Store.dispatch('hostWallet/setUnlocked', resp.body.unlocked);
-		Store.dispatch('hostWallet/setEncrypted', resp.body.encrypted);
-		Store.dispatch('hostWallet/setRescanning', resp.body.rescanning);
-		Store.dispatch('hostWallet/setHeight', resp.body.height);
+		Store.dispatch('hostWallet/setUnlocked', wallet.unlocked);
+		Store.dispatch('hostWallet/setEncrypted', wallet.encrypted);
+		Store.dispatch('hostWallet/setRescanning', wallet.rescanning);
+		Store.dispatch('hostWallet/setHeight', wallet.height);
 		Store.dispatch('hostWallet/setBalance', confirmedBalance);
 		Store.dispatch('hostWallet/setBalanceDelta', balanceDelta);
 	} catch (ex) {

@@ -67,12 +67,9 @@ export default {
 				if (!this.valid)
 					return;
 
-				const client = new SiaApiClient(this.config),
-					resp = await client.resizeStorageFolder(this.folder.path, this.sizeValue);
+				const client = new SiaApiClient(this.config);
 
-				if (resp.statusCode !== 200)
-					throw new Error(resp.body.message);
-
+				await client.resizeStorageFolder(this.folder.path, this.sizeValue);
 				await refreshHostStorage();
 
 				this.pushNotification({
