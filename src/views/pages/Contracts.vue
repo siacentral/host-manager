@@ -253,7 +253,6 @@ export default {
 		},
 		sortContracts() {
 			this.filtered.sort((a, b) => {
-				console.log(this.sortColumn);
 				a = a[this.sortColumn];
 				b = b[this.sortColumn];
 
@@ -275,7 +274,6 @@ export default {
 					return 0;
 				case 'negotiation_height':
 				case 'expiration_height':
-					console.log(a, b);
 					if (a > b && this.sortDescending)
 						return -1;
 					else if (a > b)
