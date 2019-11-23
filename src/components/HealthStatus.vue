@@ -51,7 +51,9 @@ export default {
 			synced: state => state.synced,
 			syncTime: state => state.syncTime,
 			balance: state => state.hostWallet.balance,
-			connection: state => state.explorer.report
+			connection: state => state.explorer.report,
+			dataUnit: state => state.config.data_unit,
+			currency: state => state.config.currency
 		}),
 		statusText() {
 			if (this.synced)
@@ -63,7 +65,15 @@ export default {
 			return 'Syncing';
 		},
 		connectivityLink() {
-			return `https://troubleshoot.siacentral.com/results/${encodeURIComponent(this.netAddress)}`;
+			const params = [];
+
+			if (this.dataUnit && this.dataUnit.length > 0)
+				params.push(`unit=${encodeURIComponent(this.dataUnit)}`);
+
+			if (this.currency && this.currency.length > 0)
+				params.push(`currency=${encodeURIComponent(this.currency)}`);
+
+			return `https://troubleshoot.siacentral.com/results/${encodeURIComponent(this.netAddress)}?${params.join('&')}`;
 		},
 		connectionSeverity() {
 			const classes = { 'sia-status-icon': true };
