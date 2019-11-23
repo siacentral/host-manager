@@ -52,8 +52,9 @@
 				<td></td><td></td>
 			</tr>
 			<tr v-for="contract in contracts" :key="contract.obligation_id">
-				<td>{{ formatShortDateString(contract.negotation_timestamp) }}</td>
-				<td>{{ formatShortDateString(contract.expiration_timestamp) }}</td>
+				<td>{{ formatShortDateString(contract.negotiation_timestamp) }}</td>
+				<td v-if="contract.status === 'obligationUnresolved' && block.height >= contract.expiration_height">Expired</td>
+				<td v-else>{{ formatShortDateString(contract.expiration_timestamp) }}</td>
 				<td>{{ formatFriendlyStatus(contract.status) }}</td>
 				<td>{{ formatPriceString(contract.storage_revenue, 4) }}</td>
 				<td>{{ formatPriceString(contract.download_revenue, 4) }}</td>
@@ -110,7 +111,7 @@ export default {
 			return classes;
 		},
 		getSiaStatsLink(contract) {
-			return `https://siastats.info/navigator?search=${contract.obligation_id}`;
+			return `https://siastats.info/navigator?search=${contract.id}`;
 		}
 	}
 };

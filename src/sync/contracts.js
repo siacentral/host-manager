@@ -3,7 +3,7 @@ import { BigNumber } from 'bignumber.js';
 
 import Store from '@/store';
 import { apiClient } from './index';
-import { getBlocks } from '@/api/siacentral';
+import { getContracts } from '@/api/siacentral';
 import { formatPriceString, formatFriendlyStatus } from '@/utils/format';
 
 export async function refreshHostContracts() {
@@ -12,16 +12,6 @@ export async function refreshHostContracts() {
 	} catch (ex) {
 		log.error('refreshHostContracts', ex.message);
 	}
-}
-
-function calcBlockTimestamp(currentBlock, height) {
-	const diff = currentBlock.height - height,
-		minutes = 10 * diff,
-		timestamp = new Date(currentBlock.timestamp);
-
-	timestamp.setMinutes(timestamp.getMinutes() - minutes);
-
-	return timestamp;
 }
 
 function addContractStats(stats, contract) {
@@ -104,12 +94,49 @@ function addContractStats(stats, contract) {
 			stats.lost_revenue.storage = stats.lost_revenue.storage.plus(contract.storage_revenue);
 			stats.lost_revenue.contract_fees = stats.lost_revenue.contract_fees.plus(contract.contract_cost);
 			stats.lost_revenue.transaction_fees = stats.lost_revenue.transaction_fees.plus(contract.transaction_fees);
-			stats.lost_collateral = stats.lost_collateral.plus(contract.risked_collateral);
+			stats.lost_collateral = stats.lost_collateral.plus(contract.burnt_collateral);
 			break;
 		}
 	} catch (ex) {
 		log.error('addContractStats', ex);
 	}
+}
+
+function mergeContract(chain, sia) {
+	const c = {
+		id: chain.id,
+		transaction_id: chain.transaction_id,
+		contract_cost: new BigNumber(sia.contractcost),
+		transaction_fees: new BigNumber(sia.transactionfeesadded),
+		data_size: new BigNumber(sia.datasize),
+		locked_collateral: new BigNumber(sia.lockedcollateral),
+		risked_collateral: new BigNumber(sia.riskedcollateral),
+		burnt_collateral: new BigNumber(chain.missed_proof_outputs[2].value),
+		storage_revenue: new BigNumber(sia.potentialstoragerevenue),
+		download_revenue: new BigNumber(sia.potentialdownloadrevenue),
+		upload_revenue: new BigNumber(sia.potentialuploadrevenue),
+		sector_count: sia.sectorrootscount,
+		revision_number: sia.revisionnumber,
+		sia_status: sia.obligationstatus,
+		status: chain.status,
+		proof_confirmed: chain.proof_confirmed,
+		valid_proof_outputs: chain.valid_proof_outputs,
+		missed_proof_outputs: chain.missed_proof_outputs,
+		negotiation_height: chain.negotiation_height,
+		expiration_height: chain.expiration_height,
+		proof_deadline: chain.proof_deadline,
+		negotiation_timestamp: new Date(chain.negotiation_timestamp),
+		expiration_timestamp: new Date(chain.expiration_timestamp),
+		proof_deadline_timestamp: new Date(chain.proof_deadline_timestamp),
+		proof_timestamp: new Date(chain.proof_timestamp),
+		unused: sia.datasize === 0,
+		tags: []
+	};
+
+	c.total_revenue = c.storage_revenue.plus(c.download_revenue).plus(c.upload_revenue)
+		.plus(c.contract_cost);
+
+	return c;
 }
 
 export async function parseHostContracts() {
@@ -164,111 +191,43 @@ export async function parseHostContracts() {
 		const currentBlock = await apiClient.getLastBlock(),
 			alerts = [],
 			invalidStatusMap = {},
-			requiredBlocks = [];
+			contractMap = {};
 
 		currentBlock.timestamp = new Date(currentBlock.timestamp * 1000);
 
-		const filtered = (await apiClient.getHostContracts()).contracts.reduce((confirmed, c) => {
-			if ((!c.originconfirmed && !c.proofconfirmed && !c.revisionconfirmed) || !c.transactionid || c.transactionid.length === 0)
-				return confirmed;
+		const siaContracts = (await apiClient.getHostContracts()).contracts.map(c => {
+			contractMap[c.obligationid] = c;
 
-			const contract = {
-				id: c.obligationid,
-				transaction_id: c.transactionid,
-				contract_cost: new BigNumber(c.contractcost),
-				transaction_fees: new BigNumber(c.transactionfeesadded),
-				data_size: new BigNumber(c.datasize),
-				locked_collateral: new BigNumber(c.lockedcollateral),
-				risked_collateral: new BigNumber(c.riskedcollateral),
-				storage_revenue: new BigNumber(c.potentialstoragerevenue),
-				download_revenue: new BigNumber(c.potentialdownloadrevenue),
-				upload_revenue: new BigNumber(c.potentialuploadrevenue),
-				sector_count: c.sectorrootscount,
-				negotiation_height: c.negotiationheight,
-				expiration_height: c.expirationheight,
-				proof_deadline: c.proofdeadline,
-				sia_status: c.obligationstatus,
-				confirmed: c.originconfirmed,
-				proof_confirmed: c.proofconfirmed,
-				proof_constructed: c.proofconstructed,
-				revision_confirmed: c.revisionconfirmed,
-				revision_constructed: c.revisionconstructed,
-				tags: []
-			};
+			return c.obligationid;
+		}, []);
 
-			contract.unused = contract.data_size.eq(0) && contract.storage_revenue.eq(0);
+		const confirmed = (await getContracts(siaContracts)).map(contract => {
+			const c = mergeContract(contract, contractMap[contract.id]);
 
-			if (contract.negotiation_height < currentBlock.height && requiredBlocks.indexOf(contract.negotiation_height) === -1)
-				requiredBlocks.push(contract.negotiation_height);
+			addContractStats(stats, c);
 
-			if (contract.expiration_height < currentBlock.height && requiredBlocks.indexOf(contract.expiration_height) === -1)
-				requiredBlocks.push(contract.expiration_height);
+			if (c.proof_deadline < currentBlock.height && !c.proof_confirmed) {
+				c.tags.push({
+					severity: 'severe',
+					text: 'Proof Not Submitted'
+				});
+			}
 
-			if (contract.proof_deadline < currentBlock.height && requiredBlocks.indexOf(contract.proof_deadline) === -1)
-				requiredBlocks.push(contract.proof_deadline);
-
-			contract.total_revenue = contract.storage_revenue.plus(contract.download_revenue)
-				.plus(contract.upload_revenue).plus(contract.contract_cost);
-
-			if (contract.sia_status.toLowerCase() === 'obligationunresolved' && contract.proof_deadline < currentBlock.height) {
-				if (contract.proof_confirmed)
-					contract.status = 'obligationSucceeded';
-				else {
-					contract.status = 'obligationFailed';
-					contract.tags.push({
-						severity: 'severe',
-						text: 'Proof Not Submitted'
-					});
-				}
-
-				const key = `${contract.status}-${contract.sia_status}`;
+			if (c.status !== c.sia_status) {
+				const key = `${c.status}-${c.sia_status}`;
 
 				if (!invalidStatusMap[key])
 					invalidStatusMap[key] = 0;
 
 				invalidStatusMap[key] += 1;
 
-				contract.tags.push({
+				c.tags.push({
 					severity: 'warning',
 					text: 'Status Mismatch'
 				});
-			} else
-				contract.status = contract.sia_status;
+			}
 
-			confirmed.push(contract);
-
-			return confirmed;
-		}, []);
-
-		const blocks = await getBlocks(requiredBlocks),
-			blockMap = {};
-
-		blockMap[currentBlock.height] = currentBlock;
-
-		for (let i = 0; i < blocks.length; i++)
-			blockMap[blocks[i].height] = blocks[i];
-
-		filtered.forEach(contract => {
-			const negotiationBlock = blockMap[contract.negotiation_height],
-				expirationBlock = blockMap[contract.expiration_height],
-				proofDeadlineBlock = blockMap[contract.proof_deadline];
-
-			if (negotiationBlock)
-				contract.negotation_timestamp = new Date(negotiationBlock.timestamp);
-			else
-				contract.negotation_timestamp = calcBlockTimestamp(currentBlock, contract.negotiation_height);
-
-			if (expirationBlock)
-				contract.expiration_timestamp = new Date(expirationBlock.timestamp);
-			else
-				contract.expiration_timestamp = calcBlockTimestamp(currentBlock, contract.expiration_height);
-
-			if (proofDeadlineBlock)
-				contract.proof_deadline_timestamp = new Date(proofDeadlineBlock.timestamp);
-			else
-				contract.proof_deadline_timestamp = calcBlockTimestamp(currentBlock, contract.proof_deadline);
-
-			addContractStats(stats, contract);
+			return c;
 		});
 
 		stats.contracts.total = stats.contracts.active + stats.contracts.unused + stats.contracts.failed + stats.contracts.successful;
@@ -315,7 +274,7 @@ export async function parseHostContracts() {
 		}
 
 		Store.dispatch('hostContracts/setAlerts', alerts);
-		Store.dispatch('hostContracts/setContracts', filtered);
+		Store.dispatch('hostContracts/setContracts', confirmed);
 	} catch (ex) {
 		log.error('parseHostContracts', ex.message);
 	} finally {

@@ -331,14 +331,13 @@ export default {
 
 				const csv = [['"Contract ID"', '"Status"', '"Start Date"', '"End Date"', '"Proof Deadline"',
 					'"Locked Collateral"', '"Risked Collateral"', '"Contract Cost"', '"Transaction Fees"',
-					'"Storage Revenue"', '"Upload Revenue"', '"Download Revenue"', '"Total Revenue"',
-					'Tags'].join(',')];
+					'"Storage Revenue"', '"Upload Revenue"', '"Download Revenue"', '"Total Revenue"'].join(',')];
 
 				this.filtered.forEach(c => {
 					const row = [
 						`"${c.obligation_id}"`,
 						`"${formatFriendlyStatus(c.status)}"`,
-						`"${formatShortDateString(c.block_timestamp)}"`,
+						`"${formatShortDateString(c.negotiation_timestamp)}"`,
 						`"${formatShortDateString(c.expiration_timestamp)}"`,
 						`"${formatShortDateString(c.proof_deadline_timestamp)}"`,
 						`${c.locked_collateral.toString(10)}`,
@@ -348,8 +347,7 @@ export default {
 						`${c.storage_revenue.toString(10)}`,
 						`${c.upload_revenue.toString(10)}`,
 						`${c.download_revenue.toString(10)}`,
-						`${c.total_revenue.toString(10)}`,
-						`"${c.tags.join(', ')}"`
+						`${c.total_revenue.toString(10)}`
 					];
 
 					csv.push(row.join(','));
