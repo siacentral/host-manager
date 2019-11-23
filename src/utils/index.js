@@ -50,6 +50,9 @@ export async function readConfig() {
 			...JSON.parse(decode(buf))
 		};
 
+	if (typeof config.data_unit === 'string')
+		config.data_unit = config.data_unit.toLowerCase() !== 'binary' ? 'decimal' : 'binary';
+
 	// validate contract filter
 	if (config.contract_filter) {
 		if (!Array.isArray(config.contract_filter.statuses) || config.contract_filter.statuses.length === 0)
