@@ -45,6 +45,7 @@ export async function readConfig() {
 	const siacentralPath = app.getPath('userData'),
 		buf = await fs.readFile(path.join(siacentralPath, 'config.json')),
 		config = {
+			data_unit: 'decimal',
 			siad_data_path: path.join(siacentralPath, 'sia'),
 			...JSON.parse(decode(buf))
 		};

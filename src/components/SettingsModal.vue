@@ -120,7 +120,7 @@ export default {
 	data() {
 		return {
 			currency: 'siacoin',
-			dataUnit: 'binary',
+			dataUnit: 'decimal',
 			apiAddr: '',
 			apiAgent: '',
 			apiPassword: '',
@@ -161,7 +161,7 @@ export default {
 		},
 		updateConfig() {
 			this.currency = this.config.currency || 'siacoin';
-			this.dataUnit = this.config.data_unit || 'binary';
+			this.dataUnit = this.config.data_unit || 'decimal';
 			this.apiAddr = this.config.siad_api_addr;
 			this.apiAgent = this.config.siad_api_agent;
 			this.apiPassword = this.config.siad_api_password;
