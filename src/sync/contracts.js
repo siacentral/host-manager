@@ -35,16 +35,16 @@ function addContractStats(stats, contract) {
 				stats.contracts.active++;
 
 			if (contract.expiration_timestamp <= days30Future) {
-				stats.potential_revenue.days_30 = stats.potential_revenue.days_30.plus(contract.total_revenue);
+				stats.potential_revenue.days_30 = stats.potential_revenue.days_30.plus(contract.potential_revenue);
 				stats.contracts.next_30_days++;
 			}
 
 			if (contract.expiration_timestamp <= days60Future) {
-				stats.potential_revenue.days_60 = stats.potential_revenue.days_60.plus(contract.total_revenue);
+				stats.potential_revenue.days_60 = stats.potential_revenue.days_60.plus(contract.potential_revenue);
 				stats.contracts.next_60_days++;
 			}
 
-			stats.potential_revenue.total = stats.potential_revenue.total.plus(contract.total_revenue);
+			stats.potential_revenue.total = stats.potential_revenue.total.plus(contract.potential_revenue);
 			stats.potential_revenue.upload = stats.potential_revenue.upload.plus(contract.upload_revenue);
 			stats.potential_revenue.download = stats.potential_revenue.download.plus(contract.download_revenue);
 			stats.potential_revenue.storage = stats.potential_revenue.storage.plus(contract.storage_revenue);
@@ -59,16 +59,16 @@ function addContractStats(stats, contract) {
 				stats.contracts.successful++;
 
 			if (contract.expiration_timestamp > days30Ago) {
-				stats.earned_revenue.days_30 = stats.earned_revenue.days_30.plus(contract.total_revenue);
+				stats.earned_revenue.days_30 = stats.earned_revenue.days_30.plus(contract.earned_revenue);
 				stats.contracts.past_30_days++;
 			}
 
 			if (contract.expiration_timestamp > days60Ago) {
-				stats.earned_revenue.days_60 = stats.earned_revenue.days_60.plus(contract.total_revenue);
+				stats.earned_revenue.days_60 = stats.earned_revenue.days_60.plus(contract.earned_revenue);
 				stats.contracts.past_60_days++;
 			}
 
-			stats.earned_revenue.total = stats.earned_revenue.total.plus(contract.total_revenue);
+			stats.earned_revenue.total = stats.earned_revenue.total.plus(contract.earned_revenue);
 			stats.earned_revenue.upload = stats.earned_revenue.upload.plus(contract.upload_revenue);
 			stats.earned_revenue.download = stats.earned_revenue.download.plus(contract.download_revenue);
 			stats.earned_revenue.storage = stats.earned_revenue.storage.plus(contract.storage_revenue);
@@ -79,16 +79,16 @@ function addContractStats(stats, contract) {
 			stats.contracts.failed++;
 
 			if (contract.expiration_timestamp > days30Ago) {
-				stats.lost_revenue.days_30 = stats.lost_revenue.days_30.plus(contract.total_revenue);
+				stats.lost_revenue.days_30 = stats.lost_revenue.days_30.plus(contract.lost_revenue);
 				stats.contracts.past_30_days++;
 			}
 
 			if (contract.expiration_timestamp > days60Ago) {
-				stats.lost_revenue.days_60 = stats.lost_revenue.days_60.plus(contract.total_revenue);
+				stats.lost_revenue.days_60 = stats.lost_revenue.days_60.plus(contract.lost_revenue);
 				stats.contracts.past_60_days++;
 			}
 
-			stats.lost_revenue.total = stats.lost_revenue.total.plus(contract.total_revenue);
+			stats.lost_revenue.total = stats.lost_revenue.total.plus(contract.lost_revenue);
 			stats.lost_revenue.upload = stats.lost_revenue.upload.plus(contract.upload_revenue);
 			stats.lost_revenue.download = stats.lost_revenue.download.plus(contract.download_revenue);
 			stats.lost_revenue.storage = stats.lost_revenue.storage.plus(contract.storage_revenue);
@@ -109,9 +109,6 @@ function mergeContract(chain, sia) {
 		contract_cost: new BigNumber(sia.contractcost),
 		transaction_fees: new BigNumber(sia.transactionfeesadded),
 		data_size: new BigNumber(sia.datasize),
-		locked_collateral: new BigNumber(sia.lockedcollateral),
-		risked_collateral: new BigNumber(sia.riskedcollateral),
-		burnt_collateral: new BigNumber(chain.missed_proof_outputs[2].value),
 		storage_revenue: new BigNumber(sia.potentialstoragerevenue),
 		download_revenue: new BigNumber(sia.potentialdownloadrevenue),
 		upload_revenue: new BigNumber(sia.potentialuploadrevenue),
@@ -129,12 +126,41 @@ function mergeContract(chain, sia) {
 		expiration_timestamp: new Date(chain.expiration_timestamp),
 		proof_deadline_timestamp: new Date(chain.proof_deadline_timestamp),
 		proof_timestamp: new Date(chain.proof_timestamp),
+		valid_payout: new BigNumber(chain.valid_proof_outputs[1].value),
+		missed_payout: new BigNumber(chain.missed_proof_outputs[1].value),
+		burnt_collateral: new BigNumber(0),
+		returned_collateral: new BigNumber(0),
+		risked_collateral: new BigNumber(0),
+		locked_collateral: new BigNumber(0),
+		earned_revenue: new BigNumber(0),
+		lost_revenue: new BigNumber(0),
+		potential_revenue: new BigNumber(0),
 		unused: sia.datasize === 0,
 		tags: []
 	};
 
-	c.total_revenue = c.storage_revenue.plus(c.download_revenue).plus(c.upload_revenue)
-		.plus(c.contract_cost);
+	switch (c.status.toLowerCase()) {
+	case 'obligationsucceeded':
+		c.returned_collateral = new BigNumber(sia.lockedcollateral);
+		c.earned_revenue = c.valid_payout.minus(c.returned_collateral)
+			.minus(c.transaction_fees);
+		c.returned_collateral = c.locked_collateral;
+		c.revenue = c.earned_revenue;
+		break;
+	case 'obligationfailed':
+		c.lost_revenue = c.valid_payout.minus(sia.lockedcollateral)
+			.minus(c.transaction_fees);
+		c.returned_collateral = new BigNumber(c.missed_proof_outputs[1].value);
+		c.burnt_collateral = new BigNumber(chain.missed_proof_outputs[2].value);
+		c.revenue = c.lost_revenue;
+		break;
+	default:
+		c.risked_collateral = new BigNumber(sia.riskedcollateral);
+		c.locked_collateral = new BigNumber(sia.lockedcollateral);
+		c.potential_revenue = c.storage_revenue.plus(c.download_revenue).plus(c.upload_revenue)
+			.plus(c.contract_cost).minus(c.transaction_fees);
+		c.revenue = c.potential_revenue;
+	}
 
 	return c;
 }
@@ -206,7 +232,13 @@ export async function parseHostContracts() {
 
 			addContractStats(stats, c);
 
-			if (c.proof_deadline < currentBlock.height && !c.proof_confirmed) {
+			if (c.unused) {
+				c.tags.push({
+					text: 'Unused'
+				});
+			}
+
+			if (c.proof_deadline < currentBlock.height && !c.unused && !c.proof_confirmed) {
 				c.tags.push({
 					severity: 'severe',
 					text: 'Proof Not Submitted'

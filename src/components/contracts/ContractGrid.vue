@@ -2,64 +2,40 @@
 	<table>
 		<thead>
 			<tr>
-				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'negotiation_height' }" @click="$emit('sort', 'negotiation_height')">
-					Start Date
-					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'negotiation_height'" />
-					<icon icon="chevron-down" v-else-if="sortColumn === 'negotiation_height'" />
+				<td v-for="column in fixedColumns"
+					:key="`header-${column.key}`"
+					:class="{ 'contracts-header': true, 'contracts-sort': sortColumn && sortColumn.key === column.key }"
+					@click="$emit('sort', column)">
+
+					{{ column.text }}
+					<icon icon="chevron-up" v-if="!sortDescending && sortColumn && sortColumn.key === column.key" />
+					<icon icon="chevron-down" v-else-if="sortColumn && sortColumn.key === column.key" />
 				</td>
-				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'expiration_height' }" @click="$emit('sort', 'expiration_height')">
-					Expiration Date
-					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'expiration_height'" />
-					<icon icon="chevron-down" v-else-if="sortColumn === 'expiration_height'" />
-				</td>
-				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'status' }" @click="$emit('sort', 'status')">
-					Status
-					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'status'" />
-					<icon icon="chevron-down" v-else-if="sortColumn === 'status'" />
-				</td>
-				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'storage_revenue' }" @click="$emit('sort', 'storage_revenue')">
-					Storage Revenue
-					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'storage_revenue'" />
-					<icon icon="chevron-down" v-else-if="sortColumn === 'storage_revenue'" />
-				</td>
-				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'download_revenue' }" @click="$emit('sort', 'download_revenue')">
-					Download Revenue
-					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'download_revenue'" />
-					<icon icon="chevron-down" v-else-if="sortColumn === 'download_revenue'" />
-				</td>
-				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'upload_revenue' }" @click="$emit('sort', 'upload_revenue')">
-					Upload Revenue
-					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'upload_revenue'" />
-					<icon icon="chevron-down" v-else-if="sortColumn === 'upload_revenue'" />
-				</td>
-				<td :class="{ 'contracts-header': true, 'contracts-sort': sortColumn === 'total_revenue' }" @click="$emit('sort', 'total_revenue')">
-					Total Revenue
-					<icon icon="chevron-up" v-if="!sortDescending && sortColumn === 'total_revenue'" />
-					<icon icon="chevron-down" v-else-if="sortColumn === 'total_revenue'" />
+				<td v-for="column in visibleColumns"
+					:key="`header-${column.key}`"
+					:class="{ 'contracts-header': true, 'contracts-sort': sortColumn && sortColumn.key === column.key }"
+					@click="$emit('sort', column)">
+
+					{{ column.text }}
+					<icon icon="chevron-up" v-if="!sortDescending && sortColumn && sortColumn.key === column.key" />
+					<icon icon="chevron-down" v-else-if="sortColumn && sortColumn.key === column.key" />
 				</td>
 				<td></td><td></td>
 			</tr>
 		</thead>
 		<tbody>
 			<tr class="total-row">
-				<td>Total</td>
-				<td></td>
-				<td></td>
-				<td>{{ formatPriceString(totals.storage_revenue, 4) }}</td>
-				<td>{{ formatPriceString(totals.download_revenue, 4) }}</td>
-				<td>{{ formatPriceString(totals.upload_revenue, 4) }}</td>
-				<td>{{ formatPriceString(totals.total_revenue, 4) }}</td>
+				<td v-for="column in fixedColumns" :key="`totals-${column.key}`">
+					{{ formatColumnTotal(column) }}
+				</td>
+				<td v-for="column in visibleColumns" :key="`totals-${column.key}`">
+					{{ formatColumnTotal(column) }}
+				</td>
 				<td></td><td></td>
 			</tr>
 			<tr v-for="contract in contracts" :key="contract.obligation_id">
-				<td>{{ formatShortDateString(contract.negotiation_timestamp) }}</td>
-				<td v-if="contract.status === 'obligationUnresolved' && block.height >= contract.expiration_height">Expired</td>
-				<td v-else>{{ formatShortDateString(contract.expiration_timestamp) }}</td>
-				<td>{{ formatFriendlyStatus(contract.status) }}</td>
-				<td>{{ formatPriceString(contract.storage_revenue, 4) }}</td>
-				<td>{{ formatPriceString(contract.download_revenue, 4) }}</td>
-				<td>{{ formatPriceString(contract.upload_revenue, 4) }}</td>
-				<td>{{ formatPriceString(contract.total_revenue, 4) }}</td>
+				<td v-for="column in fixedColumns" :key="column.key">{{ formatColumnValue(contract, column) }}</td>
+				<td v-for="column in visibleColumns" :key="column.key">{{ formatColumnValue(contract, column) }}</td>
 				<td class="fit-text">
 					<div class="tag-wrapper">
 						<div :class="getTagClasses(tag)" v-for="(tag, i) in contract.tags" :key="i">{{ tag.text }}</div>
@@ -78,19 +54,181 @@ import { formatPriceString, formatByteString, formatShortDateString, formatBlock
 export default {
 	props: {
 		contracts: Array,
+		displayedColumns: Array,
 		totals: Object,
 		splitRevenue: Boolean,
-		sortColumn: String,
+		sortColumn: Object,
 		sortDescending: Boolean
 	},
 	computed: {
-		...mapState(['block'])
+		...mapState(['block']),
+		visibleColumns() {
+			return this.fixedColumns.concat(this.columns.filter(c => this.displayedColumns.indexOf(c.key) !== -1));
+		}
+	},
+	data() {
+		return {
+			fixedColumns: [
+				{
+					text: 'ID',
+					key: 'id',
+					format: 'id'
+				},
+				{
+					text: 'Status',
+					key: 'status',
+					format: 'status'
+				}
+			],
+			columns: [
+				{
+					text: 'Sia Status',
+					key: 'sia_status',
+					format: 'status'
+				},
+				{
+					text: 'Start Date',
+					key: 'negotiation_timestamp',
+					format: 'date'
+				},
+				{
+					text: 'Expiration Date',
+					key: 'expiration_timestamp',
+					format: 'date'
+				},
+				{
+					text: 'Est. Data Size',
+					key: 'data_size',
+					total_key: 'data_size',
+					format: 'bytes'
+				},
+				{
+					text: 'Locked Collateral',
+					key: 'locked_collateral',
+					total_key: 'locked_collateral',
+					format: 'currency'
+				},
+				{
+					text: 'Risked Collateral',
+					key: 'risked_collateral',
+					total_key: 'risked_collateral',
+					format: 'currency'
+				},
+				{
+					text: 'Returned Collateral',
+					key: 'returned_collateral',
+					total_key: 'returned_collateral',
+					format: 'currency'
+				},
+				{
+					text: 'Lost Collateral',
+					key: 'burnt_collateral',
+					total_key: 'burnt_collateral',
+					format: 'currency'
+				},
+				{
+					text: 'Contract Fee',
+					key: 'contract_cost',
+					total_key: 'contract_cost',
+					format: 'currency'
+				},
+				{
+					text: 'Est. Storage Revenue',
+					key: 'storage_revenue',
+					total_key: 'storage_revenue',
+					format: 'currency'
+				},
+				{
+					text: 'Est. Upload Revenue',
+					key: 'upload_revenue',
+					total_key: 'upload_revenue',
+					format: 'currency'
+				},
+				{
+					text: 'Est. Download Revenue',
+					key: 'download_revenue',
+					total_key: 'download_revenue',
+					format: 'currency'
+				},
+				{
+					text: 'Potential Revenue',
+					key: 'potential_revenue',
+					total_key: 'potential_revenue',
+					format: 'currency'
+				},
+				{
+					text: 'Earned Revenue',
+					key: 'earned_revenue',
+					total_key: 'earned_revenue',
+					format: 'currency'
+				},
+				{
+					text: 'Lost Revenue',
+					key: 'lost_revenue',
+					total_key: 'lost_revenue',
+					format: 'currency'
+				},
+				{
+					text: 'Revenue',
+					key: 'revenue',
+					total_key: 'revenue',
+					format: 'currency'
+				}
+			]
+		};
 	},
 	methods: {
-		formatPriceString,
-		formatByteString,
-		formatShortDateString,
-		formatFriendlyStatus,
+		formatColumnTotal(column) {
+			if (!column.total_key)
+				return '';
+
+			const value = this.totals[column.total_key],
+				format = (column.format || '').toLowerCase();
+
+			return this.formatValue(value, format);
+		},
+		formatColumnValue(contract, column) {
+			const value = contract[column.key],
+				format = (column.format || '').toLowerCase();
+
+			return this.formatValue(value, format);
+		},
+		formatValue(value, format) {
+			format = (format || '').toLowerCase();
+
+			switch (format) {
+			case 'id':
+				if (!value)
+					return '';
+
+				return value.substr(0, 8);
+			case 'status':
+				if (!value)
+					return '';
+
+				return formatFriendlyStatus(value);
+			case 'date':
+				if (!value)
+					return '';
+
+				return formatShortDateString(value);
+			case 'currency':
+				if (!value)
+					return formatPriceString(0, 4);
+
+				return formatPriceString(value, 4);
+			case 'bytes':
+				if (!value)
+					return formatByteString(0, 2);
+
+				return formatByteString(value, 2);
+			default:
+				if (!value)
+					return '';
+
+				return value;
+			}
+		},
 		formatExpirationString(blocks) {
 			if (blocks <= 0)
 				return 'Expired';

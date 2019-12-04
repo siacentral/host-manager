@@ -10,10 +10,6 @@
 						<label for="chk-contracts-filter-active">Active</label>
 					</div>
 					<div class="control control-inline">
-						<input type="checkbox" id="chk-contracts-filter-unused" v-model="unused" />
-						<label for="chk-contracts-filter-unused">Unused</label>
-					</div>
-					<div class="control control-inline">
 						<input type="checkbox" id="chk-contracts-filter-successful" v-model="successful" />
 						<label for="chk-contracts-filter-successful">Successful</label>
 					</div>
@@ -62,7 +58,6 @@ export default {
 		return {
 			errors: {},
 			active: false,
-			unused: false,
 			successful: false,
 			failed: false,
 			startDateStr: null,
@@ -87,7 +82,6 @@ export default {
 			const filter = this.config.contract_filter || {};
 
 			this.active = Array.isArray(filter.statuses) && filter.statuses.indexOf('active') !== -1;
-			this.unused = Array.isArray(filter.statuses) && filter.statuses.indexOf('unused') !== -1;
 			this.successful = Array.isArray(filter.statuses) && filter.statuses.indexOf('successful') !== -1;
 			this.failed = Array.isArray(filter.statuses) && filter.statuses.indexOf('failed') !== -1;
 
