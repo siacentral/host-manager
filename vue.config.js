@@ -71,11 +71,10 @@ module.exports = {
 					perMachine: true
 				},
 				publish: {
-					provider: 's3',
-					bucket: 'siacentral-public',
-					region: 'us-east-2',
-					acl: 'public-read',
-					path: '/host-manager'
+					provider: 'generic',
+					/* eslint-disable no-template-curly-in-string */
+					url: 'https://public.siacentral.com/host-manager/releases/${channel}/${os}',
+					channel: 'latest'
 				}
 			}
 		}
