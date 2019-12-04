@@ -1,26 +1,21 @@
 {
   "name": "Sia-Host-Manager",
+  "version": "1.0.6",
+  "private": true,
   "description": "User-friendly management utility for Sia storage network hosts. Provides easy configuration, better financials, and smart alerts to make hosting simpler.",
   "author": {
     "email": "hi@siacentral.com",
     "name": "Sia Central",
     "url": "https://siacentral.com"
   },
-  "homepage": "https://siacentral.com/host-manager",
-  "bugs": {
-    "url": "https://github.com/siacentral/host-manager/issues"
-  },
-  "license": "AGPLv3",
-  "version": "1.0.5",
-  "private": true,
   "scripts": {
-    "lint": "vue-cli-service lint",
-    "publish": "cross-env PUBLISH=true vue-cli-service electron:build -p always",
-    "build": "vue-cli-service electron:build",
     "serve": "vue-cli-service electron:serve",
+    "build": "vue-cli-service electron:build",
+    "lint": "vue-cli-service lint",
     "generate-icons": "electron-icon-builder --input=./public/icon.png --output=build --flatten",
     "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps"
+    "postuninstall": "electron-builder install-app-deps",
+    "publish": "cross-env PUBLISH=true vue-cli-service electron:build -p always"
   },
   "main": "background.js",
   "dependencies": {
@@ -64,9 +59,14 @@
     "vue-cli-plugin-electron-builder": "^1.4.3",
     "vue-template-compiler": "^2.6.10"
   },
+  "bugs": {
+    "url": "https://github.com/siacentral/host-manager/issues"
+  },
   "gitHooks": {
     "pre-commit": "lint-staged"
   },
+  "homepage": "https://siacentral.com/host-manager",
+  "license": "AGPLv3",
   "lint-staged": {
     "*.{js,vue}": [
       "vue-cli-service lint",
