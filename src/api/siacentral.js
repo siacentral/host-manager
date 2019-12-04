@@ -25,8 +25,32 @@ export async function getConnectability(netaddress) {
 	return resp.body;
 }
 
+export async function getHost(netaddress) {
+	netaddress = encodeURIComponent(netaddress);
+
+	const resp = await sendJSONRequest(`https://api.siacentral.com/api/v1/explorer/hosts/search?net_address=${netaddress}`, {
+		method: 'GET'
+	});
+
+	if (resp.statusCode !== 200)
+		throw new Error(resp.body.message);
+
+	return resp.body.host;
+}
+
+export async function getSiaCentralBootstrap() {
+	const resp = await sendJSONRequest(`https://api.siacentral.com/api/v1/bootstrap/latest`, {
+		method: 'GET'
+	});
+
+	if (resp.statusCode !== 200)
+		throw new Error(resp.body.message);
+
+	return resp.body.snapshot;
+}
+
 export async function getBlock(height) {
-	let url = `https://apidev.siacentral.com/v2/explorer/blocks`;
+	let url = `https://api.siacentral.com/v2/explorer/blocks`;
 
 	if (height)
 		url += `/${height}`;
@@ -41,51 +65,38 @@ export async function getBlock(height) {
 	return resp.body.block;
 }
 
-export async function getBlocks(heights) {
+export async function getContracts(ids) {
 	const promises = [];
 
-	for (let i = 0; i < heights.length; i += 5e3) {
+	for (let i = 0; i < ids.length; i += 5e3) {
 		let end = i + 5e3;
 
-		if (end >= heights.length)
-			end = heights.length;
+		if (end >= ids.length)
+			end = ids.length;
 
-		promises.push(sendJSONRequest('https://apidev.siacentral.com/v2/explorer/blocks', {
+		promises.push(sendJSONRequest('https://api.siacentral.com/v2/explorer/contracts', {
 			method: 'POST',
 			body: {
-				heights: heights.slice(i, end)
+				contracts: ids.slice(i, end)
 			}
 		}));
 	}
 
 	const resps = await Promise.all(promises);
-	let blocks = [];
+	let contracts = [];
 
 	for (let i = 0; i < resps.length; i++) {
-		if (resps[i].statusCode !== 200 || resps[i].body.type !== 'success' || !Array.isArray(resps[i].body.blocks))
-			throw new Error(resps[i].body.message || 'unable to get last block');
+		if (resps[i].statusCode !== 200 || resps[i].body.type !== 'success' || !Array.isArray(resps[i].body.contracts))
+			throw new Error(resps[i].body.message);
 
-		blocks = blocks.concat(resps[i].body.blocks);
+		contracts = contracts.concat(resps[i].body.contracts);
 	}
 
-	return blocks;
-}
-
-export async function getHost(netaddress) {
-	netaddress = encodeURIComponent(netaddress);
-
-	const resp = await sendJSONRequest(`https://api.siacentral.com/api/v1/explorer/hosts/search?net_address=${netaddress}`, {
-		method: 'GET'
-	});
-
-	if (resp.statusCode !== 200)
-		throw new Error(resp.body.message);
-
-	return resp.body.host;
+	return contracts;
 }
 
 export async function getCoinPrice() {
-	const resp = await sendJSONRequest(`https://apidev.siacentral.com/v2/explorer/market/exchange-rate`, {
+	const resp = await sendJSONRequest(`https://api.siacentral.com/v2/market/exchange-rate`, {
 		method: 'GET'
 	});
 
@@ -93,15 +104,4 @@ export async function getCoinPrice() {
 		throw new Error(resp.body.message);
 
 	return resp.body.price;
-}
-
-export async function getSiaCentralBootstrap() {
-	const resp = await sendJSONRequest(`https://api.siacentral.com/api/v1/bootstrap/latest`, {
-		method: 'GET'
-	});
-
-	if (resp.statusCode !== 200)
-		throw new Error(resp.body.message);
-
-	return resp.body.snapshot;
 }
