@@ -2,40 +2,28 @@
 	<table>
 		<thead>
 			<tr>
-				<td v-for="column in fixedColumns"
+				<td v-for="column in columns"
 					:key="`header-${column.key}`"
-					:class="{ 'contracts-header': true, 'contracts-sort': sortColumn && sortColumn.key === column.key }"
-					@click="$emit('sort', column)">
+					:class="{ 'contracts-header': true, 'contracts-sort': sort && sort.key === column.key }"
+					@click="$emit('sort', column.key)">
 
 					{{ column.text }}
-					<icon icon="chevron-up" v-if="!sortDescending && sortColumn && sortColumn.key === column.key" />
-					<icon icon="chevron-down" v-else-if="sortColumn && sortColumn.key === column.key" />
+					<icon icon="chevron-up" v-if="!sort.descending && sort && sort.key === column.key" />
+					<icon icon="chevron-down" v-else-if="sort && sort.key === column.key" />
 				</td>
-				<td v-for="column in visibleColumns"
-					:key="`header-${column.key}`"
-					:class="{ 'contracts-header': true, 'contracts-sort': sortColumn && sortColumn.key === column.key }"
-					@click="$emit('sort', column)">
-
-					{{ column.text }}
-					<icon icon="chevron-up" v-if="!sortDescending && sortColumn && sortColumn.key === column.key" />
-					<icon icon="chevron-down" v-else-if="sortColumn && sortColumn.key === column.key" />
-				</td>
-				<td></td><td></td>
+				<td></td>
+				<td></td>
 			</tr>
 		</thead>
 		<tbody>
 			<tr class="total-row">
-				<td v-for="column in fixedColumns" :key="`totals-${column.key}`">
-					{{ formatColumnTotal(column) }}
-				</td>
-				<td v-for="column in visibleColumns" :key="`totals-${column.key}`">
+				<td v-for="column in columns" :key="`totals-${column.key}`">
 					{{ formatColumnTotal(column) }}
 				</td>
 				<td></td><td></td>
 			</tr>
 			<tr v-for="contract in contracts" :key="contract.obligation_id">
-				<td v-for="column in fixedColumns" :key="column.key">{{ formatColumnValue(contract, column) }}</td>
-				<td v-for="column in visibleColumns" :key="column.key">{{ formatColumnValue(contract, column) }}</td>
+				<td v-for="column in columns" :key="column.key">{{ formatColumnValue(contract, column) }}</td>
 				<td class="fit-text">
 					<div class="tag-wrapper">
 						<div :class="getTagClasses(tag)" v-for="(tag, i) in contract.tags" :key="i">{{ tag.text }}</div>
@@ -53,128 +41,17 @@ import { formatPriceString, formatByteString, formatShortDateString, formatBlock
 
 export default {
 	props: {
+		columns: Array,
 		contracts: Array,
-		displayedColumns: Array,
 		totals: Object,
-		splitRevenue: Boolean,
-		sortColumn: Object,
-		sortDescending: Boolean
+		sort: Object
 	},
 	computed: {
-		...mapState(['block']),
-		visibleColumns() {
-			return this.fixedColumns.concat(this.columns.filter(c => this.displayedColumns.indexOf(c.key) !== -1));
-		}
+		...mapState(['block'])
 	},
 	data() {
 		return {
-			fixedColumns: [
-				{
-					text: 'ID',
-					key: 'id',
-					format: 'id'
-				},
-				{
-					text: 'Status',
-					key: 'status',
-					format: 'status'
-				}
-			],
-			columns: [
-				{
-					text: 'Sia Status',
-					key: 'sia_status',
-					format: 'status'
-				},
-				{
-					text: 'Start Date',
-					key: 'negotiation_timestamp',
-					format: 'date'
-				},
-				{
-					text: 'Expiration Date',
-					key: 'expiration_timestamp',
-					format: 'date'
-				},
-				{
-					text: 'Est. Data Size',
-					key: 'data_size',
-					total_key: 'data_size',
-					format: 'bytes'
-				},
-				{
-					text: 'Locked Collateral',
-					key: 'locked_collateral',
-					total_key: 'locked_collateral',
-					format: 'currency'
-				},
-				{
-					text: 'Risked Collateral',
-					key: 'risked_collateral',
-					total_key: 'risked_collateral',
-					format: 'currency'
-				},
-				{
-					text: 'Returned Collateral',
-					key: 'returned_collateral',
-					total_key: 'returned_collateral',
-					format: 'currency'
-				},
-				{
-					text: 'Lost Collateral',
-					key: 'burnt_collateral',
-					total_key: 'burnt_collateral',
-					format: 'currency'
-				},
-				{
-					text: 'Contract Fee',
-					key: 'contract_cost',
-					total_key: 'contract_cost',
-					format: 'currency'
-				},
-				{
-					text: 'Est. Storage Revenue',
-					key: 'storage_revenue',
-					total_key: 'storage_revenue',
-					format: 'currency'
-				},
-				{
-					text: 'Est. Upload Revenue',
-					key: 'upload_revenue',
-					total_key: 'upload_revenue',
-					format: 'currency'
-				},
-				{
-					text: 'Est. Download Revenue',
-					key: 'download_revenue',
-					total_key: 'download_revenue',
-					format: 'currency'
-				},
-				{
-					text: 'Potential Revenue',
-					key: 'potential_revenue',
-					total_key: 'potential_revenue',
-					format: 'currency'
-				},
-				{
-					text: 'Earned Revenue',
-					key: 'earned_revenue',
-					total_key: 'earned_revenue',
-					format: 'currency'
-				},
-				{
-					text: 'Lost Revenue',
-					key: 'lost_revenue',
-					total_key: 'lost_revenue',
-					format: 'currency'
-				},
-				{
-					text: 'Revenue',
-					key: 'revenue',
-					total_key: 'revenue',
-					format: 'currency'
-				}
-			]
+			showColumnSelect: false
 		};
 	},
 	methods: {
@@ -261,6 +138,24 @@ td.contracts-header {
 
 	&.contracts-sort, &:hover {
 		color: primary;
+	}
+}
+
+td.column-select-column {
+	z-index: 1000;
+
+	.column-select-button {
+		display: inline-block;
+		background: none;
+		padding: 0;
+		border: none;
+		outline: none;
+		color: rgba(255, 255, 255, 0.84);
+
+		&:hover, &:focus, &:active {
+			color: primary;
+			cursor: pointer;
+		}
 	}
 }
 

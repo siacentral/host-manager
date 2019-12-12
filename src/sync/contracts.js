@@ -151,7 +151,7 @@ function mergeContract(chain, sia) {
 		c.lost_revenue = c.valid_payout.minus(sia.lockedcollateral)
 			.minus(c.transaction_fees);
 		c.returned_collateral = new BigNumber(c.missed_proof_outputs[1].value);
-		c.burnt_collateral = new BigNumber(chain.missed_proof_outputs[2].value);
+		c.burnt_collateral = new BigNumber(sia.lockedcollateral);
 		c.revenue = c.lost_revenue;
 		break;
 	default:

@@ -2,39 +2,13 @@
 	<div class="page page-contracts">
 		<div class="controls">
 			<div class="filter-text">{{ filterText }}</div>
-			<button @click="onExport" class="btn btn-inline" :disabled="filterClosing || exporting"><icon icon="download" /> Export</button>
-			<button @click="onFilterShow" class="btn btn-inline" :disabled="filterClosing || exporting"><icon icon="filter" /> Filter</button>
-		</div>
-		<div class="display-grid">
-			<div class="grid-item item-warning">
-				<div class="item-title">Potential Revenue</div>
-				<div class="item-value">{{ formatPriceString(totals.potential_revenue, 4) }}</div>
-			</div>
-			<div class="grid-item">
-				<div class="item-title">Earned Revenue</div>
-				<div class="item-value">{{ formatPriceString(totals.earned_revenue, 4) }}</div>
-			</div>
-			<div class="grid-item item-negative">
-				<div class="item-title">Lost Revenue</div>
-				<div class="item-value">{{ formatPriceString(totals.lost_revenue, 4) }}</div>
-			</div>
-			<div class="grid-item item-warning">
-				<div class="item-title">Risked Collateral</div>
-				<div class="item-value">{{ formatPriceString(totals.risked_collateral, 4) }}</div>
-			</div>
-			<div class="grid-item">
-				<div class="item-title">Locked Collateral</div>
-				<div class="item-value">{{ formatPriceString(totals.locked_collateral, 4) }}</div>
-			</div>
-			<div class="grid-item item-negative">
-				<div class="item-title">Burnt Collateral</div>
-				<div class="item-value">{{ formatPriceString(totals.lost_collateral, 4) }}</div>
-			</div>
+			<button @click="onExport" class="btn btn-inline" :disabled="exporting"><icon icon="download" /> Export</button>
+			<button @click="showFilter = true" class="btn btn-inline" :disabled="exporting"><icon icon="filter" /> Filter</button>
 		</div>
 		<div class="contracts">
 			<empty-state v-if="filtered.length === 0" text="You have no contracts matching that filter" icon="file-contract" />
 			<div v-else class="grid-wrapper">
-				<contract-grid :contracts="pageContracts" :displayedColumns="displayColumns" :totals="totals" :sortColumn="sortColumn" :sortDescending="sortDescending" @sort="onSort" />
+				<contract-grid :contracts="pageContracts" :columns="visibleColumns" :totals="totals" :sort="sort" @sort="onSort" />
 			</div>
 		</div>
 		<div class="contracts-pagination">
@@ -42,12 +16,12 @@
 			<div class="page-text">{{ pageText }}</div>
 			<button class="btn btn-inline" @click="page += 1" :disabled="perPage + (page * perPage) >= filtered.length || filtered.length < perPage"><icon icon="chevron-right" /></button>
 		</div>
-		<filter-panel v-show="showFilter" @close="onFilterClose" />
+		<filter-panel v-show="showFilter" @close="showFilter = false" :columns="columns" :filter="filter" @filtered="onFiltered" :visible="displayColumns" @shown="onColShown" />
 	</div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import { promises as fs } from 'fs';
 import log from 'electron-log';
 import BigNumber from 'bignumber.js';
@@ -58,7 +32,7 @@ import ContractGrid from '@/components/contracts/ContractGrid';
 import EmptyState from '@/components/EmptyState';
 
 import { formatPriceString, formatByteString, formatShortDateString, formatFriendlyStatus } from '@/utils/format';
-import { writeConfig, showSaveDialogAsync } from '@/utils';
+import { showSaveDialogAsync } from '@/utils';
 
 export default {
 	components: {
@@ -69,13 +43,120 @@ export default {
 	data() {
 		return {
 			showFilter: false,
-			filterClosing: false,
 			exporting: false,
-			filtered: [],
 			filterDebounce: null,
+			filtered: [],
+			filter: {},
 			totals: {},
 			page: 0,
 			perPage: 50,
+			fixedColumns: [
+				{
+					text: 'ID',
+					key: 'id',
+					format: 'id'
+				},
+				{
+					text: 'Status',
+					key: 'status',
+					format: 'status'
+				}
+			],
+			columns: [
+				{
+					text: 'Sia Status',
+					key: 'sia_status',
+					format: 'status'
+				},
+				{
+					text: 'Start Date',
+					key: 'negotiation_timestamp',
+					format: 'date'
+				},
+				{
+					text: 'Expiration Date',
+					key: 'expiration_timestamp',
+					format: 'date'
+				},
+				{
+					text: 'Est. Data Size',
+					key: 'data_size',
+					total_key: 'data_size',
+					format: 'bytes'
+				},
+				{
+					text: 'Locked Collateral',
+					key: 'locked_collateral',
+					total_key: 'locked_collateral',
+					format: 'currency'
+				},
+				{
+					text: 'Risked Collateral',
+					key: 'risked_collateral',
+					total_key: 'risked_collateral',
+					format: 'currency'
+				},
+				{
+					text: 'Returned Collateral',
+					key: 'returned_collateral',
+					total_key: 'returned_collateral',
+					format: 'currency'
+				},
+				{
+					text: 'Lost Collateral',
+					key: 'burnt_collateral',
+					total_key: 'burnt_collateral',
+					format: 'currency'
+				},
+				{
+					text: 'Contract Fee',
+					key: 'contract_cost',
+					total_key: 'contract_cost',
+					format: 'currency'
+				},
+				{
+					text: 'Est. Storage Revenue',
+					key: 'storage_revenue',
+					total_key: 'storage_revenue',
+					format: 'currency'
+				},
+				{
+					text: 'Est. Upload Revenue',
+					key: 'upload_revenue',
+					total_key: 'upload_revenue',
+					format: 'currency'
+				},
+				{
+					text: 'Est. Download Revenue',
+					key: 'download_revenue',
+					total_key: 'download_revenue',
+					format: 'currency'
+				},
+				{
+					text: 'Potential Revenue',
+					key: 'potential_revenue',
+					total_key: 'potential_revenue',
+					format: 'currency'
+				},
+				{
+					text: 'Earned Revenue',
+					key: 'earned_revenue',
+					total_key: 'earned_revenue',
+					format: 'currency'
+				},
+				{
+					text: 'Lost Revenue',
+					key: 'lost_revenue',
+					total_key: 'lost_revenue',
+					format: 'currency'
+				},
+				{
+					text: 'Revenue',
+					key: 'revenue',
+					total_key: 'revenue',
+					format: 'currency'
+				}
+			],
 			displayColumns: [
 				'negotiation_timestamp',
 				'expiration_timestamp',
@@ -83,25 +164,56 @@ export default {
 				'locked_collateral',
 				'revenue'
 			],
-			sortColumn: {
-				text: 'Expiration Date',
+			sort: {
 				key: 'expiration_timestamp',
-				format: 'date'
-			},
-			sortDescending: false
+				descending: false
+			}
 		};
 	},
 	beforeMount() {
+		try {
+			const visible = JSON.parse(localStorage.getItem('contracts_visible_columns'));
+
+			if (Array.isArray(visible))
+				this.displayColumns = visible;
+		} catch (ex) { console.error(ex); }
+
+		try {
+			const filter = JSON.parse(localStorage.getItem('contracts_filter'));
+
+			if (filter.start_date)
+				filter.start_date = new Date(filter.start_date);
+
+			if (filter.end_date)
+				filter.end_date = new Date(filter.end_date);
+
+			this.filter = {
+				...filter
+			};
+		} catch (ex) { console.error(ex); }
+
+		try {
+			const sort = JSON.parse(localStorage.getItem('contracts_sort'));
+
+			if (sort.key && typeof sort.key === 'string')
+				this.sort.key = sort.key;
+
+			if (sort.descending && typeof sort.descending === 'boolean')
+				this.sort.descending = sort.descending;
+		} catch (ex) { console.error(ex); }
+
 		this.filterContracts();
 	},
 	computed: {
 		...mapState({
 			contracts: state => state.hostContracts.contracts,
-			stats: state => state.hostContracts.stats,
-			config: state => state.config
+			stats: state => state.hostContracts.stats
 		}),
+		visibleColumns() {
+			return this.fixedColumns.concat(this.columns.filter(c => this.displayColumns.indexOf(c.key) !== -1));
+		},
 		filterText() {
-			const filter = this.config.contract_filter || {};
+			const filter = this.filter || {};
 			let statusFilter = '',
 				dateFilter = '',
 				valueFilter = '';
@@ -180,11 +292,41 @@ export default {
 		}
 	},
 	methods: {
-		formatByteString,
-		formatPriceString,
+		...mapActions(['pushNotification']),
+		formatValue(value, format) {
+			format = (format || '').toLowerCase();
+
+			switch (format) {
+			case 'status':
+				if (!value)
+					return '';
+
+				return formatFriendlyStatus(value);
+			case 'date':
+				if (!value)
+					return '';
+
+				return formatShortDateString(value);
+			case 'currency':
+				if (!value)
+					return formatPriceString(0, 4);
+
+				return formatPriceString(value, 4);
+			case 'bytes':
+				if (!value)
+					return formatByteString(0, 2);
+
+				return formatByteString(value, 2);
+			default:
+				if (!value)
+					return '';
+
+				return value;
+			}
+		},
 		filterContracts() {
 			try {
-				const filter = this.config.contract_filter || {},
+				const filter = this.filter || {},
 					total = {
 						data_size: new BigNumber(0),
 						potential_revenue: new BigNumber(0),
@@ -197,7 +339,8 @@ export default {
 						burnt_collateral: new BigNumber(0),
 						download_revenue: new BigNumber(0),
 						upload_revenue: new BigNumber(0),
-						storage_revenue: new BigNumber(0)
+						storage_revenue: new BigNumber(0),
+						contract_cost: new BigNumber(0)
 					},
 					contracts = this.contracts.reduce((val, c) => {
 						let added = false;
@@ -231,6 +374,7 @@ export default {
 
 						if (added) {
 							total.data_size = total.data_size.plus(c.data_size);
+							total.contract_cost = total.contract_cost.plus(c.contract_cost);
 							total.potential_revenue = total.potential_revenue.plus(c.potential_revenue);
 							total.earned_revenue = total.earned_revenue.plus(c.earned_revenue);
 							total.lost_revenue = total.lost_revenue.plus(c.lost_revenue);
@@ -257,36 +401,41 @@ export default {
 			}
 		},
 		sortContracts() {
-			if (!this.sortColumn)
+			if (!this.sort || !this.sort.key)
+				return this.filtered;
+
+			const sortColumn = this.columns.find(c => c.key === this.sort.key);
+
+			if (!sortColumn)
 				return this.filtered;
 
 			this.filtered.sort((a, b) => {
-				a = a[this.sortColumn.key];
-				b = b[this.sortColumn.key];
+				a = a[this.sort.key];
+				b = b[this.sort.key];
 
-				switch (this.sortColumn.format) {
+				switch (sortColumn.format) {
 				case 'status':
 					a = formatFriendlyStatus(a).toLowerCase();
 					b = formatFriendlyStatus(b).toLowerCase();
 
-					if (a > b && this.sortDescending)
+					if (a > b && this.sort.descending)
 						return -1;
 					else if (a > b)
 						return 1;
 
-					if (a < b && this.sortDescending)
+					if (a < b && this.sort.descending)
 						return 1;
 					else if (a < b)
 						return -1;
 
 					return 0;
 				case 'date':
-					if (a > b && this.sortDescending)
+					if (a > b && this.sort.descending)
 						return -1;
 					else if (a > b)
 						return 1;
 
-					if (a < b && this.sortDescending)
+					if (a < b && this.sort.descending)
 						return 1;
 					else if (a < b)
 						return -1;
@@ -296,26 +445,26 @@ export default {
 				case 'bytes':
 					const agtB = a.gt(b);
 
-					if (agtB && this.sortDescending)
+					if (agtB && this.sort.descending)
 						return -1;
 					else if (agtB)
 						return 1;
 
 					const altB = a.lt(b);
 
-					if (altB && this.sortDescending)
+					if (altB && this.sort.descending)
 						return 1;
 					else if (altB)
 						return -1;
 
 					return 0;
 				default:
-					if (a > b && this.sortDescending)
+					if (a > b && this.sort.descending)
 						return -1;
 					else if (a > b)
 						return 1;
 
-					if (a < b && this.sortDescending)
+					if (a < b && this.sort.descending)
 						return 1;
 					else if (a < b)
 						return -1;
@@ -344,88 +493,68 @@ export default {
 				if (!filePath)
 					return;
 
-				const csv = [['"Contract ID"', '"Status"', '"Start Date"', '"End Date"', '"Proof Deadline"',
-					'"Locked Collateral"', '"Risked Collateral"', '"Contract Cost"', '"Transaction Fees"',
-					'"Storage Revenue"', '"Upload Revenue"', '"Download Revenue"', '"Total Revenue"'].join(',')];
+				const columns = this.visibleColumns,
+					headerRow = columns.map(c => c.text);
 
-				this.filtered.forEach(c => {
-					const row = [
-						`"${c.obligation_id}"`,
-						`"${formatFriendlyStatus(c.status)}"`,
-						`"${formatShortDateString(c.negotiation_timestamp)}"`,
-						`"${formatShortDateString(c.expiration_timestamp)}"`,
-						`"${formatShortDateString(c.proof_deadline_timestamp)}"`,
-						`${c.locked_collateral.toString(10)}`,
-						`${c.risked_collateral.toString(10)}`,
-						`${c.contract_cost.toString(10)}`,
-						`${c.transaction_fees.toString(10)}`,
-						`${c.storage_revenue.toString(10)}`,
-						`${c.upload_revenue.toString(10)}`,
-						`${c.download_revenue.toString(10)}`,
-						`${c.revenue.toString(10)}`
-					];
+				const csv = [headerRow.join(',')];
 
-					csv.push(row.join(','));
+				this.filtered.forEach(v => {
+					csv.push(columns.map(c => this.formatValue(v[c.key], c.format)).join(','));
 				});
 
 				await fs.writeFile(filePath, csv.join(EOL));
+				this.pushNotification({
+					message: `${this.filtered.length} contracts exported`,
+					icon: 'file-contract',
+					severity: 'success'
+				});
 			} catch (ex) {
 				log.error('onExport', ex.message);
+				this.pushNotification({
+					message: 'Export contracts failed',
+					icon: 'file-contract',
+					severity: 'danger'
+				});
 			} finally {
 				this.exporting = false;
 			}
 		},
 		onSort(column) {
 			try {
-				if (this.sortColumn === column)
-					this.sortDescending = !this.sortDescending;
+				if (this.sort.key === column)
+					this.sort.descending = !this.sort.descending;
 				else
-					this.sortDescending = true;
+					this.sort.descending = true;
 
-				this.sortColumn = column;
+				this.sort.key = column;
+				localStorage.setItem('contracts_sort', JSON.stringify(this.sort));
 				this.sortContracts();
 			} catch (ex) {
 				log.error('onSort', ex.message);
 			}
 		},
-		async onFilterClose() {
-			if (this.filterClosing)
-				return;
-
-			try {
-				this.filterClosing = true;
-				await writeConfig(this.config);
-			} catch (ex) {
-				log.error('onFilterClose', ex.message);
-			} finally {
-				this.filterClosing = false;
-				this.showFilter = false;
-			}
+		onFiltered(filter) {
+			localStorage.setItem('contracts_filter', JSON.stringify(filter));
+			this.filter = filter;
 		},
-		onFilterShow() {
-			try {
-				if (this.filterClosing)
-					return;
-
-				this.showFilter = true;
-			} catch (ex) {
-				log.error('onFilterShow', ex.message);
-			}
+		onColShown(visible) {
+			localStorage.setItem('contracts_visible_columns', JSON.stringify(visible));
+			this.displayColumns = visible;
 		}
 	},
 	watch: {
-		config() {
-			window.clearTimeout(this.filterDebounce);
-			this.filterDebounce = setTimeout(() => {
-				this.filterContracts();
-			}, 300);
-		},
 		contracts() {
 			this.filterContracts();
 		},
 		filtered() {
 			if (this.page * this.perPage >= this.filtered.length)
 				this.page = 0;
+		},
+		filter() {
+			window.clearTimeout(this.filterDebounce);
+			this.filterDebounce = window.setTimeout(() => {
+				this.filterContracts();
+			}, 300);
 		}
 	}
 };
@@ -463,7 +592,7 @@ export default {
 }
 .page-contracts {
 	display: grid;
-	grid-template-rows: auto auto minmax(0, 1fr) auto;
+	grid-template-rows: auto minmax(0, 1fr) auto;
 	grid-template-columns: 100%;
 	grid-gap: 0;
 	overflow: hidden;

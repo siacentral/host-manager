@@ -38,6 +38,15 @@
 						<label class="error" v-if="errors['revenue']">{{ errors['revenue'] }}</label>
 					</div>
 				</div>
+				<div class="filter-content visible-columns">
+					<label class="filter-header">Visible Columns</label>
+					<div class="column-select-columns">
+						<div class="control" v-for="column in columns" :key="column.key">
+							<input ref="columns" type="checkbox" :column="column.key" :id="`chk-show-${column.key}`" @change="onChangeColVisible" />
+							<label :for="`chk-show-${column.key}`">{{ column.text }}</label>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</transition>
@@ -45,14 +54,15 @@
 
 <script>
 import log from 'electron-log';
-import { mapActions, mapState } from 'vuex';
 
 import { parseCurrencyString } from '@/utils/parse';
 import { formatPriceString } from '@/utils/format';
 
 export default {
 	props: {
-		filter: Object
+		columns: Array,
+		filter: Object,
+		visible: Array
 	},
 	data() {
 		return {
@@ -70,32 +80,50 @@ export default {
 			revenueMax: null
 		};
 	},
-	computed: {
-		...mapState(['config'])
-	},
 	beforeMount() {
-		this.loadConfig();
+		this.loadFilter();
+	},
+	mounted() {
+		for (let i = 0; i < this.$refs.columns.length; i++) {
+			const chk = this.$refs.columns[i],
+				key = chk.getAttribute('column');
+
+			chk.checked = this.visible.indexOf(key) !== -1;
+		}
 	},
 	methods: {
-		...mapActions(['setConfig']),
-		loadConfig() {
-			const filter = this.config.contract_filter || {};
+		onChangeColVisible() {
+			try {
+				const visible = [];
 
-			this.active = Array.isArray(filter.statuses) && filter.statuses.indexOf('active') !== -1;
-			this.successful = Array.isArray(filter.statuses) && filter.statuses.indexOf('successful') !== -1;
-			this.failed = Array.isArray(filter.statuses) && filter.statuses.indexOf('failed') !== -1;
+				for (let i = 0; i < this.$refs.columns.length; i++) {
+					const chk = this.$refs.columns[i];
 
-			if (filter.start_date)
-				this.startDateStr = this.dateControlFormat(filter.start_date);
+					if (chk.checked)
+						visible.push(chk.getAttribute('column'));
+				}
 
-			if (filter.end_date)
-				this.endDateStr = this.dateControlFormat(filter.end_date);
+				this.$emit('shown', visible);
+			} catch (ex) {
+				log.error('onChangeColVisible', ex.message);
+			}
+		},
+		loadFilter() {
+			this.active = Array.isArray(this.filter.statuses) && this.filter.statuses.indexOf('active') !== -1;
+			this.successful = Array.isArray(this.filter.statuses) && this.filter.statuses.indexOf('successful') !== -1;
+			this.failed = Array.isArray(this.filter.statuses) && this.filter.statuses.indexOf('failed') !== -1;
 
-			if (filter.revenue_min)
-				this.revenueMinStr = formatPriceString(filter.revenue_min, 4);
+			if (this.filter.start_date)
+				this.startDateStr = this.dateControlFormat(this.filter.start_date);
 
-			if (filter.revenue_max)
-				this.revenueMaxStr = formatPriceString(filter.revenue_max, 4);
+			if (this.filter.end_date)
+				this.endDateStr = this.dateControlFormat(this.filter.end_date);
+
+			if (this.filter.revenue_min)
+				this.revenueMinStr = formatPriceString(this.filter.revenue_min, 4);
+
+			if (this.filter.revenue_max)
+				this.revenueMaxStr = formatPriceString(this.filter.revenue_max, 4);
 		},
 		buildFilter() {
 			try {
@@ -128,9 +156,7 @@ export default {
 				if (this.revenueMax)
 					filter.revenue_max = this.revenueMax;
 
-				this.setConfig({
-					contract_filter: filter
-				});
+				this.$emit('filtered', filter);
 			} catch (ex) {
 				log.error('onBuildFilter', ex.message);
 			}
@@ -293,9 +319,11 @@ export default {
 
 .panel.panel-filter {
 	position: absolute;
+	display: grid;
 	top: 0;
 	right: 0;
 	bottom: 0;
+	grid-template-rows: auto minmax(0, 1fr);
 	width: auto;
 	padding: 45px 15px 15px;
 	background-color: bg-dark-accent;
@@ -344,6 +372,21 @@ export default {
 		grid-gap: 5px;
 		grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 		align-items: center;
+	}
+}
+
+.filter-content.visible-columns {
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+
+	.control {
+		text-align: left;
+		margin-bottom: 15px;
+
+		&:last-of-type {
+			margin-bottom: 0;
+		}
 	}
 }
 </style>
