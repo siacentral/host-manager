@@ -1,13 +1,9 @@
-const aws = require('aws-sdk'),
-	forge = require('node-forge'),
+const forge = require('node-forge'),
 	crypto = require('crypto'),
 	fs = require('fs').promises,
 	path = require('path');
 
-const signatureRequired = ['.appimage', '.exe', '.deb', '.dmg'],
-	s3 = new aws.S3({
-		region: 'us-east-2'
-	});
+const signatureRequired = ['.appimage', '.exe', '.deb', '.dmg'];
 
 async function loadPrivateKey() {
 	/**
@@ -26,20 +22,6 @@ async function loadPrivateKey() {
 	return forge.pki.privateKeyToPem(p12.getBags({ bagType: forge.pki.oids.pkcs8ShroudedKeyBag })[forge.pki.oids.pkcs8ShroudedKeyBag][0].key);
 }
 
-async function uploadToS3(opts) {
-	if (!process.env.PUBLISH)
-		return;
-
-	return new Promise((resolve, reject) => {
-		s3.putObject(opts, err => {
-			if (err)
-				return reject(err);
-
-			resolve();
-		});
-	});
-}
-
 async function signHash(artifactPath, key) {
 	const digest = crypto.createSign('SHA256'),
 		file = await fs.readFile(artifactPath);
@@ -50,16 +32,9 @@ async function signHash(artifactPath, key) {
 }
 
 async function generateSignature(result, artifactPath, key) {
-	const sig = await signHash(artifactPath, key),
-		sigName = `${path.basename(artifactPath)}.sha256`;
+	const sig = await signHash(artifactPath, key);
 
 	await fs.writeFile(`${artifactPath}.sha256`, sig);
-	await uploadToS3({
-		Bucket: result.configuration.publish.bucket,
-		Key: `host-manager/${sigName}`,
-		Body: sig,
-		ACL: 'public-read'
-	});
 }
 
 module.exports = async function(result) {
