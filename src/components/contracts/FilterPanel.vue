@@ -346,10 +346,14 @@ export default {
 }
 
 .filter-header {
+	position: sticky;
 	display: block;
+	top: 0;
 	font-size: 1rem;
+	background: bg-dark-accent;
 	color: rgba(255, 255, 255, 0.54);
-	margin-bottom: 10px;
+	padding: 10px 0;
+	z-index: 2;
 }
 
 .filter-presets {
