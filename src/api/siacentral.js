@@ -1,7 +1,7 @@
 import { sendJSONRequest } from './common';
 
 export async function getAverageSettings() {
-	const resp = await sendJSONRequest(`https://api.siacentral.com/api/v1/explorer/hosts/average`, {
+	const resp = await sendJSONRequest(`https://api.siacentral.com/v2/hosts/settings/average`, {
 		method: 'GET'
 	});
 
@@ -14,7 +14,7 @@ export async function getAverageSettings() {
 export async function getConnectability(netaddress) {
 	netaddress = encodeURIComponent(netaddress);
 
-	const resp = await sendJSONRequest(`https://api.siacentral.com/api/v1/explorer/hosts/checkconnection?netaddress=${netaddress}`, {
+	const resp = await sendJSONRequest(`https://api.siacentral.com/v2/troubleshoot/${netaddress}`, {
 		method: 'GET',
 		timeout: 60000
 	});
@@ -22,28 +22,28 @@ export async function getConnectability(netaddress) {
 	if (resp.statusCode !== 200)
 		throw new Error(resp.body.message);
 
-	return resp.body;
+	return resp.body.report;
 }
 
 export async function getHost(netaddress) {
 	netaddress = encodeURIComponent(netaddress);
 
-	const resp = await sendJSONRequest(`https://api.siacentral.com/api/v1/explorer/hosts/search?net_address=${netaddress}`, {
+	const resp = await sendJSONRequest(`https://api.siacentral.com/v2/hosts/${netaddress}`, {
 		method: 'GET'
 	});
 
-	if (resp.statusCode !== 200)
+	if (resp.statusCode !== 200 || resp.body.type !== 'success')
 		throw new Error(resp.body.message);
 
 	return resp.body.host;
 }
 
 export async function getSiaCentralBootstrap() {
-	const resp = await sendJSONRequest(`https://api.siacentral.com/api/v1/bootstrap/latest`, {
+	const resp = await sendJSONRequest(`https://api.siacentral.com/v2/bootstrap/latest`, {
 		method: 'GET'
 	});
 
-	if (resp.statusCode !== 200)
+	if (resp.statusCode !== 200 || resp.body.type !== 'success')
 		throw new Error(resp.body.message);
 
 	return resp.body.snapshot;
