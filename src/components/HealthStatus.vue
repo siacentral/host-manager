@@ -6,7 +6,7 @@
 			<div :class="connectionSeverity">
 				<icon icon="wifi" />
 			</div>
-			<div class="sia-status-title">{{ connection.connectable ? 'Working' : 'Connection Issue' }}</div>
+			<div class="sia-status-title">{{ connectionText }}</div>
 			<div class="sia-status-text">Connectivity</div>
 		</a>
 		<div class="sia-status-item">
@@ -64,6 +64,16 @@ export default {
 
 			return 'Syncing';
 		},
+		connectionText() {
+			switch (this.connection.severity) {
+			case 'severe':
+				return 'Connection Issue';
+			case 'warning':
+				return 'Warning';
+			default:
+				return 'Online';
+			}
+		},
 		connectivityLink() {
 			const params = [];
 
@@ -78,7 +88,14 @@ export default {
 		connectionSeverity() {
 			const classes = { 'sia-status-icon': true };
 
-			classes['status-danger'] = !this.connection.connectable;
+			switch (this.connection.severity) {
+			case 'severe':
+				classes['status-danger'] = true;
+				break;
+			case 'warning':
+				classes['status-warning'] = true;
+				break;
+			}
 
 			return classes;
 		}

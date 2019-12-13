@@ -14,6 +14,28 @@ export async function refreshExplorer() {
 	}
 }
 
+function severityToNumeric(severity) {
+	switch (severity.toLowerCase()) {
+	case 'severe':
+		return 3;
+	case 'warning':
+		return 2;
+	default:
+		return 1;
+	}
+}
+
+function translateSeverity(severity) {
+	switch (severity.toLowerCase()) {
+	case 'severe':
+		return 'danger';
+	case 'warning':
+		return 'warning';
+	default:
+		return null;
+	}
+}
+
 export async function checkHostConnectability() {
 	try {
 		const report = await getConnectability(Store.state.netAddress);
@@ -21,19 +43,29 @@ export async function checkHostConnectability() {
 		if (!report)
 			return;
 
-		const alerts = [],
-			connectable = report.connected && report.exists_in_hostdb && report.settings_scanned;
+		const alerts = [];
 
-		report.message = report.message === 'success' ? null : report.message;
-		report.connectable = connectable;
+		if (Array.isArray(report.errors) && report.errors.length !== 0) {
+			let highestSeverityIdx;
+			let highestSeverity;
 
-		if (!connectable) {
-			alerts.push({
-				category: 'connection',
-				icon: 'wifi',
-				severity: 'danger',
-				message: report.message ? report.message : 'Your host does not appear to be connectable. Renters may be unable to access their data'
-			});
+			for (let i = 0; i < report.errors.length; i++) {
+				const severity = severityToNumeric(report.errors[i].severity);
+
+				if (!highestSeverityIdx || severity > highestSeverityIdx) {
+					highestSeverityIdx = severity;
+					highestSeverity = report.errors[i].severity;
+				}
+
+				alerts.push({
+					category: 'connection',
+					icon: 'wifi',
+					severity: translateSeverity(report.errors[i].severity),
+					message: report.errors[i].message
+				});
+			}
+
+			report.severity = highestSeverity;
 		}
 
 		Store.dispatch('explorer/setAlerts', alerts);
