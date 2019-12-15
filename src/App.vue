@@ -76,7 +76,7 @@ export default {
 		onMaxWindow() {
 			try {
 				const window = remote.getCurrentWindow();
-				window.maximize();
+				window.isMaximized() ? window.unmaximize() : window.maximize();
 			} catch (ex) {
 				log.error('maximize window', ex.message);
 			}

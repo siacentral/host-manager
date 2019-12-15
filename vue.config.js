@@ -73,7 +73,7 @@ module.exports = {
 				publish: {
 					provider: 'generic',
 					/* eslint-disable no-template-curly-in-string */
-					url: 'https://public.siacentral.com/host-manager/releases/${channel}/${os}',
+					url: 'https://public.siacentral.com/host-manager/releases/${channel}',
 					channel: 'beta'
 				}
 			}
