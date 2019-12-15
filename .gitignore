@@ -20,6 +20,10 @@ yarn-error.log*
 *.sln
 *.sw?
 *.sh
+*.p12
+*.pem
+*.cer
+*.crt
 
 #Electron-builder output
 /dist_electron
