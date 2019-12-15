@@ -151,6 +151,12 @@ export default {
 					format: 'currency'
 				},
 				{
+					text: 'Contract Payout',
+					key: 'payout',
+					total_key: 'payout',
+					format: 'currency'
+				},
+				{
 					text: 'Revenue',
 					key: 'revenue',
 					total_key: 'revenue',
@@ -340,7 +346,8 @@ export default {
 						download_revenue: new BigNumber(0),
 						upload_revenue: new BigNumber(0),
 						storage_revenue: new BigNumber(0),
-						contract_cost: new BigNumber(0)
+						contract_cost: new BigNumber(0),
+						payout: new BigNumber(0)
 					},
 					contracts = this.contracts.reduce((val, c) => {
 						let added = false;
@@ -387,6 +394,7 @@ export default {
 							total.upload_revenue = total.upload_revenue.plus(c.upload_revenue);
 							total.storage_revenue = total.storage_revenue.plus(c.storage_revenue);
 							total.download_revenue = total.download_revenue.plus(c.download_revenue);
+							total.payout = total.payout.plus(c.payout);
 						}
 
 						return val;

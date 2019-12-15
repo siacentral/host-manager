@@ -126,8 +126,6 @@ function mergeContract(chain, sia) {
 		expiration_timestamp: new Date(chain.expiration_timestamp),
 		proof_deadline_timestamp: new Date(chain.proof_deadline_timestamp),
 		proof_timestamp: new Date(chain.proof_timestamp),
-		valid_payout: new BigNumber(chain.valid_proof_outputs[1].value),
-		missed_payout: new BigNumber(chain.missed_proof_outputs[1].value),
 		burnt_collateral: new BigNumber(0),
 		returned_collateral: new BigNumber(0),
 		risked_collateral: new BigNumber(0),
@@ -139,27 +137,28 @@ function mergeContract(chain, sia) {
 		tags: []
 	};
 
-	c.potential_revenue = c.storage_revenue.plus(c.download_revenue).plus(c.upload_revenue)
-		.plus(c.contract_cost).minus(c.transaction_fees);
-
 	switch (c.status.toLowerCase()) {
 	case 'obligationsucceeded':
 		c.returned_collateral = new BigNumber(sia.lockedcollateral);
-		c.earned_revenue = c.valid_payout.minus(c.returned_collateral)
-			.minus(c.transaction_fees);
+		c.payout = new BigNumber(c.valid_proof_outputs[1].value);
+		c.earned_revenue = c.payout.minus(c.returned_collateral).minus(c.transaction_fees);
 		c.revenue = c.earned_revenue;
 		break;
 	case 'obligationfailed':
-		c.lost_revenue = c.valid_payout.minus(sia.lockedcollateral)
-			.minus(c.transaction_fees);
+		c.payout = new BigNumber(c.missed_proof_outputs[1].value);
 		c.returned_collateral = new BigNumber(c.missed_proof_outputs[1].value);
-		c.burnt_collateral = new BigNumber(sia.lockedcollateral);
-		c.revenue = c.lost_revenue;
+		c.lost_revenue = new BigNumber(c.valid_proof_outputs[1].value).minus(sia.lockedcollateral)
+			.minus(c.transaction_fees);
+		c.burnt_collateral = new BigNumber(sia.lockedcollateral).minus(c.returned_collateral);
+		c.revenue = new BigNumber(0);
 		break;
 	default:
 		c.risked_collateral = new BigNumber(sia.riskedcollateral);
 		c.locked_collateral = new BigNumber(sia.lockedcollateral);
+		c.potential_revenue = c.storage_revenue.plus(c.download_revenue).plus(c.upload_revenue)
+			.plus(c.contract_cost).minus(c.transaction_fees);
 		c.revenue = c.potential_revenue;
+		c.payout = new BigNumber(0);
 	}
 
 	return c;
