@@ -139,12 +139,14 @@ function mergeContract(chain, sia) {
 		tags: []
 	};
 
+	c.potential_revenue = c.storage_revenue.plus(c.download_revenue).plus(c.upload_revenue)
+		.plus(c.contract_cost).minus(c.transaction_fees);
+
 	switch (c.status.toLowerCase()) {
 	case 'obligationsucceeded':
 		c.returned_collateral = new BigNumber(sia.lockedcollateral);
 		c.earned_revenue = c.valid_payout.minus(c.returned_collateral)
 			.minus(c.transaction_fees);
-		c.returned_collateral = c.locked_collateral;
 		c.revenue = c.earned_revenue;
 		break;
 	case 'obligationfailed':
@@ -157,8 +159,6 @@ function mergeContract(chain, sia) {
 	default:
 		c.risked_collateral = new BigNumber(sia.riskedcollateral);
 		c.locked_collateral = new BigNumber(sia.lockedcollateral);
-		c.potential_revenue = c.storage_revenue.plus(c.download_revenue).plus(c.upload_revenue)
-			.plus(c.contract_cost).minus(c.transaction_fees);
 		c.revenue = c.potential_revenue;
 	}
 
