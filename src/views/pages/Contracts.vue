@@ -185,7 +185,10 @@ export default {
 		} catch (ex) { console.error(ex); }
 
 		try {
-			const filter = JSON.parse(localStorage.getItem('contracts_filter'));
+			let filter = JSON.parse(localStorage.getItem('contracts_filter'));
+
+			if (!filter)
+				filter = { statuses: ['active'] };
 
 			if (filter.start_date)
 				filter.start_date = new Date(filter.start_date);
@@ -200,6 +203,9 @@ export default {
 
 		try {
 			const sort = JSON.parse(localStorage.getItem('contracts_sort'));
+
+			if (!sort)
+				return;
 
 			if (sort.key && typeof sort.key === 'string')
 				this.sort.key = sort.key;
