@@ -163,7 +163,7 @@ export default class SiaDaemon {
 						that._totalMods = total;
 						that._currentMod = current;
 
-						if (that._stdout.indexOf('Finished loading in') >= 0 && !that._loaded) {
+						if (that._stdout.indexOf('API is now available') !== -1 && !that._loaded) {
 							that._loaded = true;
 
 							that._trigger('loaded', that.stats());
