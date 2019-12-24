@@ -1,4 +1,5 @@
 import path from 'path';
+import log from 'electron-log';
 import { app, BrowserWindow, shell } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { shutdown } from './tray';
@@ -43,11 +44,15 @@ async function createWindow() {
 	}
 
 	const handleRedirect = (e, url) => {
-		if (url.startsWith('http') && url !== mainWindow.webContents.getURL()) {
-			shell.openExternal(url);
+		try {
+			if (url.startsWith('http') && url !== mainWindow.webContents.getURL()) {
+				shell.openExternal(url);
 
-			e.preventDefault();
-			return false;
+				e.preventDefault();
+				return false;
+			}
+		} catch (ex) {
+			log.error('handleRedirect', ex.message);
 		}
 	};
 

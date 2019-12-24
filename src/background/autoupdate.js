@@ -49,28 +49,44 @@ function onCheckForUpdates() {
 }
 
 function onUpdateAvailable(info) {
-	sendIPC('updateData', {
-		version: info.version,
-		releaseDate: info.releaseDate,
-		available: true,
-		ready: false
-	});
+	try {
+		sendIPC('updateData', {
+			version: info.version,
+			releaseDate: info.releaseDate,
+			available: true,
+			ready: false
+		});
+	} catch (ex) {
+		log.error('onUpdateAvailable', ex);
+	}
 }
 
 function onUpdateReady(info) {
-	log.info(`update ${info.version} downloaded and waiting to install`);
-	sendIPC('updateData', {
-		version: info.version,
-		releaseDate: info.releaseDate,
-		available: true,
-		ready: true
-	});
+	try {
+		log.info(`update ${info.version} downloaded and waiting to install`);
+		sendIPC('updateData', {
+			version: info.version,
+			releaseDate: info.releaseDate,
+			available: true,
+			ready: true
+		});
+	} catch (ex) {
+		log.error('onUpdateReady', ex);
+	}
 }
 
 function onUpdateProgress(progress) {
-	sendIPC('updateDownloadProgress', progress);
+	try {
+		sendIPC('updateDownloadProgress', progress);
+	} catch (ex) {
+		log.error('onUpdateProgress', ex);
+	}
 }
 
 function onUpdateError(err) {
-	log.error('update error', err);
+	try {
+		log.error('update error', err);
+	} catch (ex) {
+		log.error('onUpdateError', ex);
+	}
 }
