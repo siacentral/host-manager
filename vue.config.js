@@ -74,7 +74,7 @@ module.exports = {
 					provider: 'generic',
 					/* eslint-disable no-template-curly-in-string */
 					url: 'https://public.siacentral.com/host-manager/releases/${channel}',
-					channel: 'beta'
+					channel: 'latest'
 				}
 			}
 		}

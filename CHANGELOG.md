@@ -1,3 +1,22 @@
+## December 2019
+
+### v1.0.6
+
+#### Features
+
++ Brand new contracts page. Dynamic filtering and column display for host contracts
+
+#### Changes
+
++ Switched all endpoints to Sia Central's new v2 API
++ Updated bundled Sia Daemon to v1.4.2.0
++ Switched from AWS S3 distribution to generic distribution
+
+#### Bug Fixes
+
++ Fixed memory issues with contract parsing. Older and larger hosts should be quicker and more stable.
++ Fixed memory leaks when communicating with the main js process
+
 ## October 2019
 
 ### v1.0.5
