@@ -112,20 +112,16 @@ export default {
 		formatByteString,
 		async loadSiaCentralBootstrap() {
 			try {
-				const resp = await getSiaCentralBootstrap();
-
-				if (resp.status !== 200 && resp.body.type !== 'success')
-					throw new Error(resp.body.message);
-
-				const fmt = new Intl.NumberFormat([], {}),
-					timestamp = new Date(resp.body.snapshot.timestamp);
+				const snapshot = await getSiaCentralBootstrap(),
+					fmt = new Intl.NumberFormat([], {}),
+					timestamp = new Date(snapshot.timestamp);
 
 				this.providers.push({
 					name: 'Sia Central',
-					download_url: resp.body.snapshot.download_url,
-					hash: resp.body.snapshot.block_hash,
-					height: fmt.format(resp.body.snapshot.block_height),
-					size: formatByteString(parseFloat(resp.body.snapshot.compressed_size), 2),
+					download_url: snapshot.download_url,
+					hash: snapshot.block_hash,
+					height: fmt.format(snapshot.block_height),
+					size: formatByteString(parseFloat(snapshot.compressed_size), 2),
 					timestamp: formatDate(timestamp)
 				});
 			} catch (ex) {
@@ -185,13 +181,15 @@ export default {
 
 				const tempPath = path.join(this.config.siad_data_path, `host-manager-bootstrap-dl.tmp`);
 
+				console.log(this.config.siad_data_path);
+
 				try {
 					await fs.promises.unlink(tempPath);
-					// windows throws an error when mkdir on a root path. we should ignore that error
-					await fs.promises.mkdir(this.config.siad_data_path, {
-						recursive: true
-					});
 				} catch (ex) {}
+
+				await fs.promises.mkdir(this.config.siad_data_path, {
+					recursive: true
+				});
 
 				const out = fs.createWriteStream(tempPath);
 
