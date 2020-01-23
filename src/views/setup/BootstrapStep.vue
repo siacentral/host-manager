@@ -181,8 +181,6 @@ export default {
 
 				const tempPath = path.join(this.config.siad_data_path, `host-manager-bootstrap-dl.tmp`);
 
-				console.log(this.config.siad_data_path);
-
 				try {
 					await fs.promises.unlink(tempPath);
 				} catch (ex) {}
