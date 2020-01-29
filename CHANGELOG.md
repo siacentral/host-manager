@@ -1,3 +1,15 @@
+## January 2020
+
+### v1.0.7
+
+### Changes
+
++ Updated bundled Sia Daemon to v1.4.2.1
+
+### Bug Fixes
+
++ Fixed issue with automatic bootstrap during setup
+
 ## December 2019
 
 ### v1.0.6
