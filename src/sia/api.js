@@ -71,10 +71,14 @@ export default class SiaApiClient {
 			return this._defaultApiPassword;
 		}
 
-		const passwordFile = path.join(getDefaultSiaPath(), 'apipassword'),
-			data = decode(await fs.readFile(passwordFile)).trim();
+		try {
+			const passwordFile = path.join(getDefaultSiaPath(), 'apipassword'),
+				data = decode(await fs.readFile(passwordFile)).trim();
 
-		this._defaultApiPassword = data;
+			this._defaultApiPassword = data;
+		} catch (ex) {
+			log.warn('SiaApiClient.getDefaultAPIPassword', ex);
+		}
 
 		return this._defaultApiPassword;
 	}

@@ -28,6 +28,14 @@ process.on('unhandledRejection', error => {
 	log.error(error);
 });
 
+Vue.mixin({
+	methods: {
+		pushNotification(notification) {
+			store.dispatch('pushNotification', notification);
+		}
+	}
+});
+
 async function init() {
 	attachDaemonIPC();
 	attachUpdateIPC();

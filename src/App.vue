@@ -13,6 +13,7 @@
 		</div>
 		<transition name="fade" mode="out-in" appear>
 			<setup v-if="firstRun && animationComplete" key="setup" />
+			<change-api-credentials v-else-if="criticalError === 'API credentials invalid'" :config="config" @changed="onChangeAPIPassword" />
 			<loader v-else-if="showLoader" key="loader" @animated="animationComplete = true" :progress="loaderProgress" :text="loaderText" :severity="loaderSeverity" :subText="loaderSubtext" />
 			<unlock-wallet v-else-if="animationComplete && !walletUnlocked && !walletScanning" key="unlock" />
 			<primary-view v-else key="primary" />
@@ -28,6 +29,9 @@ import log from 'electron-log';
 import { launch, running } from '@/sync/daemon';
 import { checkForUpdates } from '@/sync/autoupdate';
 import { refreshData } from '@/sync';
+import { writeConfig } from '@/utils';
+
+import ChangeApiCredentials from '@/views/ChangeAPICredentials';
 import Loader from '@/views/Loader';
 import NotificationQueue from '@/components/NotificationQueue';
 import PrimaryView from '@/views/PrimaryView';
@@ -36,6 +40,7 @@ import Setup from '@/views/Setup';
 
 export default {
 	components: {
+		ChangeApiCredentials,
 		Loader,
 		NotificationQueue,
 		PrimaryView,
@@ -61,7 +66,26 @@ export default {
 
 				launch();
 			} catch (ex) {
-				log.error('try load', ex.message);
+				log.error('try load', ex);
+				this.setCriticalError(ex.message);
+			}
+		},
+		async onChangeAPIPassword(password) {
+			try {
+				const config = {
+					...this.config,
+					siad_api_password: password
+				};
+
+				console.log(password);
+
+				this.setConfig(config);
+				await writeConfig(config);
+
+				await refreshData(config);
+				this.setCriticalError(null);
+			} catch (ex) {
+				log.error('App.onChangeAPIPassword', ex);
 				this.setCriticalError(ex.message);
 			}
 		},
@@ -70,7 +94,7 @@ export default {
 				const window = remote.getCurrentWindow();
 				window.minimize();
 			} catch (ex) {
-				log.error('minimize window', ex.message);
+				log.error('minimize window', ex);
 			}
 		},
 		onMaxWindow() {
@@ -78,7 +102,7 @@ export default {
 				const window = remote.getCurrentWindow();
 				window.isMaximized() ? window.unmaximize() : window.maximize();
 			} catch (ex) {
-				log.error('maximize window', ex.message);
+				log.error('maximize window', ex);
 			}
 		},
 		onCloseWindow() {
@@ -86,7 +110,7 @@ export default {
 				const window = remote.getCurrentWindow();
 				window.close();
 			} catch (ex) {
-				log.error('close window', ex.message);
+				log.error('close window', ex);
 			}
 		}
 	},

@@ -1,6 +1,7 @@
 import process from 'process';
 import { spawn } from 'child_process';
 import { decode } from '@stablelib/utf8';
+import log from 'electron-log';
 
 import SiaApiClient from './api';
 
@@ -94,7 +95,9 @@ export default class SiaDaemon {
 			await client.getDaemonVersion();
 
 			return true;
-		} catch (ex) {}
+		} catch (ex) {
+			log.warn('SiaDaemon.available', ex);
+		}
 
 		return false;
 	}
