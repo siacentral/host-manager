@@ -1,3 +1,20 @@
+## March 2020
+
+### v1.0.9
+
+### Changes
+
++ Update bundled Sia Daemon to v1.4.4
++ Allow changing Sia API password from within Host Manager when incorrect
+
+## February 2020
+
+### v1.0.8
+
+### Changes
+
++ Update bundled Sia Daemon to v1.4.3
+
 ## January 2020
 
 ### v1.0.7
