@@ -2,6 +2,16 @@
 
 ### v1.0.9
 
+### Bug Fixes
+
++ Fixed issue with currency parsing in some locales
+
+### Changes
+
++ Update bundled Sia Daemon to v1.4.5
+
+### v1.0.9
+
 ### Changes
 
 + Update bundled Sia Daemon to v1.4.4
