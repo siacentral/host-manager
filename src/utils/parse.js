@@ -7,8 +7,10 @@ export function parseNumberString(str, mul, units) {
 		decimalSep = (1.1).toLocaleString().substring(1, 2),
 		repRegex = new RegExp(`[^0-9${decimalSep}]`, 'g');
 
-	let num = new BigNumber(str.replace(repRegex, '').replace(decimalSep, '.'), 10),
-		found = false;
+	if (!Array.isArray(units))
+		units = [];
+
+	let num = new BigNumber(str.replace(repRegex, '').replace(decimalSep, '.'), 10);
 
 	if (num.isNaN())
 		num = new BigNumber(0);
@@ -16,7 +18,7 @@ export function parseNumberString(str, mul, units) {
 	if (isNaN(num) || !isFinite(num))
 		num = 0;
 
-	if (unit.length === 0)
+	if (!unit || unit.length === 0)
 		return num;
 
 	for (let i = 0; i < units.length; i++) {
@@ -24,12 +26,8 @@ export function parseNumberString(str, mul, units) {
 			continue;
 
 		mul = Math.pow(mul, i);
-		found = true;
 		break;
 	}
-
-	if (!found)
-		throw new Error(`${unit} not found`);
 
 	return num.times(mul);
 };
