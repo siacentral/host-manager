@@ -1,5 +1,11 @@
 ## March 2020
 
+### v1.0.11
+
+### Changes
+
++ Update bundled Sia Daemon to v1.4.6
+
 ### v1.0.10
 
 ### Bug Fixes
