@@ -133,7 +133,7 @@ function mergeContract(chain, sia) {
 		earned_revenue: new BigNumber(0),
 		lost_revenue: new BigNumber(0),
 		potential_revenue: new BigNumber(0),
-		unused: sia.datasize === 0,
+		proof_required: !new BigNumber(chain.valid_proof_outputs[1].value).eq(chain.missed_proof_outputs[1].value),
 		tags: []
 	};
 
@@ -146,7 +146,7 @@ function mergeContract(chain, sia) {
 		break;
 	case 'obligationfailed':
 		c.payout = new BigNumber(c.missed_proof_outputs[1].value);
-		c.returned_collateral = new BigNumber(c.missed_proof_outputs[1].value);
+		c.returned_collateral = new BigNumber(c.missed_proof_outputs[1].value).minus(c.contract_cost);
 		c.lost_revenue = new BigNumber(c.valid_proof_outputs[1].value).minus(sia.lockedcollateral)
 			.minus(c.transaction_fees);
 		c.burnt_collateral = new BigNumber(sia.lockedcollateral).minus(c.returned_collateral);
@@ -231,13 +231,7 @@ export async function parseHostContracts() {
 
 			addContractStats(stats, c);
 
-			if (c.unused) {
-				c.tags.push({
-					text: 'Unused'
-				});
-			}
-
-			if (c.proof_deadline < currentBlock.height && !c.unused && !c.proof_confirmed) {
+			if (c.proof_deadline < currentBlock.height && c.proof_required && !c.proof_confirmed) {
 				c.tags.push({
 					severity: 'severe',
 					text: 'Proof Not Submitted'
