@@ -1,3 +1,16 @@
+## April 2020
+
+### v1.0.12
+
+### Bug Fixes
+
++ Fixed issue with contract fees for failed contracts causing negative values
+
+### Changes
+
++ Removed "unused" label from contracts
++ Update bundled Sia Daemon to v1.4.7
+
 ## March 2020
 
 ### v1.0.11
