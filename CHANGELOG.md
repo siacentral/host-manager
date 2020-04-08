@@ -1,5 +1,11 @@
 ## April 2020
 
+### v1.0.13
+
+### Changes
+
++ Added 24 hour delay between pinned price updates due to a bug in Sia causing renters to not renew contracts when the host's pricing has changed. https://gitlab.com/NebulousLabs/Sia/-/merge_requests/4326
+
 ### v1.0.12
 
 ### Bug Fixes
