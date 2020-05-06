@@ -66,10 +66,14 @@ export function parseCurrencyString(str, currency) {
 	return parseSiacoinString(str);
 }
 
-export function parseByteString(str) {
-	try {
-		return parseNumberString(str, 1000, ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB']);
-	} catch (ex) {}
+const decimalUnits = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB'].map(u => u.toLowerCase()),
+	binaryUnits = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB'].map(u => u.toLowerCase());
 
-	return parseNumberString(str, 1024, ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB']);
-};
+export function parseByteString(str) {
+	const unit = str.replace(/[^a-z]/gi, '');
+
+	if (binaryUnits.indexOf(unit.toLowerCase()) !== -1)
+		return parseNumberString(str, 1024, binaryUnits);
+
+	return parseNumberString(str, 1000, decimalUnits);
+}
