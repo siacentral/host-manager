@@ -1,3 +1,16 @@
+## May 2020
+
+### v1.0.14
+
+### Changes
+
++ Updated siad binaries to v1.4.8
+
+### Bug Fixes
+
++ Fixed issue with unit conversion when using binary units
++ Fixed issue with close icon on filter panel being covered on windows
+
 ## April 2020
 
 ### v1.0.13
