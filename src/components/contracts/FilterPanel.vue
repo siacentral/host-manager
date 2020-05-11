@@ -345,6 +345,16 @@ export default {
 	}
 }
 
+body.win32 {
+	.filter-wrapper {
+		padding: 32px 0 15px;
+	}
+
+	.panel.panel-filter .close-button {
+		top: 45px;
+	}
+}
+
 .filter-header {
 	position: sticky;
 	display: block;
