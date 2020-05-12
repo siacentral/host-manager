@@ -1,5 +1,11 @@
 ## May 2020
 
+### v1.0.15
+
+### Bug Fixes
+
++ Fix issues with contract filtering
+
 ### v1.0.14
 
 ### Changes
