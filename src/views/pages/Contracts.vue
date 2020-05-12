@@ -364,10 +364,10 @@ export default {
 						if (filter.end_date && filter.end_date < c.expiration_timestamp)
 							return val;
 
-						if (filter.revenue_min && filter.revenue_min.gt(c.revenue))
+						if (filter.revenue_min && filter.revenue_min.gt && filter.revenue_min.gt(c.revenue))
 							return val;
 
-						if (filter.revenue_max && filter.revenue_max.lt(c.revenue))
+						if (filter.revenue_max && filter.revenue_max.lt && filter.revenue_max.lt(c.revenue))
 							return val;
 
 						if (!added && filter.statuses.indexOf('active') !== -1 && c.status === 'obligationUnresolved') {

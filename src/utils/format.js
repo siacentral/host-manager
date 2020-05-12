@@ -166,6 +166,9 @@ export function formatSiacoinString(val, dec) {
 	if (!isFinite(dec))
 		dec = 2;
 
+	if (typeof val === 'string')
+		val = new BigNumber(val);
+
 	if (!val || val.isEqualTo(0))
 		return '0 SC';
 
@@ -208,6 +211,9 @@ export function formatCryptoString(val, dec) {
 
 	dec = dec || 4;
 
+	if (typeof val === 'string')
+		val = new BigNumber(val);
+
 	if (val.isEqualTo(0) || !Store.state.coinPrice[currency])
 		return `0 ${currency.toUpperCase()}`;
 
@@ -232,6 +238,9 @@ export function formatCryptoString(val, dec) {
 export function formatCurrencyString(val) {
 	const currency = Store.state.config.currency || 'usd',
 		formatter = new Intl.NumberFormat([], { style: 'currency', currency: currency, maximumFractionDigits: 20 });
+
+	if (typeof val === 'string')
+		val = new BigNumber(val);
 
 	if (val.isEqualTo(0) || !Store.state.coinPrice[currency])
 		return formatter.format(0);
@@ -263,6 +272,9 @@ export function formatDataPriceString(val, dec) {
 	if (!val)
 		val = new BigNumber(0);
 
+	if (typeof val === 'string')
+		val = new BigNumber(val);
+
 	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase(),
 		byteFactor = Store.state.config && Store.state.config.data_unit === 'decimal' ? 1e12 : 1099511627776;
 
@@ -279,6 +291,9 @@ export function formatMonthlyPriceString(val, dec) {
 	if (!val)
 		val = new BigNumber(0);
 
+	if (typeof val === 'string')
+		val = new BigNumber(val);
+
 	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase(),
 		byteFactor = Store.state.config && Store.state.config.data_unit === 'decimal' ? 1e12 : 1099511627776;
 
@@ -294,6 +309,9 @@ export function formatMonthlyPriceString(val, dec) {
 export function formatPriceString(val, dec) {
 	if (!val)
 		val = new BigNumber(0);
+
+	if (typeof val === 'string')
+		val = new BigNumber(val);
 
 	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
 
