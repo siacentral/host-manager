@@ -5,7 +5,7 @@ import { promises as fs } from 'fs';
 import App from './App.vue';
 import router from './router';
 import store from './store';
-import { readConfig, checkSiaDataFolders, getConsensusPath } from '@/utils';
+import { readConfig } from '@/utils';
 import { attachDaemonIPC } from '@/sync/daemon';
 import { attachUpdateIPC } from '@/sync/autoupdate';
 
@@ -63,17 +63,6 @@ async function init() {
 				severity: 'danger'
 			});
 			throw new Error('siad_data_path is not a directory');
-		}
-
-		const missingFolders = await checkSiaDataFolders(getConsensusPath(config.siad_data_path));
-
-		if (missingFolders.length > 0) {
-			store.dispatch('pushNotification', {
-				message: `Sia data directory changed, running setup.`,
-				icon: 'bullhorn',
-				severity: 'danger'
-			});
-			throw new Error('data folder missing');
 		}
 
 		store.dispatch('setConfig', config);
