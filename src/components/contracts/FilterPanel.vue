@@ -113,8 +113,6 @@ export default {
 			this.successful = Array.isArray(this.filter.statuses) && this.filter.statuses.indexOf('successful') !== -1;
 			this.failed = Array.isArray(this.filter.statuses) && this.filter.statuses.indexOf('failed') !== -1;
 
-			console.log(this.filter);
-
 			if (this.filter.start_date)
 				this.startDateStr = this.dateControlFormat(this.filter.start_date);
 

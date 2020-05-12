@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import log from 'electron-log';
 
-import { promises as fs } from 'fs';
 import App from './App.vue';
 import router from './router';
 import store from './store';
@@ -54,21 +53,11 @@ async function init() {
 			throw new Error('siad_data_path missing');
 		}
 
-		const stat = await fs.stat(config.siad_data_path);
-
-		if (!stat || !stat.isDirectory()) {
-			store.dispatch('pushNotification', {
-				message: `Consensus path is invalid, running setup.`,
-				icon: 'folder',
-				severity: 'danger'
-			});
-			throw new Error('siad_data_path is not a directory');
-		}
-
 		store.dispatch('setConfig', config);
 
 		document.body.classList.add('dark');
 
+		console.log('first run false');
 		store.dispatch('setup/setFirstRun', false);
 	} catch (ex) {
 		log.error('main init', ex.message);
