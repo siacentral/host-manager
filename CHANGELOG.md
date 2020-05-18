@@ -1,5 +1,11 @@
 ## May 2020
 
+### v1.0.16
+
+### Changes
+
++ Added SiaMux port config option
+
 ### v1.0.15
 
 ### Bug Fixes
