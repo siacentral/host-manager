@@ -57,6 +57,13 @@
 						</transition>
 					</div>
 					<div class="control">
+						<label>SiaMux Port</label>
+						<input type="text" v-model="siaMuxPort" placeholder=":9983" />
+						<transition name="fade" mode="out-in" appear>
+							<label class="error" v-if="errors['siaMuxPort']">{{ errors['siaMuxPort'] }}</label>
+						</transition>
+					</div>
+					<div class="control">
 						<label>RPC Port</label>
 						<input type="text" v-model="rpcPort" placeholder=":9981" />
 						<transition name="fade" mode="out-in" appear>
@@ -126,6 +133,7 @@ export default {
 			apiPassword: '',
 			dataPath: '',
 			hostPort: '',
+			siaMuxPort: '',
 			rpcPort: '',
 			notice: null,
 			errors: {},
@@ -143,6 +151,11 @@ export default {
 
 			if (this.hostPort && this.hostPort.length > 0 && portRegex.exec(this.hostPort) === null) {
 				errors['hostPort'] = 'host port must match the format :9982';
+				hasErrors = true;
+			}
+
+			if (this.siaMuxPort && this.siaMuxPort.length > 0 && portRegex.exec(this.siaMuxPort) === null) {
+				errors['siaMuxPort'] = 'SiaMux port must match the format :9983';
 				hasErrors = true;
 			}
 
@@ -166,6 +179,7 @@ export default {
 			this.apiAgent = this.config.siad_api_agent;
 			this.apiPassword = this.config.siad_api_password;
 			this.dataPath = this.config.siad_data_path;
+			this.siaMuxPort = this.config.siad_siamux_port;
 			this.hostPort = this.config.siad_host_port;
 			this.rpcPort = this.config.siad_rpc_port;
 		},
@@ -179,6 +193,7 @@ export default {
 					siad_api_agent: this.apiAgent,
 					siad_api_password: this.apiPassword,
 					siad_data_path: this.dataPath,
+					siad_siamux_port: this.siaMuxPort,
 					siad_host_port: this.hostPort,
 					siad_rpc_port: this.rpcPort
 				};
@@ -248,6 +263,17 @@ export default {
 				return;
 
 			this.changed = (val !== this.config.siad_data_path);
+
+			if (this.changed)
+				this.notice = 'Changes will not take effect until daemon restart.';
+		},
+		siaMuxPort(val) {
+			this.validate();
+
+			if (this.changed)
+				return;
+
+			this.changed = (val !== this.config.siad_siamux_port);
 
 			if (this.changed)
 				this.notice = 'Changes will not take effect until daemon restart.';

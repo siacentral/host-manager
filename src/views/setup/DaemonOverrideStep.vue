@@ -8,6 +8,10 @@
 			<p>Some hosts use custom ports or change their API authentication. Change any of the daemon settings you need to. Leave blank to use the default value.</p>
 		</template>
 		<div class="control">
+			<label>SiaMux Port</label>
+			<input type="text" v-model="hostPort" placeholder=":9983" />
+		</div>
+		<div class="control">
 			<label>Host Port</label>
 			<input type="text" v-model="hostPort" placeholder=":9982" />
 		</div>
@@ -47,6 +51,7 @@ export default {
 	mounted() {
 		this.userAgent = this.config.siad_api_agent;
 		this.hostPort = this.config.siad_host_port;
+		this.siaMuxPort = this.config.siad_siamux_port;
 		this.rpcPort = this.config.siad_rpc_port;
 		this.apiAddr = this.config.siad_api_addr;
 	},
@@ -54,6 +59,7 @@ export default {
 		return {
 			userAgent: null,
 			hostPort: null,
+			siaMuxPort: null,
 			rpcPort: null,
 			apiAddr: null,
 			apiPassword: null
@@ -66,6 +72,7 @@ export default {
 				config: {
 					'siad_api_agent': this.userAgent,
 					'siad_host_port': this.hostPort,
+					'siad_siamux_port': this.siaMuxPort,
 					'siad_rpc_port': this.rpcPort,
 					'siad_api_addr': this.apiAddr,
 					'siad_api_password': this.apiPassword
