@@ -1,5 +1,11 @@
 ## May 2020
 
+### v1.0.17
+
+### Changes
+
++ Updated Sia to v1.4.10
+
 ### v1.0.16
 
 ### Changes
