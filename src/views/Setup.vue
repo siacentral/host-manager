@@ -8,6 +8,7 @@
 			<daemon-override-step v-else-if="stepActive('settings')" key="settings" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<review-step v-else-if="stepActive('review')" key="review" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<create-wallet-step v-else-if="stepActive('create-wallet')" key="create-wallet" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
+			<send-siacoin-step v-else-if="stepActive('send-sc')" key="send-sc" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 		</transition>
 	</div>
 </template>
@@ -23,6 +24,7 @@ import BootstrapStep from '@/views/setup/BootstrapStep';
 import DaemonOverrideStep from '@/views/setup/DaemonOverrideStep';
 import ReviewStep from '@/views/setup/ReviewStep';
 import CreateWalletStep from '@/views/setup/CreateWalletStep';
+import SendSiacoinStep from '@/views/setup/SendSCStep';
 import { readSiaUIConfig, writeConfig } from '@/utils';
 import { refreshData } from '@/sync';
 
@@ -34,7 +36,8 @@ export default {
 		BootstrapStep,
 		DaemonOverrideStep,
 		ReviewStep,
-		CreateWalletStep
+		CreateWalletStep,
+		SendSiacoinStep
 	},
 	data() {
 		return {
@@ -70,6 +73,8 @@ export default {
 
 			if (this.createWallet)
 				steps.push('create-wallet');
+
+			steps.push('send-sc');
 
 			return steps;
 		}

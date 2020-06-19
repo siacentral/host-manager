@@ -83,6 +83,7 @@ import { promises as fs } from 'fs';
 import log from 'electron-log';
 import { mapState, mapActions } from 'vuex';
 import { decode } from '@stablelib/utf8';
+import { refreshHostWallet } from '@/sync/wallet';
 
 import SiaApiClient from '@/sia/api';
 import { showSaveDialogAsync, showOpenDialogAsync } from '@/utils';
@@ -149,9 +150,11 @@ export default {
 				switch (this.mode) {
 				case 'create-wallet':
 					await this.createWallet();
+					await refreshHostWallet();
 					break;
 				case 'recover-wallet':
 					await this.recoverWallet();
+					await refreshHostWallet();
 					break;
 				case 'review':
 					const config = {};
