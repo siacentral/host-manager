@@ -1,5 +1,17 @@
 ## June 2020
 
+### v1.0.19
+
+### Changes
+
++ Added "Buy Siacoin" button to Receive Siacoin modal powered by Transak
++ Updated Electron dependency to v9.0.5
++ Updated Sia to v1.4.11-crashfix to fix hosts affected by https://gitlab.com/NebulousLabs/Sia/-/issues/4215
+
+### Bug Fixes
+
++ Fixed issue with connecting to the Sia Central API with certain Linux distributions
+
 ### v1.0.18
 
 ### Changes
