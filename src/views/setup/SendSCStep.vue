@@ -21,6 +21,7 @@
 		<template v-slot:controls>
 			<button class="btn btn-success btn-inline" @click="$emit('done', { inc: 1 })">Done</button>
 		</template>
+		<unlock-wallet v-if="!walletUnlocked" />
 	</setup-step>
 </template>
 
@@ -33,14 +34,17 @@ import { formatSiacoinString, formatNumber } from '@/utils/format';
 import BigNumber from 'bignumber.js';
 
 import SetupStep from './SetupStep';
+import UnlockWallet from '@/views/wallet/UnlockWallet';
 
 export default {
 	components: {
-		SetupStep
+		SetupStep,
+		UnlockWallet
 	},
 	computed: {
 		...mapState({
 			address: state => state.hostWallet.lastAddress,
+			walletUnlocked: state => state.hostWallet.unlocked,
 			balance: state => state.hostWallet.balance,
 			coinPrice: state => state.coinPrice,
 			block: state => state.block
@@ -49,7 +53,7 @@ export default {
 			return formatSiacoinString(this.balance, 2);
 		},
 		minAmountSC() {
-			return new BigNumber(Math.ceil((5 / this.coinPrice['usd']) / 1000) * 1000).times(1e24);
+			return new BigNumber(Math.ceil((10 / this.coinPrice['usd']) / 1000) * 1000).times(1e24);
 		},
 		minAmountStr() {
 			return formatSiacoinString(this.minAmountSC, 2);
