@@ -18,7 +18,7 @@ async function createWindow() {
 		backgroundColor: '#1d1e21',
 		show: false,
 		webPreferences: {
-			nodeIntegration: true
+			nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
 		},
 		// darwin overrides
 		...(process.platform === 'darwin' ? {

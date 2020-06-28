@@ -21,6 +21,7 @@ module.exports = {
 	pluginOptions: {
 		electronBuilder: {
 			outputDir: 'dist',
+			nodeIntegration: true,
 			builderOptions: {
 				appId: 'com.siacentral.host-desktop',
 				productName: 'Sia Host Manager',
