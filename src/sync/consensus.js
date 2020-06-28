@@ -8,10 +8,7 @@ let startTime, startBlock, finalBlock;
 
 export async function refreshBlockHeight() {
 	try {
-		const consensus = await apiClient.getConsensus(),
-			lastBlock = await getBlock();
-
-		finalBlock = lastBlock.height;
+		const consensus = await apiClient.getConsensus();
 
 		if (!finalBlock || finalBlock < consensus.height) {
 			Store.dispatch('setSyncTime', 0);
@@ -55,38 +52,26 @@ export async function refreshDaemonVersion() {
 	}
 }
 
-export async function checkConsensusSync() {
-	const alerts = [];
-
-	try {
-		if (!Store.state.block || Store.state.block.height === 0)
-			return;
-
-		const remoteBlock = await getBlock(),
-			localBlock = await apiClient.getBlock(remoteBlock.height);
-
-		if (remoteBlock.id === localBlock.id)
-			return;
-
-		alerts.push({
-			category: 'consensus',
-			icon: 'redo',
-			severity: 'danger',
-			message: 'You do not appear to be synced to the Sia network.' +
-				' You may need to resync the consensus.'
-		});
-	} catch (ex) {
-		log.error('checkConsensusSync', ex.message);
-	} finally {
-		Store.dispatch('setAlerts', alerts);
-	}
-}
-
 export async function refreshLastBlock() {
 	try {
-		const block = await getBlock();
+		const alerts = [],
+			remoteBlock = await getBlock(),
+			localBlock = await apiClient.getBlock(remoteBlock.height);
 
-		Store.dispatch('setLastBlock', block.height);
+		finalBlock = remoteBlock.height;
+
+		if (remoteBlock.id !== localBlock.id) {
+			alerts.push({
+				category: 'consensus',
+				icon: 'redo',
+				severity: 'danger',
+				message: 'You do not appear to be synced to the Sia network.' +
+					' You may need to resync the consensus.'
+			});
+		}
+
+		Store.dispatch('setLastBlock', remoteBlock.height);
+		Store.dispatch('setAlerts', alerts);
 	} catch (ex) {
 		log.error('refreshLastBlock', ex.message);
 	}

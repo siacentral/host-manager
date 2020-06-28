@@ -238,7 +238,7 @@ export async function parseHostContracts() {
 				});
 			}
 
-			if (c.status !== c.sia_status) {
+			if (c.status !== c.sia_status && c.proof_deadline < currentBlock.height) {
 				const key = `${c.status}-${c.sia_status}`;
 
 				if (!invalidStatusMap[key])

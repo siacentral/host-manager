@@ -1,6 +1,6 @@
 import log from 'electron-log';
 
-import { refreshBlockHeight, refreshLastBlock, refreshDaemonVersion, checkConsensusSync } from './consensus';
+import { refreshBlockHeight, refreshLastBlock, refreshDaemonVersion } from './consensus';
 import { refreshHostContracts } from './contracts';
 import { refreshHostStorage } from './storage';
 import { refreshHostWallet } from './wallet';
@@ -24,6 +24,7 @@ export async function refreshData(config) {
 
 	Store.dispatch('setRefreshingData', true);
 
+	await refreshLastBlock();
 	await longRefresh();
 	await shortRefresh();
 	await refreshCoinPrice();
@@ -67,8 +68,7 @@ async function longRefresh() {
 		await Promise.all([
 			refreshLastBlock(),
 			refreshHostConfig(),
-			refreshHostContracts(),
-			checkConsensusSync()
+			refreshHostContracts()
 		]);
 
 		// refresh explorer relies on host config call being completed
