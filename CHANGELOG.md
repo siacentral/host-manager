@@ -1,4 +1,4 @@
-## June 2020
+## July 2020
 
 ### v1.0.20
 
@@ -6,6 +6,8 @@
 
 + Fixed issues from Electron 9 upgrade
 + Fixed contract export button
+
+## June 2020
 
 ### v1.0.19
 
