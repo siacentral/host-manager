@@ -3,6 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { remote } from 'electron';
 import BigNumber from 'bignumber.js';
+import log from 'electron-log';
 
 const app = remote.app,
 	dialog = remote.dialog,
@@ -100,7 +101,7 @@ export async function readConfig() {
 }
 
 export function getLogPath() {
-	return app.getPath('logs');
+	return path.dirname(log.transports.file.getFile().path);
 }
 
 export function getConsensusPath(loc) {

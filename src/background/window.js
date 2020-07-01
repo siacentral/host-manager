@@ -18,7 +18,8 @@ async function createWindow() {
 		backgroundColor: '#1d1e21',
 		show: false,
 		webPreferences: {
-			nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+			nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+			enableRemoteModule: true
 		},
 		// darwin overrides
 		...(process.platform === 'darwin' ? {
