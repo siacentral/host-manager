@@ -58,7 +58,7 @@ export default {
 		...mapActions(['pushNotification']),
 		onOpenLogFolder() {
 			try {
-				shell.openItem(getLogPath());
+				shell.openPath(getLogPath());
 			} catch (ex) {
 				log.error('onOpenLogFolder', ex.message);
 				this.pushNotification({
@@ -70,7 +70,7 @@ export default {
 		},
 		onOpenDataFolder() {
 			try {
-				shell.openItem(this.config.siad_data_path);
+				shell.openPath(this.config.siad_data_path);
 			} catch (ex) {
 				log.error('open data folder', ex.message);
 				this.pushNotification({

@@ -186,7 +186,7 @@ export default {
 			try {
 				this.saving = true;
 
-				const filePaths = await showOpenDialogAsync({
+				const { filePaths, canceled } = await showOpenDialogAsync({
 					title: 'Load Wallet Seed',
 					buttonLabel: 'Load Seed',
 					filters: [
@@ -195,7 +195,7 @@ export default {
 					]
 				});
 
-				if (!Array.isArray(filePaths) || filePaths.length === 0)
+				if (canceled || !Array.isArray(filePaths) || filePaths.length === 0)
 					return;
 
 				const seed = await fs.readFile(filePaths[0]);
@@ -217,7 +217,7 @@ export default {
 			try {
 				this.saving = true;
 
-				const filePath = await showSaveDialogAsync({
+				const { filePath, canceled } = await showSaveDialogAsync({
 					title: 'Save Wallet Seed',
 					defaultPath: 'my-wallet.seed',
 					buttonLabel: 'Save Seed',
@@ -227,7 +227,7 @@ export default {
 					]
 				});
 
-				if (!filePath)
+				if (!filePath || canceled)
 					return;
 
 				await fs.writeFile(filePath, this.seed);

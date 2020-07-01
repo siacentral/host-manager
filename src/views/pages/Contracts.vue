@@ -494,7 +494,7 @@ export default {
 			try {
 				this.exporting = true;
 
-				const filePath = await showSaveDialogAsync({
+				const { filePath, canceled } = await showSaveDialogAsync({
 					title: 'Export Contracts',
 					defaultPath: 'contracts.csv',
 					buttonLabel: 'Export',
@@ -504,7 +504,7 @@ export default {
 					]
 				});
 
-				if (!filePath)
+				if (!filePath || canceled)
 					return;
 
 				const columns = this.visibleColumns,
