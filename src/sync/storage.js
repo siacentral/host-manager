@@ -96,15 +96,6 @@ async function loadHostStorage() {
 				message: 'More than 75% of available storage has been used. You should add more storage soon.'
 			});
 		}
-
-		if (totalStorage.minus(usedStorage).lt(4e12)) {
-			storageAlerts.push({
-				category: 'storage',
-				severity: 'warning',
-				icon: 'hdd',
-				message: 'Your host has less than 4 TB of available storage. You will receive a small penalty for not enough available space.'
-			});
-		}
 	} else {
 		storageAlerts.push({
 			category: 'storage',
