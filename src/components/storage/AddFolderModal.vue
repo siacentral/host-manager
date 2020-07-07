@@ -51,7 +51,7 @@ import { remote } from 'electron';
 import { mkdirIfNotExist } from '@/utils';
 import { parseByteString } from '@/utils/parse';
 import { formatByteString } from '@/utils/format';
-import SiaApiClient from '@/sia/api';
+import SiaApiClient from '@/api/sia';
 import { refreshHostStorage } from '@/sync/storage';
 import ProgressBar from '@/components/ProgressBar';
 import Modal from '@/components/Modal';

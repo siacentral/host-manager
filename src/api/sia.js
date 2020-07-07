@@ -2,40 +2,8 @@ import path from 'path';
 import process from 'process';
 import { promises as fs } from 'fs';
 import log from 'electron-log';
-import request from 'request';
+import { sendJSONRequest } from './common';
 import { decode } from '@stablelib/utf8';
-
-export async function sendJSONRequest(url, opts) {
-	opts = {
-		method: 'GET',
-		timeout: 60000,
-		...(opts || {})
-	};
-
-	return new Promise((resolve, reject) => {
-		if (url.indexOf('http') < 0)
-			url = `http://${url}`;
-
-		if (opts.body && typeof opts.body !== 'string')
-			opts.body = JSON.stringify(opts.body);
-
-		request(url, opts, (err, resp, body) => {
-			if (err)
-				return reject(err);
-
-			const r = { ...resp.toJSON() };
-
-			try {
-				r.body = JSON.parse(body);
-			} catch (ex) { }
-
-			if (r.statusCode >= 200 && r.statusCode < 300)
-				r.statusCode = 200;
-
-			resolve(r);
-		});
-	});
-}
 
 function getDefaultSiaPath() {
 	switch (process.platform) {
@@ -56,6 +24,9 @@ export default class SiaApiClient {
 			siad_api_addr: opts.siad_api_addr || 'localhost:9980',
 			siad_api_agent: opts.siad_api_agent || 'Sia-Agent'
 		};
+
+		if (this.config.siad_api_addr.indexOf('http') !== 0)
+			this.config.siad_api_addr = `http://${this.config.siad_api_addr}`;
 
 		if (typeof opts.siad_api_password === 'string' && opts.siad_api_password.trim().length !== 0)
 			this._defaultApiPassword = opts.siad_api_password;
@@ -84,17 +55,18 @@ export default class SiaApiClient {
 	}
 
 	async walletUnlockConditions(addr) {
-		const apiPassword = await this.getDefaultAPIPassword(),
-			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/unlockconditions/${addr}`, {
-				method: 'GET',
-				headers: {
-					'User-Agent': this.config.siad_api_agent
-				},
-				auth: {
-					username: '',
-					password: apiPassword
-				}
-			});
+		const apiPassword = await this.getDefaultAPIPassword();
+		console.log(apiPassword);
+		const resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/unlockconditions/${addr}`, {
+			method: 'GET',
+			headers: {
+				'User-Agent': this.config.siad_api_agent
+			},
+			auth: {
+				username: '',
+				password: apiPassword
+			}
+		});
 
 		if (resp.statusCode !== 200)
 			throw new Error(resp.body.message);

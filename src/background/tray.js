@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import log from 'electron-log';
 import { decode } from '@stablelib/utf8';
-import SiaApiClient from '../sia/api';
+import SiaApiClient from './sia/api';
 import { openWindow, sendIPC } from './window';
 import { shutdownDaemon, running } from './daemon';
 

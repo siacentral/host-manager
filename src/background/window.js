@@ -6,6 +6,8 @@ import { shutdown } from './tray';
 
 export var mainWindow;
 
+app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
+
 async function createWindow() {
 	const opts = {
 		width: 1000,
@@ -19,7 +21,8 @@ async function createWindow() {
 		show: false,
 		webPreferences: {
 			nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
-			enableRemoteModule: true
+			enableRemoteModule: true,
+			webSecurity: false
 		},
 		// darwin overrides
 		...(process.platform === 'darwin' ? {
@@ -36,12 +39,17 @@ async function createWindow() {
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
 		// Load the url of the dev server if in development mode
-		mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
+		mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL, {
+			userAgent: 'Sia-Agent'
+		});
+
 		if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
 	} else {
 		createProtocol('app');
 		// Load the index.html when not in development
-		mainWindow.loadURL('app://./index.html');
+		mainWindow.loadURL('app://./index.html', {
+			userAgent: 'Sia-Agent'
+		});
 	}
 
 	const handleRedirect = (e, url) => {

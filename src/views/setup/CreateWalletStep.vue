@@ -85,7 +85,7 @@ import { mapState, mapActions } from 'vuex';
 import { decode } from '@stablelib/utf8';
 import { refreshHostWallet } from '@/sync/wallet';
 
-import SiaApiClient from '@/sia/api';
+import SiaApiClient from '@/api/sia';
 import { showSaveDialogAsync, showOpenDialogAsync } from '@/utils';
 
 import SetupStep from './SetupStep';

@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 import log from 'electron-log';
 
-import SiaApiClient from '@/sia/api';
+import SiaApiClient from '@/api/sia';
 import Store from '@/store';
 import { refreshData } from './index';
 import { sleep } from '@/utils';

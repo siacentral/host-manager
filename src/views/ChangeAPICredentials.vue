@@ -32,7 +32,7 @@
 <script>
 import log from 'electron-log';
 
-import SiaAPIClient from '@/sia/api';
+import SiaAPIClient from '@/api/sia';
 
 export default {
 	props: {

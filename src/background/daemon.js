@@ -3,7 +3,7 @@ import log from 'electron-log';
 import path from 'path';
 import { sendIPC } from './window';
 import { createTray, shutdown } from './tray';
-import SiaDaemon from '../sia/daemon';
+import SiaDaemon from './sia/daemon';
 
 let daemon;
 

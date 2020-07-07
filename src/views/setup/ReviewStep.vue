@@ -33,7 +33,7 @@ import { mapActions, mapState } from 'vuex';
 
 import { refreshData } from '@/sync';
 import { launch, running } from '@/sync/daemon';
-import SiaApiClient from '@/sia/api';
+import SiaApiClient from '@/api/sia';
 import ProgressBar from '@/components/ProgressBar';
 
 import SetupStep from './SetupStep';

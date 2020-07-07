@@ -25,7 +25,7 @@ import { formatByteString } from '@/utils/format';
 import { parseByteString } from '@/utils/parse';
 import { mapActions, mapState } from 'vuex';
 import { refreshHostStorage } from '@/sync/storage';
-import SiaApiClient from '@/sia/api';
+import SiaApiClient from '@/api/sia';
 
 export default {
 	components: {
