@@ -19,10 +19,12 @@
 				<p><b>Created and maintained by Sia Central</b></p>
 			</div>
 			<div class="buttons">
-				<button class="btn btn-inline" @click="onOpenLogFolder">Application Log</button>
-				<button class="btn btn-inline" v-if="daemonManaged" @click="onOpenDataFolder">Open Data Folder</button>
+				<button class="btn btn-inline" @click="onOpenLogFolder">Log</button>
+				<button class="btn btn-inline" v-if="daemonManaged" @click="onOpenDataFolder">Data Folder</button>
 				<a class="btn btn-inline" href="https://github.com/siacentral/host-manager">GitHub</a>
 				<a class="btn btn-inline" href="https://siacentral.com/host-manager">Website</a>
+				<a class="btn btn-success btn-inline" href="https://github.com/sponsors/siacentral">Sponsor</a>
+				<a class="btn btn-success btn-inline" href="https://siacentral.com/donations">Donations</a>
 			</div>
 		</div>
 	</modal>
