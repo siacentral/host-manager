@@ -66,13 +66,18 @@ async function createWindow() {
 	};
 
 	mainWindow.on('close', (e) => {
-		if (shutdown)
-			return;
+		try {
+			if (shutdown)
+				return;
 
-		if (process.platform === 'darwin')
-			app.dock.hide();
+			if (process.platform === 'darwin')
+				app.dock.hide();
 
-		mainWindow.hide();
+			mainWindow.hide();
+		} catch (ex) {
+			log.error('mainWindow.close', ex);
+		}
+
 		e.preventDefault();
 
 		return false;

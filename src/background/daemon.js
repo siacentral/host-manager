@@ -43,31 +43,47 @@ async function onLaunchDaemon(ev, config) {
 			});
 
 			daemon.on('stdout', (stats) => {
-				sendIPC('daemonUpdate', stats);
+				try {
+					sendIPC('daemonUpdate', stats);
+				} catch (ex) {
+					log.error('daemon.stdout', ex);
+				}
 			});
 
 			daemon.on('loaded', (stats) => {
-				log.info(`daemon loaded after ${Math.floor((Date.now() - stats.start) / 1000)} seconds`);
-				sendIPC('daemonLoaded', stats);
-				createTray();
+				try {
+					log.info(`daemon loaded after ${Math.floor((Date.now() - stats.start) / 1000)} seconds`);
+					sendIPC('daemonLoaded', stats);
+					createTray();
+				} catch (ex) {
+					log.error('daemon.loaded', ex);
+				}
 			});
 
 			daemon.on('exit', (code, stats) => {
-				const runtime = Math.floor((Date.now() - stats.start) / 1000);
+				try {
+					const runtime = Math.floor((Date.now() - stats.start) / 1000);
 
-				if (runtime < 10)
-					sendIPC('daemonError', -1, stats);
+					if (runtime < 10)
+						sendIPC('daemonError', -1, stats);
 
-				log.info(`daemon exited after ${runtime} seconds with exit code ${code}`);
+					log.info(`daemon exited after ${runtime} seconds with exit code ${code}`);
 
-				if (stats.stderr && stats.stderr.trim().length > 0)
-					log.error('daemon stderr', stats.stderr);
+					if (stats.stderr && stats.stderr.trim().length > 0)
+						log.error('daemon stderr', stats.stderr);
 
-				sendIPC('daemonExit', code, stats);
+					sendIPC('daemonExit', code, stats);
+				} catch (ex) {
+					log.error('daemon.exit', ex);
+				}
 			});
 
 			daemon.on('error', (ex) => {
-				sendIPC('daemonError', ex);
+				try {
+					sendIPC('daemonError', ex);
+				} catch (ex) {
+					log.error('daemon.error', ex);
+				}
 			});
 		}
 
