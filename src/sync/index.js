@@ -76,6 +76,8 @@ async function longRefresh() {
 	} catch (ex) {
 		log.error('data refresh - long', ex.message);
 	} finally {
+		window.gc();
+
 		loadingLong = false;
 		longTimeout = setTimeout(longRefresh, 300000);
 	}
