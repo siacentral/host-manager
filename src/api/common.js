@@ -21,7 +21,15 @@ export async function sendJSONRequest(url, opts) {
 		...(opts || {})
 	};
 
-	if (opts.body && typeof opts.body !== 'string')
+	if (opts.form && typeof opts.form === 'object') {
+		const form = new FormData(),
+			keys = Object.keys(opts.form);
+
+		for (let i = 0; i < keys.length; i++)
+			form.append(keys[i], opts.form[keys[i]]);
+
+		opts.body = form;
+	} else if (opts.body && typeof opts.body !== 'string')
 		opts.body = JSON.stringify(opts.body);
 
 	const r = await fetch(url, opts);
