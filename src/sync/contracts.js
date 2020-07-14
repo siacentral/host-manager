@@ -298,11 +298,12 @@ export async function parseHostContracts() {
 			});
 		}
 
-		Store.dispatch('hostContracts/setAlerts', alerts);
-		Store.dispatch('hostContracts/setContracts', confirmed);
+		// deep copy here
+		Store.dispatch('hostContracts/setAlerts', JSON.parse(JSON.stringify(alerts)));
+		Store.dispatch('hostContracts/setContracts', JSON.parse(JSON.stringify(confirmed)));
 	} catch (ex) {
 		log.error('parseHostContracts', ex.message);
 	} finally {
-		Store.dispatch('hostContracts/setStats', stats);
+		Store.dispatch('hostContracts/setStats', JSON.parse(JSON.stringify(stats)));
 	}
 }

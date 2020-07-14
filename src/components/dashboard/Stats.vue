@@ -52,18 +52,6 @@
 					<div class="item-title">Next 60 Days</div>
 					<div class="item-value">{{ formatPriceString(stats.potential_revenue.days_60, 4)  }}</div>
 				</div>
-				<div class="stat-item">
-					<div class="item-title">Storage</div>
-					<div class="item-value">{{ formatPriceString(stats.potential_revenue.storage, 4) }}</div>
-				</div>
-				<div class="stat-item">
-					<div class="item-title">Upload</div>
-					<div class="item-value">{{ formatPriceString(stats.potential_revenue.upload, 4)  }}</div>
-				</div>
-				<div class="stat-item">
-					<div class="item-title">Download</div>
-					<div class="item-value">{{ formatPriceString(stats.potential_revenue.download, 4)  }}</div>
-				</div>
 				<div class="stats-header">Earned Revenue</div>
 				<div class="stat-item">
 					<div class="item-title">Total</div>
@@ -77,18 +65,6 @@
 					<div class="item-title">Last 60 Days</div>
 					<div class="item-value">{{ formatPriceString(stats.earned_revenue.days_60, 4)  }}</div>
 				</div>
-				<div class="stat-item">
-					<div class="item-title">Storage</div>
-					<div class="item-value">{{ formatPriceString(stats.earned_revenue.storage, 4) }}</div>
-				</div>
-				<div class="stat-item">
-					<div class="item-title">Upload</div>
-					<div class="item-value">{{ formatPriceString(stats.earned_revenue.upload, 4)  }}</div>
-				</div>
-				<div class="stat-item">
-					<div class="item-title">Download</div>
-					<div class="item-value">{{ formatPriceString(stats.earned_revenue.download, 4)  }}</div>
-				</div>
 				<div class="stats-header">Lost Revenue</div>
 				<div class="stat-item">
 					<div class="item-title">Total</div>
@@ -101,18 +77,6 @@
 				<div class="stat-item">
 					<div class="item-title">Last 60 Days</div>
 					<div class="item-value">{{ formatPriceString(stats.lost_revenue.days_60, 4)  }}</div>
-				</div>
-				<div class="stat-item">
-					<div class="item-title">Storage</div>
-					<div class="item-value">{{ formatPriceString(stats.lost_revenue.storage, 4) }}</div>
-				</div>
-				<div class="stat-item">
-					<div class="item-title">Upload</div>
-					<div class="item-value">{{ formatPriceString(stats.lost_revenue.upload, 4)  }}</div>
-				</div>
-				<div class="stat-item">
-					<div class="item-title">Download</div>
-					<div class="item-value">{{ formatPriceString(stats.lost_revenue.download, 4)  }}</div>
 				</div>
 				<div class="stats-header">Collateral</div>
 				<div class="stat-item">

@@ -111,7 +111,8 @@ async function loadHostStorage() {
 	if (successfulWrites + failedWrites > 0)
 		writePct = failedWrites / (successfulWrites + failedWrites);
 
-	Store.dispatch('hostStorage/setFolders', folders);
+	// deep copy here
+	Store.dispatch('hostStorage/setFolders', JSON.parse(JSON.stringify(folders)));
 	Store.dispatch('hostStorage/setUsedStorage', usedStorage);
 	Store.dispatch('hostStorage/setTotalStorage', totalStorage);
 	Store.dispatch('hostStorage/setReadPercent', readPct);
