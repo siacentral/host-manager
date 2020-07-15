@@ -68,8 +68,10 @@ async function createWindow() {
 
 	mainWindow.on('close', (e) => {
 		try {
-			if (shutdown)
+			if (shutdown) {
+				mainWindow = null;
 				return;
+			}
 
 			if (process.platform === 'darwin')
 				app.dock.hide();
@@ -106,5 +108,8 @@ export function openWindow() {
 }
 
 export function sendIPC(event, ...args) {
+	if (mainWindow)
+		return;
+
 	return mainWindow.webContents.send(event, ...args);
 }
