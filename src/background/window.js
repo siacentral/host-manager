@@ -108,7 +108,7 @@ export function openWindow() {
 }
 
 export function sendIPC(event, ...args) {
-	if (mainWindow)
+	if (!mainWindow)
 		return;
 
 	return mainWindow.webContents.send(event, ...args);
