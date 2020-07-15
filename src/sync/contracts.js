@@ -6,6 +6,16 @@ import { apiClient } from './index';
 import { getContracts } from '@/api/siacentral';
 import { formatPriceString, formatFriendlyStatus } from '@/utils/format';
 
+let confirmedContracts = [];
+
+class Contract {
+
+}
+
+export function getConfirmedContracts() {
+	return confirmedContracts;
+}
+
 export async function refreshHostContracts() {
 	try {
 		await parseHostContracts();
@@ -103,39 +113,39 @@ function addContractStats(stats, contract) {
 }
 
 function mergeContract(chain, sia) {
-	const c = {
-		id: chain.id,
-		transaction_id: chain.transaction_id,
-		contract_cost: new BigNumber(sia.contractcost),
-		transaction_fees: new BigNumber(sia.transactionfeesadded),
-		data_size: new BigNumber(sia.datasize),
-		storage_revenue: new BigNumber(sia.potentialstoragerevenue),
-		download_revenue: new BigNumber(sia.potentialdownloadrevenue),
-		upload_revenue: new BigNumber(sia.potentialuploadrevenue),
-		sector_count: sia.sectorrootscount,
-		revision_number: sia.revisionnumber,
-		sia_status: sia.obligationstatus,
-		status: chain.status,
-		proof_confirmed: chain.proof_confirmed,
-		valid_proof_outputs: chain.valid_proof_outputs,
-		missed_proof_outputs: chain.missed_proof_outputs,
-		negotiation_height: chain.negotiation_height,
-		expiration_height: chain.expiration_height,
-		proof_deadline: chain.proof_deadline,
-		negotiation_timestamp: new Date(chain.negotiation_timestamp),
-		expiration_timestamp: new Date(chain.expiration_timestamp),
-		proof_deadline_timestamp: new Date(chain.proof_deadline_timestamp),
-		proof_timestamp: new Date(chain.proof_timestamp),
-		burnt_collateral: new BigNumber(0),
-		returned_collateral: new BigNumber(0),
-		risked_collateral: new BigNumber(0),
-		locked_collateral: new BigNumber(0),
-		earned_revenue: new BigNumber(0),
-		lost_revenue: new BigNumber(0),
-		potential_revenue: new BigNumber(0),
-		proof_required: !new BigNumber(chain.valid_proof_outputs[1].value).eq(chain.missed_proof_outputs[1].value),
-		tags: []
-	};
+	const c = new Contract();
+
+	c.id = chain.id;
+	c.transaction_id = chain.transaction_id;
+	c.contract_cost = new BigNumber(sia.contractcost);
+	c.transaction_fees = new BigNumber(sia.transactionfeesadded);
+	c.data_size = new BigNumber(sia.datasize);
+	c.storage_revenue = new BigNumber(sia.potentialstoragerevenue);
+	c.download_revenue = new BigNumber(sia.potentialdownloadrevenue);
+	c.upload_revenue = new BigNumber(sia.potentialuploadrevenue);
+	c.sector_count = sia.sectorrootscount;
+	c.revision_number = sia.revisionnumber;
+	c.sia_status = sia.obligationstatus;
+	c.status = chain.status;
+	c.proof_confirmed = chain.proof_confirmed;
+	c.valid_proof_outputs = chain.valid_proof_outputs;
+	c.missed_proof_outputs = chain.missed_proof_outputs;
+	c.negotiation_height = chain.negotiation_height;
+	c.expiration_height = chain.expiration_height;
+	c.proof_deadline = chain.proof_deadline;
+	c.negotiation_timestamp = new Date(chain.negotiation_timestamp);
+	c.expiration_timestamp = new Date(chain.expiration_timestamp);
+	c.proof_deadline_timestamp = new Date(chain.proof_deadline_timestamp);
+	c.proof_timestamp = new Date(chain.proof_timestamp);
+	c.burnt_collateral = new BigNumber(0);
+	c.returned_collateral = new BigNumber(0);
+	c.risked_collateral = new BigNumber(0);
+	c.locked_collateral = new BigNumber(0);
+	c.earned_revenue = new BigNumber(0);
+	c.lost_revenue = new BigNumber(0);
+	c.potential_revenue = new BigNumber(0);
+	c.proof_required = !new BigNumber(chain.valid_proof_outputs[1].value).eq(chain.missed_proof_outputs[1].value);
+	c.tags = [];
 
 	switch (c.status.toLowerCase()) {
 	case 'obligationsucceeded':
@@ -164,7 +174,7 @@ function mergeContract(chain, sia) {
 	return c;
 }
 
-export async function parseHostContracts() {
+async function parseHostContracts() {
 	const stats = {
 		contracts: {
 			total: 0,
@@ -216,18 +226,19 @@ export async function parseHostContracts() {
 		const currentBlock = await apiClient.getLastBlock(),
 			alerts = [],
 			invalidStatusMap = {},
+			siaContracts = await apiClient.getHostContracts(),
 			contractMap = {};
 
 		currentBlock.timestamp = new Date(currentBlock.timestamp * 1000);
 
-		const siaContracts = (await apiClient.getHostContracts()).contracts.map(c => {
-			contractMap[c.obligationid] = c;
+		for (let i = 0; i < siaContracts.contracts.length; i++)
+			contractMap[siaContracts.contracts[i].obligationid] = siaContracts.contracts[i];
 
-			return c.obligationid;
-		}, []);
+		const confirmed = await getContracts(Object.keys(contractMap));
 
-		const confirmed = (await getContracts(siaContracts)).map(contract => {
-			const c = mergeContract(contract, contractMap[contract.id]);
+		for (let i = 0; i < confirmed.length; i++) {
+			const contract = confirmed[i],
+				c = mergeContract(contract, contractMap[contract.id]);
 
 			addContractStats(stats, c);
 
@@ -252,8 +263,8 @@ export async function parseHostContracts() {
 				});
 			}
 
-			return c;
-		});
+			confirmed[i] = c;
+		}
 
 		stats.contracts.total = stats.contracts.active + stats.contracts.unused + stats.contracts.failed + stats.contracts.successful;
 
@@ -300,7 +311,7 @@ export async function parseHostContracts() {
 
 		// deep copy here
 		Store.dispatch('hostContracts/setAlerts', JSON.parse(JSON.stringify(alerts)));
-		Store.dispatch('hostContracts/setContracts', JSON.parse(JSON.stringify(confirmed)));
+		confirmedContracts = confirmed;
 	} catch (ex) {
 		log.error('parseHostContracts', ex.message);
 	} finally {

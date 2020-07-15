@@ -77,8 +77,6 @@ export default {
 					siad_api_password: password
 				};
 
-				console.log(password);
-
 				this.setConfig(config);
 				await writeConfig(config);
 

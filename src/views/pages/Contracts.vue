@@ -33,6 +33,7 @@ import EmptyState from '@/components/EmptyState';
 
 import { formatPriceString, formatByteString, formatShortDateString, formatFriendlyStatus } from '@/utils/format';
 import { showSaveDialogAsync } from '@/utils';
+import { getConfirmedContracts } from '@/sync/contracts';
 
 export default {
 	components: {
@@ -46,6 +47,7 @@ export default {
 			exporting: false,
 			filterDebounce: null,
 			filtered: [],
+			contracts: [],
 			filter: {},
 			totals: {},
 			page: 0,
@@ -180,6 +182,8 @@ export default {
 		try {
 			const visible = JSON.parse(localStorage.getItem('contracts_visible_columns'));
 
+			this.contracts = getConfirmedContracts();
+
 			if (Array.isArray(visible))
 				this.displayColumns = visible;
 		} catch (ex) { console.error(ex); }
@@ -218,7 +222,6 @@ export default {
 	},
 	computed: {
 		...mapState({
-			contracts: state => state.hostContracts.contracts,
 			stats: state => state.hostContracts.stats
 		}),
 		visibleColumns() {
@@ -457,14 +460,15 @@ export default {
 					return 0;
 				case 'currency':
 				case 'bytes':
-					const agtB = a.gt(b);
+					const aNum = new BigNumber(a),
+						agtB = aNum.gt(b);
 
 					if (agtB && this.sort.descending)
 						return -1;
 					else if (agtB)
 						return 1;
 
-					const altB = a.lt(b);
+					const altB = aNum.lt(b);
 
 					if (altB && this.sort.descending)
 						return 1;

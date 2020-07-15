@@ -22,6 +22,7 @@ Vue.component('icon', FontAwesomeIcon);
 Vue.component('icon-layers', FontAwesomeLayers);
 
 Vue.config.productionTip = false;
+Vue.config.devtools = false;
 
 process.on('unhandledRejection', error => {
 	log.error(error);
