@@ -175,7 +175,7 @@ function mergeContract(chain, sia, stats, snapshots) {
 			stats.unused++;
 
 		stats.active++;
-		stats.potentialRevenue = stats.potentialRevenue.plus(c.revenue);
+		stats.potentialRevenue = stats.potentialRevenue.plus(c.potential_revenue);
 		stats.lockedCollateral = stats.lockedCollateral.plus(c.locked_collateral);
 
 		if (snapshots[expireStamp]) {

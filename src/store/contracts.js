@@ -48,8 +48,6 @@ export default {
 
 			snapshots.sort((a, b) => a.timestamp.getTime() > b.timestamp.getTime() ? 1 : a.timestamp.getTime() < b.timestamp.getTime() ? -1 : 0);
 
-			console.log(snapshots);
-
 			return snapshots;
 		}
 	}
