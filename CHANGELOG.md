@@ -1,3 +1,16 @@
+## August 2020
+
+### v1.0.21
+
+### Changes
+
++ Update Sia to v1.5.0
++ Update Dashboard
+
+### Bug Fixes
+
++ Fix memory leak on large hosts
+
 ## July 2020
 
 ### v1.0.20
