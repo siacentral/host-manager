@@ -30,7 +30,7 @@ import log from 'electron-log';
 import { mapState, mapActions } from 'vuex';
 import { clipboard } from 'electron';
 import Transak from '@transak/transak-sdk';
-import { formatSiacoinString, formatNumber } from '@/utils/format';
+import { formatSiacoinString, formatNumber } from '@/utils/formatLegacy';
 import BigNumber from 'bignumber.js';
 
 import SetupStep from './SetupStep';

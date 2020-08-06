@@ -4,12 +4,25 @@ import { BigNumber } from 'bignumber.js';
 import Store from '@/store';
 import { apiClient } from './index';
 import { getContracts } from '@/api/siacentral';
-import { formatPriceString, formatFriendlyStatus } from '@/utils/format';
+import { formatPriceString, formatFriendlyStatus } from '@/utils/formatLegacy';
 
 let confirmedContracts = [];
 
-class Contract {
+class Contract {}
 
+class Snapshot {
+	constructor(timestamp) {
+		this.active_contracts = 0;
+		this.expired_contracts = 0;
+		this.failed_contracts = 0;
+		this.new_contracts = 0;
+		this.successful_contracts = 0;
+		this.burnt_collateral = new BigNumber(0);
+		this.earned_revenue = new BigNumber(0);
+		this.payout = new BigNumber(0);
+		this.potential_revenue = new BigNumber(0);
+		this.timestamp = new Date(timestamp);
+	}
 }
 
 export function getConfirmedContracts() {
@@ -24,95 +37,16 @@ export async function refreshHostContracts() {
 	}
 }
 
-function addContractStats(stats, contract) {
-	const currentDate = new Date(),
-		days30Ago = new Date(),
-		days60Ago = new Date(),
-		days30Future = new Date(),
-		days60Future = new Date();
+function stdDate(d) {
+	const s = new Date(d.toString());
 
-	days30Ago.setDate(currentDate.getDate() - 30);
-	days60Ago.setDate(currentDate.getDate() - 60);
-	days30Future.setDate(currentDate.getDate() + 30);
-	days60Future.setDate(currentDate.getDate() + 60);
+	s.setHours(0, 0, 0, 0);
+	s.setDate(1);
 
-	try {
-		switch (contract.status.toLowerCase()) {
-		case 'obligationunresolved':
-			if (contract.unused)
-				stats.contracts.unused++;
-			else
-				stats.contracts.active++;
-
-			if (contract.expiration_timestamp <= days30Future) {
-				stats.potential_revenue.days_30 = stats.potential_revenue.days_30.plus(contract.potential_revenue);
-				stats.contracts.next_30_days++;
-			}
-
-			if (contract.expiration_timestamp <= days60Future) {
-				stats.potential_revenue.days_60 = stats.potential_revenue.days_60.plus(contract.potential_revenue);
-				stats.contracts.next_60_days++;
-			}
-
-			stats.potential_revenue.total = stats.potential_revenue.total.plus(contract.potential_revenue);
-			stats.potential_revenue.upload = stats.potential_revenue.upload.plus(contract.upload_revenue);
-			stats.potential_revenue.download = stats.potential_revenue.download.plus(contract.download_revenue);
-			stats.potential_revenue.storage = stats.potential_revenue.storage.plus(contract.storage_revenue);
-			stats.potential_revenue.contract_fees = stats.potential_revenue.contract_fees.plus(contract.contract_cost);
-			stats.potential_revenue.transaction_fees = stats.potential_revenue.transaction_fees.plus(contract.transaction_fees);
-			stats.locked_collateral = stats.locked_collateral.plus(contract.locked_collateral);
-			stats.risked_collateral = stats.risked_collateral.plus(contract.risked_collateral);
-
-			break;
-		case 'obligationsucceeded':
-			if (!contract.unused)
-				stats.contracts.successful++;
-
-			if (contract.expiration_timestamp > days30Ago) {
-				stats.earned_revenue.days_30 = stats.earned_revenue.days_30.plus(contract.earned_revenue);
-				stats.contracts.past_30_days++;
-			}
-
-			if (contract.expiration_timestamp > days60Ago) {
-				stats.earned_revenue.days_60 = stats.earned_revenue.days_60.plus(contract.earned_revenue);
-				stats.contracts.past_60_days++;
-			}
-
-			stats.earned_revenue.total = stats.earned_revenue.total.plus(contract.earned_revenue);
-			stats.earned_revenue.upload = stats.earned_revenue.upload.plus(contract.upload_revenue);
-			stats.earned_revenue.download = stats.earned_revenue.download.plus(contract.download_revenue);
-			stats.earned_revenue.storage = stats.earned_revenue.storage.plus(contract.storage_revenue);
-			stats.earned_revenue.contract_fees = stats.earned_revenue.contract_fees.plus(contract.contract_cost);
-			stats.earned_revenue.transaction_fees = stats.earned_revenue.transaction_fees.plus(contract.transaction_fees);
-			break;
-		case 'obligationfailed':
-			stats.contracts.failed++;
-
-			if (contract.expiration_timestamp > days30Ago) {
-				stats.lost_revenue.days_30 = stats.lost_revenue.days_30.plus(contract.lost_revenue);
-				stats.contracts.past_30_days++;
-			}
-
-			if (contract.expiration_timestamp > days60Ago) {
-				stats.lost_revenue.days_60 = stats.lost_revenue.days_60.plus(contract.lost_revenue);
-				stats.contracts.past_60_days++;
-			}
-
-			stats.lost_revenue.total = stats.lost_revenue.total.plus(contract.lost_revenue);
-			stats.lost_revenue.upload = stats.lost_revenue.upload.plus(contract.upload_revenue);
-			stats.lost_revenue.download = stats.lost_revenue.download.plus(contract.download_revenue);
-			stats.lost_revenue.storage = stats.lost_revenue.storage.plus(contract.storage_revenue);
-			stats.lost_revenue.contract_fees = stats.lost_revenue.contract_fees.plus(contract.contract_cost);
-			stats.lost_revenue.transaction_fees = stats.lost_revenue.transaction_fees.plus(contract.transaction_fees);
-			stats.lost_collateral = stats.lost_collateral.plus(contract.burnt_collateral);
-			break;
-		}
-	} catch (ex) {
-		log.error('addContractStats', ex);
-	}
+	return s.getTime();
 }
 
-function mergeContract(chain, sia) {
+function mergeContract(chain, sia, stats, snapshots) {
 	const c = new Contract();
 
 	c.id = chain.id;
@@ -128,8 +62,8 @@ function mergeContract(chain, sia) {
 	c.sia_status = sia.obligationstatus;
 	c.status = chain.status;
 	c.proof_confirmed = chain.proof_confirmed;
-	c.valid_proof_outputs = chain.valid_proof_outputs;
-	c.missed_proof_outputs = chain.missed_proof_outputs;
+	c.valid_proof_outputs = sia.validproofoutputs.map(o => ({ unlock_hash: o.unlockhash, value: new BigNumber(o.value) }));
+	c.missed_proof_outputs = sia.missedproofoutputs.map(o => ({ unlock_hash: o.unlockhash, value: new BigNumber(o.value) }));
 	c.negotiation_height = chain.negotiation_height;
 	c.expiration_height = chain.expiration_height;
 	c.proof_deadline = chain.proof_deadline;
@@ -144,31 +78,110 @@ function mergeContract(chain, sia) {
 	c.earned_revenue = new BigNumber(0);
 	c.lost_revenue = new BigNumber(0);
 	c.potential_revenue = new BigNumber(0);
-	c.proof_required = !new BigNumber(chain.valid_proof_outputs[1].value).eq(chain.missed_proof_outputs[1].value);
+	c.proof_required = !c.valid_proof_outputs[1].value.eq(c.missed_proof_outputs[1].value);
 	c.tags = [];
+
+	stats.total++;
+
+	const startStamp = stdDate(c.negotiation_timestamp),
+		expireStamp = stdDate(c.expiration_timestamp);
+
+	if (snapshots[startStamp])
+		snapshots[startStamp].new_contracts++;
+
+	if (snapshots[expireStamp])
+		snapshots[expireStamp].expired_contracts++;
+
+	for (let i = startStamp; i < expireStamp;) {
+		const next = new Date(i);
+
+		next.setMonth(next.getMonth() + 1, 1);
+
+		if (snapshots[i])
+			snapshots[i].active_contracts++;
+
+		i = stdDate(next);
+	}
 
 	switch (c.status.toLowerCase()) {
 	case 'obligationsucceeded':
+		if (c.proof_confirmed)
+			c.payout = new BigNumber(c.valid_proof_outputs[1].value);
+		else
+			c.payout = new BigNumber(c.missed_proof_outputs[1].value);
+
 		c.returned_collateral = new BigNumber(sia.lockedcollateral);
-		c.payout = new BigNumber(c.valid_proof_outputs[1].value);
-		c.earned_revenue = c.payout.minus(c.returned_collateral).minus(c.transaction_fees);
+		c.earned_revenue = c.payout.minus(sia.lockedcollateral).minus(c.transaction_fees);
 		c.revenue = c.earned_revenue;
+
+		stats.successful++;
+		stats.earnedRevenue = stats.earnedRevenue.plus(c.revenue);
+
+		let successStamp;
+
+		if (c.proof_confirmed)
+			successStamp = stdDate(c.proof_timestamp);
+		else
+			successStamp = stdDate(c.proof_deadline_timestamp);
+
+		if (snapshots[successStamp]) {
+			snapshots[successStamp].successful_contracts++;
+			snapshots[successStamp].earned_revenue = snapshots[successStamp].earned_revenue.plus(c.revenue);
+			snapshots[successStamp].payout = snapshots[successStamp].payout.plus(c.payout);
+			snapshots[successStamp].active_contracts--;
+		}
+
+		if (snapshots[expireStamp])
+			snapshots[expireStamp].expired_contracts--;
+
 		break;
 	case 'obligationfailed':
 		c.payout = new BigNumber(c.missed_proof_outputs[1].value);
-		c.returned_collateral = new BigNumber(c.missed_proof_outputs[1].value).minus(c.contract_cost);
 		c.lost_revenue = new BigNumber(c.valid_proof_outputs[1].value).minus(sia.lockedcollateral)
 			.minus(c.transaction_fees);
-		c.burnt_collateral = new BigNumber(sia.lockedcollateral).minus(c.returned_collateral);
-		c.revenue = new BigNumber(0);
+		c.revenue = new BigNumber(c.missed_proof_outputs[1].value).minus(sia.lockedcollateral)
+			.minus(c.transaction_fees);
+
+		if (c.missed_proof_outputs[1].value.lt(sia.lockedcollateral))
+			c.burnt_collateral = new BigNumber(sia.lockedcollateral).minus(c.missed_proof_outputs[1].value);
+
+		stats.failed++;
+		stats.lostRevenue = stats.lostRevenue.plus(c.lost_revenue);
+		stats.earnedRevenue = stats.earnedRevenue.plus(c.revenue);
+		stats.burntCollateral = stats.burntCollateral.plus(c.burnt_collateral);
+
+		const failStamp = stdDate(c.proof_deadline_timestamp);
+
+		if (snapshots[failStamp]) {
+			snapshots[failStamp].expired_contracts++;
+			snapshots[failStamp].failed_contracts++;
+			snapshots[failStamp].earned_revenue = snapshots[failStamp].earned_revenue.plus(c.revenue);
+			snapshots[failStamp].active_contracts--;
+			snapshots[failStamp].expired_contracts--;
+		}
+
+		if (snapshots[expireStamp])
+			snapshots[expireStamp].expired_contracts--;
+
 		break;
 	default:
-		c.risked_collateral = new BigNumber(sia.riskedcollateral);
 		c.locked_collateral = new BigNumber(sia.lockedcollateral);
-		c.potential_revenue = c.storage_revenue.plus(c.download_revenue).plus(c.upload_revenue)
-			.plus(c.contract_cost).minus(c.transaction_fees);
-		c.revenue = c.potential_revenue;
+		c.potential_revenue = c.valid_proof_outputs[1].value.minus(sia.lockedcollateral)
+			.minus(c.transaction_fees);
+		c.revenue = new BigNumber(0);
 		c.payout = new BigNumber(0);
+
+		if (!c.proof_required)
+			stats.unused++;
+
+		stats.active++;
+		stats.potentialRevenue = stats.potentialRevenue.plus(c.revenue);
+		stats.lockedCollateral = stats.lockedCollateral.plus(c.locked_collateral);
+
+		if (snapshots[expireStamp]) {
+			snapshots[expireStamp].potential_revenue = snapshots[expireStamp].potential_revenue.plus(c.potential_revenue);
+			snapshots[expireStamp].active_contracts--;
+		}
 	}
 
 	return c;
@@ -176,51 +189,33 @@ function mergeContract(chain, sia) {
 
 async function parseHostContracts() {
 	const stats = {
-		contracts: {
 			total: 0,
-			unused: 0,
 			active: 0,
 			failed: 0,
 			successful: 0,
-			next_30_days: 0,
-			next_60_days: 0,
-			past_30_days: 0,
-			past_60_days: 0
+			potentialRevenue: new BigNumber(0),
+			earnedRevenue: new BigNumber(0),
+			lostRevenue: new BigNumber(0),
+			lockedCollateral: new BigNumber(0),
+			burntCollateral: new BigNumber(0)
 		},
-		potential_revenue: {
-			total: new BigNumber(0),
-			storage: new BigNumber(0),
-			upload: new BigNumber(0),
-			download: new BigNumber(0),
-			contract_fees: new BigNumber(0),
-			transaction_fees: new BigNumber(0),
-			days_30: new BigNumber(0),
-			days_60: new BigNumber(0)
-		},
-		earned_revenue: {
-			total: new BigNumber(0),
-			storage: new BigNumber(0),
-			upload: new BigNumber(0),
-			download: new BigNumber(0),
-			contract_fees: new BigNumber(0),
-			transaction_fees: new BigNumber(0),
-			days_30: new BigNumber(0),
-			days_60: new BigNumber(0)
-		},
-		lost_revenue: {
-			total: new BigNumber(0),
-			storage: new BigNumber(0),
-			upload: new BigNumber(0),
-			download: new BigNumber(0),
-			contract_fees: new BigNumber(0),
-			transaction_fees: new BigNumber(0),
-			days_30: new BigNumber(0),
-			days_60: new BigNumber(0)
-		},
-		locked_collateral: new BigNumber(0),
-		risked_collateral: new BigNumber(0),
-		lost_collateral: new BigNumber(0)
-	};
+		snapshots = {};
+
+	const endDate = new Date(),
+		startDate = new Date();
+
+	endDate.setMonth(endDate.getMonth() + 4, 1);
+	startDate.setMonth(endDate.getMonth() - 16, 1);
+
+	for (let i = stdDate(startDate); i < stdDate(endDate);) {
+		const next = new Date(i);
+
+		next.setMonth(next.getMonth() + 1, 1);
+
+		snapshots[i] = new Snapshot(i);
+
+		i = stdDate(next);
+	}
 
 	try {
 		const currentBlock = await apiClient.getLastBlock(),
@@ -238,9 +233,7 @@ async function parseHostContracts() {
 
 		for (let i = 0; i < confirmed.length; i++) {
 			const contract = confirmed[i],
-				c = mergeContract(contract, contractMap[contract.id]);
-
-			addContractStats(stats, c);
+				c = mergeContract(contract, contractMap[contract.id], stats, snapshots);
 
 			if (c.proof_deadline < currentBlock.height && c.proof_required && !c.proof_confirmed) {
 				c.tags.push({
@@ -266,21 +259,19 @@ async function parseHostContracts() {
 			confirmed[i] = c;
 		}
 
-		stats.contracts.total = stats.contracts.active + stats.contracts.unused + stats.contracts.failed + stats.contracts.successful;
-
-		if (stats.contracts.failed > 0) {
+		if (stats.failed > 0) {
 			let prefix;
 
-			if (stats.contracts.failed === 1)
-				prefix = `${stats.contracts.failed} contract has`;
+			if (stats.failed === 1)
+				prefix = `${stats.failed} contract has`;
 			else
-				prefix = `${stats.contracts.failed} contracts have`;
+				prefix = `${stats.failed} contracts have`;
 
 			alerts.push({
 				id: `${prefix}_failed_contracts`,
 				severity: 'danger',
 				category: 'contracts',
-				message: `${prefix} failed resulting in ${formatPriceString(stats.lost_revenue.total.plus(stats.lost_collateral))} of lost revenue and burnt collateral. Check the contracts page and your logs for more details`,
+				message: `${prefix} failed resulting in ${formatPriceString(stats.lostRevenue)} lost revenue and ${formatPriceString(stats.burntCollateral)} burnt collateral. Check the contracts page and your logs for more details`,
 				icon: 'file-contract'
 			});
 		}
@@ -310,11 +301,12 @@ async function parseHostContracts() {
 		}
 
 		// deep copy here
-		Store.dispatch('hostContracts/setAlerts', JSON.parse(JSON.stringify(alerts)));
+		Store.dispatch('hostContracts/setAlerts', alerts);
 		confirmedContracts = confirmed;
 	} catch (ex) {
 		log.error('parseHostContracts', ex.message);
 	} finally {
-		Store.dispatch('hostContracts/setStats', JSON.parse(JSON.stringify(stats)));
+		Store.dispatch('hostContracts/setStats', stats);
+		Store.dispatch('hostContracts/setSnapshots', snapshots);
 	}
 }

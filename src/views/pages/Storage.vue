@@ -74,7 +74,7 @@ import EmptyState from '@/components/EmptyState';
 
 import { mapState } from 'vuex';
 import path from 'path';
-import { formatByteString } from '@/utils/format';
+import { formatByteString } from '@/utils/formatLegacy';
 import { refreshHostStorage } from '@/sync/storage';
 
 export default {

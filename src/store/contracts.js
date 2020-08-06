@@ -2,16 +2,16 @@ export default {
 	namespaced: true,
 	state: {
 		stats: {},
-		contracts: [],
 		alerts: [],
+		snapshots: {},
 		newAlertsCount: 0
 	},
 	mutations: {
 		setStats(state, stats) {
 			state.stats = stats;
 		},
-		setContracts(state, contracts) {
-			state.contracts = contracts;
+		setSnapshots(state, snapshots) {
+			state.snapshots = snapshots;
 		},
 		setAlerts(state, alerts) {
 			state.newAlertsCount = alerts.reduce((val, alert) => {
@@ -30,11 +30,27 @@ export default {
 		setStats(context, stats) {
 			context.commit('setStats', stats);
 		},
-		setContracts(context, contracts) {
-			context.commit('setContracts', contracts);
+		setSnapshots(context, snapshots) {
+			context.commit('setSnapshots', snapshots);
 		},
 		setAlerts(context, alerts) {
 			context.commit('setAlerts', alerts);
+		}
+	},
+	getters: {
+		snapshots(state) {
+			const keys = Object.keys(state.snapshots),
+				snapshots = [];
+
+			keys.forEach(k => {
+				snapshots.push(state.snapshots[k]);
+			});
+
+			snapshots.sort((a, b) => a.timestamp.getTime() > b.timestamp.getTime() ? 1 : a.timestamp.getTime() < b.timestamp.getTime() ? -1 : 0);
+
+			console.log(snapshots);
+
+			return snapshots;
 		}
 	}
 };

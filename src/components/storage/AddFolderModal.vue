@@ -50,7 +50,7 @@ import { remote } from 'electron';
 
 import { mkdirIfNotExist } from '@/utils';
 import { parseByteString } from '@/utils/parse';
-import { formatByteString } from '@/utils/format';
+import { formatByteString } from '@/utils/formatLegacy';
 import SiaApiClient from '@/api/sia';
 import { refreshHostStorage } from '@/sync/storage';
 import ProgressBar from '@/components/ProgressBar';

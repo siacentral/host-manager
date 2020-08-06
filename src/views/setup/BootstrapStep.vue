@@ -57,7 +57,7 @@ import SetupStep from './SetupStep';
 import { getSiaCentralBootstrap } from '@/api/siacentral';
 import { getSiaStatsBootstrap } from '@/api/siastats';
 import { downloadFile } from '@/utils/bootstrap';
-import { formatByteString, formatDate, formatDuration, formatByteSpeed } from '@/utils/format';
+import { formatByteString, formatDate, formatDuration, formatByteSpeed } from '@/utils/formatLegacy';
 
 export default {
 	components: {

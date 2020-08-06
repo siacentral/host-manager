@@ -21,7 +21,7 @@ import log from 'electron-log';
 
 import Modal from '@/components/Modal';
 import { BigNumber } from 'bignumber.js';
-import { formatByteString } from '@/utils/format';
+import { formatByteString } from '@/utils/formatLegacy';
 import { parseByteString } from '@/utils/parse';
 import { mapActions, mapState } from 'vuex';
 import { refreshHostStorage } from '@/sync/storage';

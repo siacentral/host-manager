@@ -56,7 +56,7 @@
 import log from 'electron-log';
 
 import { parseCurrencyString } from '@/utils/parse';
-import { formatPriceString } from '@/utils/format';
+import { formatPriceString } from '@/utils/formatLegacy';
 
 export default {
 	props: {

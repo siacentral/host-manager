@@ -1,7 +1,7 @@
-import { BigNumber } from 'bignumber.js';
-import Decimal from 'decimal.js-light';
+import BigNumber from 'bignumber.js';
 
-import Store from '@/store';
+const BASE_CURRENCY_PRECISION = 1e24,
+	BASE_CURRENCY_LABEL = 'SC';
 
 export function formatFriendlyStatus(status) {
 	switch (status.toLowerCase()) {
@@ -19,7 +19,7 @@ export function formatFriendlyStatus(status) {
 }
 
 export function numberToString(number, divisor, units, decimals) {
-	decimals = isFinite(decimals) ? decimals : -1;
+	decimals = isFinite(decimals) ? decimals : 2;
 
 	let unit = units[0],
 		num = new BigNumber(number),
@@ -36,21 +36,20 @@ export function numberToString(number, divisor, units, decimals) {
 		mag = mag.multipliedBy(divisor);
 	}
 
-	let fixed = 0;
-
-	if (decimals === -1)
-		fixed = num.dividedBy(mag).toString(10);
-	else
-		fixed = num.dividedBy(mag).toFixed(decimals);
-
-	return `${fixed} ${unit}`;
+	return {
+		value: new Intl.NumberFormat([], {
+			type: 'decimal',
+			minimumFractionDigits: decimals
+		}).format(roundNumber(num.dividedBy(mag), decimals)),
+		label: unit
+	};
 };
 
 export function formatBlockTimeString(blocks) {
 	if (blocks <= 0)
 		return '0 hr';
 
-	const denoms = { 'mth': 4320, 'wk': 1008, 'day': 144, 'hr': 6 };
+	const denoms = { 'month': 4320, 'week': 1008, 'day': 144, 'hour': 6 };
 
 	for (let key in denoms) {
 		const d = denoms[key];
@@ -58,18 +57,44 @@ export function formatBlockTimeString(blocks) {
 		if (blocks < d)
 			continue;
 
-		return `${Math.floor(blocks / d)} ${key}`;
+		const value = Math.floor(blocks / d);
+
+		if (value > 1)
+			key += 's';
+
+		return {
+			value: value.toString(),
+			label: key
+		};
 	}
 
-	return '0 hr';
+	return {
+		value: 0,
+		label: 'hours'
+	};
+}
+
+export function formatMonth(date) {
+	return date.toLocaleString([], {
+		year: 'numeric',
+		month: 'short'
+	});
 }
 
 export function formatDate(date) {
+	return date.toLocaleDateString([], {
+		year: 'numeric',
+		month: 'short',
+		day: '2-digit'
+	});
+}
+
+export function formatDateTime(date) {
 	return date.toLocaleString([], {
 		dateStyle: 'short',
 		timeStyle: 'short',
-		year: '2-digit',
-		month: '2-digit',
+		year: 'numeric',
+		month: 'short',
 		day: '2-digit',
 		hour: '2-digit',
 		minute: '2-digit'
@@ -85,8 +110,8 @@ export function formatShortTimeString(date) {
 }
 
 export function formatDuration(sec, short) {
-	if (sec <= 0)
-		return '0 sec';
+	if (sec < 60)
+		return [{ value: 0, label: 'd' }, { value: 0, label: 'h' }, { value: 1, label: 'm' }];
 
 	let denoms;
 
@@ -95,159 +120,129 @@ export function formatDuration(sec, short) {
 	else
 		denoms = { 'day': 86400, 'hour': 3600, 'min': 60 };
 
-	const keys = Object.keys(denoms), len = keys.length;
+	const keys = Object.keys(denoms), len = keys.length, labels = [];
 
-	let time = sec, label, i = 1, d;
+	let time = sec, label, i = 0, d;
 
 	for (; i < len; i++) {
 		label = keys[i];
 		d = denoms[label];
 
-		if (time < d)
-			continue;
-
 		const amt = Math.floor(time / d);
 
 		time = time % d;
 
-		return `${amt} ${amt > 1 && !short ? label + 's' : label}`;
+		labels.push({
+			value: amt,
+			label: amt > 1 && !short ? label + 's' : label
+		});
 	}
 
-	return `< 1 m`;
+	return labels;
 }
 
-export function formatByteString(val, dec) {
-	if (Store && Store.state && Store.state.config && Store.state.config.data_unit === 'decimal')
+export function formatByteString(val, unit, dec) {
+	if (unit === 'decimal')
 		return numberToString(val, 1000, ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB'], dec);
 
 	return numberToString(val, 1024, ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB'], dec);
 };
 
-export function formatByteSpeed(val, dec) {
-	if (Store && Store.state && Store.state.config && Store.state.config.data_unit === 'decimal')
+export function formatByteSpeed(val, unit, dec) {
+	if (unit === 'decimal')
 		return numberToString(val, 1000, ['B', 'KB/s', 'MB/s', 'GB/s', 'TB/s', 'PB/s'], dec);
 
 	return numberToString(val, 1024, ['B/s', 'KiB/s', 'MiB/s', 'GiB/s', 'TiB/s', 'PiB/s'], dec);
 }
 
-const numFormatter = new Intl.NumberFormat({
-		maximumFractionDigits: 20
-	}),
-	currencySuffixes = [
-		{
-			mul: 1e12,
-			suffix: 'T'
-		},
-		{
-			mul: 1e9,
-			suffix: 'B'
-		},
-		{
-			mul: 1e6,
-			suffix: 'M'
-		},
-		{
-			mul: 1e3,
-			suffix: 'K'
-		}
-	];
-
 export function formatNumber(val, dec) {
 	if (!dec)
 		dec = 0;
 
-	return numFormatter.format(sigDecimalRound(val, dec));
+	val = new BigNumber(val);
+
+	return new Intl.NumberFormat([], {
+		type: 'decimal',
+		minimumFractionDigits: dec
+	}).format(roundNumber(val, dec));
 }
 
-export function formatSiacoinString(val, dec) {
-	let suffix = '',
-		mul = new BigNumber(1);
+function roundNumber(val, dec) {
+	const str = val.abs().toString(10),
+		neg = val.lt(0),
+		parts = str.split('.');
 
+	if (parts.length === 1)
+		return str;
+
+	let decimals = new BigNumber(`0.${parts[1]}`).abs();
+
+	if (decimals.isNaN() || !decimals.isFinite())
+		decimals = new BigNumber(0);
+
+	let num = new BigNumber(parts[0]).plus(decimals.sd(dec)).toNumber();
+
+	if (neg)
+		num *= -1;
+
+	return num;
+}
+
+function formatSiacoinString(val, dec) {
 	if (!isFinite(dec))
 		dec = 2;
 
-	if (typeof val === 'string')
-		val = new BigNumber(val);
-
-	if (!val || val.isEqualTo(0))
-		return '0 SC';
-
-	const siacoins = val.dividedBy(1e24);
-
-	if (siacoins.gte(1e4)) {
-		for (let i = 0; i < currencySuffixes.length; i++) {
-			const suf = currencySuffixes[i];
-
-			if (!siacoins.gte(suf.mul))
-				continue;
-
-			mul = mul.times(suf.mul);
-			suffix = suf.suffix;
-			break;
-		}
+	if (!val || val.isEqualTo(0)) {
+		return {
+			value: '0',
+			label: BASE_CURRENCY_LABEL
+		};
 	}
 
-	return `${numFormatter.format(sigDecimalRound(siacoins.dividedBy(mul), dec))}${suffix} SC`;
+	return {
+		value: new Intl.NumberFormat([], {
+			type: 'decimal',
+			minimumFractionDigits: dec,
+			maximumFractionDigits: 5
+		}).format(roundNumber(val.dividedBy(BASE_CURRENCY_PRECISION), dec)),
+		label: BASE_CURRENCY_LABEL
+	};
 };
 
-function sigDecimalRound(val, num) {
-	const pieces = val.toString(10).split('.');
-
-	num = num || 2;
-
-	if (pieces.length < 2)
-		return val;
-
-	const w = new Decimal(pieces[0]),
-		d = new Decimal(`0.${pieces[1]}`).toSignificantDigits(num);
-
-	return w.plus(d).toDecimalPlaces(6);
-};
-
-export function formatCryptoString(val, dec) {
-	const currency = Store.state.config.currency || 'btc';
-	let suffix = '',
-		mul = new BigNumber(1);
-
+function formatCryptoString(val, dec, currency, rate) {
 	dec = dec || 4;
 
-	if (typeof val === 'string')
-		val = new BigNumber(val);
-
-	if (val.isEqualTo(0) || !Store.state.coinPrice[currency])
-		return `0 ${currency.toUpperCase()}`;
-
-	const value = val.dividedBy(1e24).times(Store.state.coinPrice[currency]);
-
-	if (value.gte(1e4)) {
-		for (let i = 0; i < currencySuffixes.length; i++) {
-			const suf = currencySuffixes[i];
-
-			if (!value.gte(suf.mul))
-				continue;
-
-			mul = mul.times(suf.mul);
-			suffix = suf.suffix;
-			break;
-		}
+	if (val.isEqualTo(0) || !rate) {
+		return {
+			value: '0',
+			label: currency.toLowerCase()
+		};
 	}
 
-	return `${numFormatter.format(sigDecimalRound(value.dividedBy(mul).toNumber(), dec))}${suffix} ${currency.toUpperCase()}`;
+	return {
+		value: new Intl.NumberFormat([], {
+			type: 'decimal',
+			minimumFractionDigits: dec,
+			maximumFractionDigits: 5
+		}).format(roundNumber(val.dividedBy(BASE_CURRENCY_PRECISION).times(rate), dec)),
+		label: currency.toLowerCase()
+	};
 }
 
-export function formatCurrencyString(val) {
-	const currency = Store.state.config.currency || 'usd',
-		formatter = new Intl.NumberFormat([], { style: 'currency', currency: currency, maximumFractionDigits: 20 });
+function formatCurrencyString(val, currency, rate) {
+	const formatter = new Intl.NumberFormat([], { style: 'currency', currency: currency || 'usd', maximumFractionDigits: 5 });
 
-	if (typeof val === 'string')
-		val = new BigNumber(val);
+	if (val.isEqualTo(0) || !rate) {
+		return {
+			value: formatter.format(0),
+			label: currency.toLowerCase()
+		};
+	}
 
-	if (val.isEqualTo(0) || !Store.state.coinPrice[currency])
-		return formatter.format(0);
-
-	const value = sigDecimalRound(val.dividedBy(1e24).times(Store.state.coinPrice[currency]), 2);
-
-	return formatter.format(value);
+	return {
+		value: formatter.format(roundNumber(val.dividedBy(BASE_CURRENCY_PRECISION).times(rate), 2)),
+		label: currency.toLowerCase()
+	};
 };
 
 const supportedCrypto = [
@@ -268,58 +263,63 @@ const supportedCrypto = [
 		'cny'
 	];
 
-export function formatDataPriceString(val, dec) {
+export function formatDataPriceString(val, dec, unit, currency, rate) {
 	if (!val)
 		val = new BigNumber(0);
 
-	if (typeof val === 'string')
-		val = new BigNumber(val);
+	const byteFactor = unit !== 'binary' ? 1e12 : 1099511627776;
 
-	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase(),
-		byteFactor = Store.state.config && Store.state.config.data_unit === 'decimal' ? 1e12 : 1099511627776;
+	if (supportedCrypto.indexOf(currency) >= 0 && rate)
+		return formatCryptoString(val.times(byteFactor), dec, currency, rate);
 
-	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCryptoString(val.times(byteFactor), dec);
-
-	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCurrencyString(val.times(byteFactor), dec);
+	if (supportedCurrency.indexOf(currency) >= 0 && rate)
+		return formatCurrencyString(val.times(byteFactor), currency, rate);
 
 	return formatSiacoinString(val.times(byteFactor), dec);
 };
 
-export function formatMonthlyPriceString(val, dec) {
+export function formatMonthlyPriceString(val, dec, unit, currency, rate) {
 	if (!val)
 		val = new BigNumber(0);
 
-	if (typeof val === 'string')
-		val = new BigNumber(val);
+	const byteFactor = unit !== 'binary' ? 1e12 : 1099511627776;
 
-	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase(),
-		byteFactor = Store.state.config && Store.state.config.data_unit === 'decimal' ? 1e12 : 1099511627776;
+	if (supportedCrypto.indexOf(currency) >= 0 && rate)
+		return formatCryptoString(val.times(byteFactor).times(4320), dec, currency, rate);
 
-	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCryptoString(val.times(byteFactor).times(4320), dec);
+	if (supportedCurrency.indexOf(currency) >= 0 && rate)
+		return formatCurrencyString(val.times(byteFactor).times(4320), currency, rate);
 
-	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCurrencyString(val.times(byteFactor).times(4320), dec);
-
-	return formatSiacoinString(val.times(byteFactor).times(4320), dec);
+	return formatSiacoinString(val.times(byteFactor).times(4320), dec, currency, rate);
 };
 
-export function formatPriceString(val, dec) {
+export function formatSiafundString(val) {
+	if (!val || val.isEqualTo(0)) {
+		return {
+			value: '0',
+			label: 'sf'
+		};
+	}
+
+	return {
+		value: new Intl.NumberFormat([], {
+			type: 'decimal',
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 0
+		}).format(val),
+		label: 'sf'
+	};
+};
+
+export function formatPriceString(val, dec, currency, rate) {
 	if (!val)
 		val = new BigNumber(0);
 
-	if (typeof val === 'string')
-		val = new BigNumber(val);
+	if (supportedCrypto.indexOf(currency) >= 0 && rate)
+		return formatCryptoString(val, dec, currency, rate);
 
-	const currency = (Store.state.config && Store.state.config.currency ? Store.state.config.currency : 'siacoin').toLowerCase();
-
-	if (supportedCrypto.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCryptoString(val, dec);
-
-	if (supportedCurrency.indexOf(currency) >= 0 && Store.state.coinPrice && Store.state.coinPrice[currency])
-		return formatCurrencyString(val, dec);
+	if (supportedCurrency.indexOf(currency) >= 0 && rate)
+		return formatCurrencyString(val, currency, rate);
 
 	return formatSiacoinString(val, dec);
 }

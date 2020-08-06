@@ -33,7 +33,7 @@
 import ReceiveModal from '@/components/wallet/ReceiveModal';
 
 import { mapState } from 'vuex';
-import { formatDuration, formatPriceString, formatNumber } from '@/utils/format';
+import { formatDuration, formatPriceString, formatNumber } from '@/utils/formatLegacy';
 
 export default {
 	components: {

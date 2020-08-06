@@ -37,7 +37,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import { formatPriceString, formatByteString, formatShortDateString, formatBlockTimeString, formatFriendlyStatus } from '@/utils/format';
+import { formatPriceString, formatByteString, formatShortDateString, formatBlockTimeString, formatFriendlyStatus } from '@/utils/formatLegacy';
 
 export default {
 	props: {

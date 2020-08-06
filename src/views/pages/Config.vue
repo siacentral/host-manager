@@ -158,7 +158,7 @@ import log from 'electron-log';
 
 import { mapState, mapActions } from 'vuex';
 import { writeConfig } from '@/utils';
-import { formatByteString, formatBlockTimeString, formatPriceString, formatDataPriceString, formatMonthlyPriceString } from '@/utils/format';
+import { formatByteString, formatBlockTimeString, formatPriceString, formatDataPriceString, formatMonthlyPriceString } from '@/utils/formatLegacy';
 import { parseCurrencyString, parseByteString, parseBlockTimeString } from '@/utils/parse';
 import SiaApiClient from '@/api/sia';
 import { refreshHostConfig } from '@/sync/config';

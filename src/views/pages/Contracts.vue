@@ -31,7 +31,7 @@ import FilterPanel from '@/components/contracts/FilterPanel';
 import ContractGrid from '@/components/contracts/ContractGrid';
 import EmptyState from '@/components/EmptyState';
 
-import { formatPriceString, formatByteString, formatShortDateString, formatFriendlyStatus } from '@/utils/format';
+import { formatPriceString, formatByteString, formatShortDateString, formatFriendlyStatus } from '@/utils/formatLegacy';
 import { showSaveDialogAsync } from '@/utils';
 import { getConfirmedContracts } from '@/sync/contracts';
 

@@ -30,7 +30,7 @@ import log from 'electron-log';
 
 import Modal from '@/components/Modal';
 import SiaApiClient from '@/api/sia';
-import { formatShortDateString } from '@/utils/format';
+import { formatShortDateString } from '@/utils/formatLegacy';
 
 export default {
 	components: {
