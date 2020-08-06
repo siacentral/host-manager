@@ -55,18 +55,17 @@ export default class SiaApiClient {
 	}
 
 	async walletUnlockConditions(addr) {
-		const apiPassword = await this.getDefaultAPIPassword();
-		console.log(apiPassword);
-		const resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/unlockconditions/${addr}`, {
-			method: 'GET',
-			headers: {
-				'User-Agent': this.config.siad_api_agent
-			},
-			auth: {
-				username: '',
-				password: apiPassword
-			}
-		});
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/unlockconditions/${addr}`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
 
 		if (resp.statusCode !== 200)
 			throw new Error(resp.body.message);

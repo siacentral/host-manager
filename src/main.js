@@ -54,11 +54,9 @@ async function init() {
 			throw new Error('siad_data_path missing');
 		}
 
-		store.dispatch('setConfig', config);
-
 		document.body.classList.add('dark');
 
-		console.log('first run false');
+		store.dispatch('setConfig', config);
 		store.dispatch('setup/setFirstRun', false);
 	} catch (ex) {
 		log.error('main init', ex.message);
