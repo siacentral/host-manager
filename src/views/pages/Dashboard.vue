@@ -117,7 +117,7 @@ export default {
     grid-gap: 15px;
     padding: 15px;
     background: bg-dark-accent;
-    border-radius: 13px;
+    border-radius: 8px;
     grid-template-columns: 64px minmax(0, 1fr);
     align-items: center;
 
