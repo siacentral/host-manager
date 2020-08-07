@@ -1,5 +1,12 @@
 ## August 2020
 
+### v1.0.22
+
+### Bug Fixes
+
++ Fixed earned revenue and lost revenue calculations
++ Fix display issue for negative values
+
 ### v1.0.21
 
 ### Changes
