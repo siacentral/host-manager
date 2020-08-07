@@ -32,11 +32,11 @@ Sia Host Manager combines information from your Sia node as well as information 
 npm install
 ```
 
-2. Add siad binaries for your platform to `build/bin/{os} you can get the latest binaries from https://sia.tech/get-started
+2. Add siad binaries for your platform to `build/bin/{os}` you can get the latest binaries from https://sia.tech/get-started
 
-Linux: `build/bin/linux/siad`
-OS X: `build/bin/mac/siad`
-Windows: `build/bin/win/siad`
++ Linux: `build/bin/linux/siad`
++ OS X: `build/bin/mac/siad`
++ Windows: `build/bin/win/siad`
 
 
 ### Development
