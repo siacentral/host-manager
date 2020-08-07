@@ -139,15 +139,17 @@ function mergeContract(chain, sia, stats, snapshots) {
 		break;
 	case 'obligationfailed':
 		c.payout = new BigNumber(c.missed_proof_outputs[1].value);
-		c.lost_revenue = c.valid_proof_outputs[1].value.minus(c.missed_proof_outputs[1].value);
 		c.revenue = c.missed_proof_outputs[1].value.minus(sia.lockedcollateral);
 		c.earned_revenue = c.revenue;
 
 		if (c.missed_proof_outputs[1].value.lt(sia.lockedcollateral)) {
 			c.burnt_collateral = new BigNumber(sia.lockedcollateral).minus(c.missed_proof_outputs[1].value);
+			c.lost_revenue = c.valid_proof_outputs[1].value.minus(sia.lockedcollateral);
 			c.returned_collateral = new BigNumber(c.missed_proof_outputs[1].value);
-		} else
+		} else {
 			c.returned_collateral = new BigNumber(sia.lockedcollateral);
+			c.lost_revenue = c.valid_proof_outputs[1].value.minus(c.missed_proof_outputs[1].value);
+		}
 
 		stats.failed++;
 		stats.lostRevenue = stats.lostRevenue.plus(c.lost_revenue);
