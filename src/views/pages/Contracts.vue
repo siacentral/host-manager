@@ -93,12 +93,6 @@ export default {
 					format: 'currency'
 				},
 				{
-					text: 'Risked Collateral',
-					key: 'risked_collateral',
-					total_key: 'risked_collateral',
-					format: 'currency'
-				},
-				{
 					text: 'Returned Collateral',
 					key: 'returned_collateral',
 					total_key: 'returned_collateral',
@@ -325,6 +319,8 @@ export default {
 			case 'currency':
 				if (!value)
 					return formatPriceString(0, 4);
+
+				console.log(value, formatPriceString(value, 4));
 
 				return formatPriceString(value, 4);
 			case 'bytes':

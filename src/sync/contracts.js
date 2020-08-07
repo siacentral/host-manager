@@ -62,8 +62,10 @@ function mergeContract(chain, sia, stats, snapshots) {
 	c.sia_status = sia.obligationstatus;
 	c.status = chain.status;
 	c.proof_confirmed = chain.proof_confirmed;
-	c.valid_proof_outputs = sia.validproofoutputs.map(o => ({ unlock_hash: o.unlockhash, value: new BigNumber(o.value) }));
-	c.missed_proof_outputs = sia.missedproofoutputs.map(o => ({ unlock_hash: o.unlockhash, value: new BigNumber(o.value) }));
+	c.valid_proof_outputs = chain.valid_proof_outputs.map(o => ({ unlock_hash: o.unlock_hash, value: new BigNumber(o.value) }));
+	c.missed_proof_outputs = chain.missed_proof_outputs.map(o => ({ unlock_hash: o.unlock_hash, value: new BigNumber(o.value) }));
+	c.sia_valid_proof_outputs = sia.validproofoutputs.map(o => ({ unlock_hash: o.unlockhash, value: new BigNumber(o.value) }));
+	c.sia_missed_proof_outputs = sia.missedproofoutputs.map(o => ({ unlock_hash: o.unlockhash, value: new BigNumber(o.value) }));
 	c.negotiation_height = chain.negotiation_height;
 	c.expiration_height = chain.expiration_height;
 	c.proof_deadline = chain.proof_deadline;
@@ -106,13 +108,13 @@ function mergeContract(chain, sia, stats, snapshots) {
 	switch (c.status.toLowerCase()) {
 	case 'obligationsucceeded':
 		if (c.proof_confirmed)
-			c.payout = new BigNumber(c.valid_proof_outputs[1].value);
+			c.payout = c.valid_proof_outputs[1].value;
 		else
-			c.payout = new BigNumber(c.missed_proof_outputs[1].value);
+			c.payout = c.missed_proof_outputs[1].value;
 
 		c.returned_collateral = new BigNumber(sia.lockedcollateral);
-		c.earned_revenue = c.payout.minus(sia.lockedcollateral).minus(c.transaction_fees);
-		c.revenue = c.earned_revenue;
+		c.revenue = c.payout.minus(sia.lockedcollateral);
+		c.earned_revenue = c.revenue;
 
 		stats.successful++;
 		stats.earnedRevenue = stats.earnedRevenue.plus(c.revenue);
@@ -137,13 +139,14 @@ function mergeContract(chain, sia, stats, snapshots) {
 		break;
 	case 'obligationfailed':
 		c.payout = new BigNumber(c.missed_proof_outputs[1].value);
-		c.lost_revenue = new BigNumber(c.valid_proof_outputs[1].value).minus(sia.lockedcollateral)
-			.minus(c.transaction_fees);
-		c.revenue = new BigNumber(c.missed_proof_outputs[1].value).minus(sia.lockedcollateral)
-			.minus(c.transaction_fees);
+		c.lost_revenue = c.valid_proof_outputs[1].value.minus(c.missed_proof_outputs[1].value);
+		c.revenue = c.missed_proof_outputs[1].value.minus(sia.lockedcollateral);
+		c.earned_revenue = c.revenue;
 
 		if (c.missed_proof_outputs[1].value.lt(sia.lockedcollateral))
 			c.burnt_collateral = new BigNumber(sia.lockedcollateral).minus(c.missed_proof_outputs[1].value);
+		else
+			c.returned_collateral = new BigNumber(sia.lockedcollateral);
 
 		stats.failed++;
 		stats.lostRevenue = stats.lostRevenue.plus(c.lost_revenue);
@@ -166,9 +169,8 @@ function mergeContract(chain, sia, stats, snapshots) {
 		break;
 	default:
 		c.locked_collateral = new BigNumber(sia.lockedcollateral);
-		c.potential_revenue = c.valid_proof_outputs[1].value.minus(sia.lockedcollateral)
-			.minus(c.transaction_fees);
-		c.revenue = new BigNumber(0);
+		c.potential_revenue = c.sia_valid_proof_outputs[1].value.minus(sia.lockedcollateral);
+		c.revenue = c.potential_revenue;
 		c.payout = new BigNumber(0);
 
 		if (!c.proof_required)

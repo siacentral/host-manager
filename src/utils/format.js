@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import Decimal from 'decimal.js-light';
 
 const BASE_CURRENCY_PRECISION = 1e24,
 	BASE_CURRENCY_LABEL = 'SC';
@@ -167,25 +168,19 @@ export function formatNumber(val, dec) {
 	}).format(roundNumber(val, dec));
 }
 
-function roundNumber(val, dec) {
-	const str = val.abs().toString(10),
-		neg = val.lt(0),
-		parts = str.split('.');
+function roundNumber(val, num) {
+	const pieces = val.toString(10).split('.'),
+		neg = pieces[0][0] === '-';
 
-	if (parts.length === 1)
-		return str;
+	num = num || 2;
 
-	let decimals = new BigNumber(`0.${parts[1]}`).abs();
+	if (pieces.length < 2)
+		return val;
 
-	if (decimals.isNaN() || !decimals.isFinite())
-		decimals = new BigNumber(0);
+	const w = new Decimal(pieces[0]).abs(),
+		d = new Decimal(`0.${pieces[1]}`).toSignificantDigits(num);
 
-	let num = new BigNumber(parts[0]).plus(decimals.sd(dec)).toNumber();
-
-	if (neg)
-		num *= -1;
-
-	return num;
+	return w.plus(d).mul(neg ? -1 : 1).toDecimalPlaces(6);
 }
 
 function formatSiacoinString(val, dec) {

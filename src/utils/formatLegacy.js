@@ -191,17 +191,18 @@ export function formatSiacoinString(val, dec) {
 };
 
 function sigDecimalRound(val, num) {
-	const pieces = val.toString(10).split('.');
+	const pieces = val.toString(10).split('.'),
+		neg = pieces[0][0] === '-';
 
 	num = num || 2;
 
 	if (pieces.length < 2)
 		return val;
 
-	const w = new Decimal(pieces[0]),
+	const w = new Decimal(pieces[0]).abs(),
 		d = new Decimal(`0.${pieces[1]}`).toSignificantDigits(num);
 
-	return w.plus(d).toDecimalPlaces(6);
+	return w.plus(d).mul(neg ? -1 : 1).toDecimalPlaces(6);
 };
 
 export function formatCryptoString(val, dec) {
