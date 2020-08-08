@@ -7,12 +7,12 @@
 					<input type="checkbox" id="chkFeeRecurring" v-model="recurring" />
 					<label for="chkFeeRecurring">Recurring</label>
 				</div>
-				<div class="control">
+				<div class="control" v-if="feeAmount.gt(0)">
 					<input type="checkbox" id="chkConfirm" v-model="confirmed" />
 					<label for="chkConfirm" v-html="confirmText" />
 				</div>
 				<div class="text-center">
-					<button class="btn btn-inline btn-success" @click="onDonate" :disabled="!confirmed || !feeAmount.gt(0)">Donate</button>
+					<button class="btn btn-inline btn-success" @click="onDonate" :disabled="!confirmed">Donate</button>
 				</div>
 			</div>
 			<div class="fee-success" v-else key="success">
