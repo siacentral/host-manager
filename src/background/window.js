@@ -7,7 +7,6 @@ import { shutdown } from './tray';
 export var mainWindow;
 
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
-app.commandLine.appendSwitch('js-flags', '--expose_gc --max-old-space-size=128');
 
 async function createWindow() {
 	const opts = {
