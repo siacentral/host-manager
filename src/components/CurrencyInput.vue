@@ -53,8 +53,6 @@ export default {
 					parsed = parseCurrencyString(value, this.coinPrice[this.currency]),
 					siacoins = formatPriceString(parsed, 2, 'sc', 1);
 
-				console.log(value, this.currency, parsed);
-
 				this.amount = parsed;
 				this.$refs.txtSiacoin.value = siacoins.value;
 				this.$emit('input', this.amount);
