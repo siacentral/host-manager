@@ -49,7 +49,7 @@ import { mapActions, mapState } from 'vuex';
 import { remote } from 'electron';
 
 import { mkdirIfNotExist } from '@/utils';
-import { parseByteString } from '@/utils/parse';
+import { parseByteString } from '@/utils/parseLegacy';
 import { formatByteString } from '@/utils/formatLegacy';
 import SiaApiClient from '@/api/sia';
 import { refreshHostStorage } from '@/sync/storage';

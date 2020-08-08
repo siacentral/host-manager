@@ -55,7 +55,7 @@
 <script>
 import log from 'electron-log';
 
-import { parseCurrencyString } from '@/utils/parse';
+import { parseCurrencyString } from '@/utils/parseLegacy';
 import { formatPriceString } from '@/utils/formatLegacy';
 
 export default {

@@ -7,7 +7,7 @@ import { refreshHostWallet } from './wallet';
 import { refreshHostConfig } from './config';
 import { refreshExplorer } from './explorer';
 import { getCoinPrice } from '@/api/siacentral';
-import { parseCurrencyString } from '@/utils/parse';
+import { parseCurrencyString } from '@/utils/parseLegacy';
 import Store from '@/store';
 import SiaApiClient from '@/api/sia';
 
