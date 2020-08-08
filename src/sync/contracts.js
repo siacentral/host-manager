@@ -185,6 +185,7 @@ function mergeContract(chain, sia, stats, snapshots) {
 		stats.active++;
 		stats.potentialRevenue = stats.potentialRevenue.plus(c.potential_revenue);
 		stats.lockedCollateral = stats.lockedCollateral.plus(c.locked_collateral);
+		stats.riskedCollateral = stats.riskedCollateral.plus(c.risked_collateral);
 
 		if (snapshots[expireStamp]) {
 			snapshots[expireStamp].potential_revenue = snapshots[expireStamp].potential_revenue.plus(c.potential_revenue);
@@ -204,6 +205,7 @@ async function parseHostContracts() {
 			potentialRevenue: new BigNumber(0),
 			earnedRevenue: new BigNumber(0),
 			lostRevenue: new BigNumber(0),
+			riskedCollateral: new BigNumber(0),
 			lockedCollateral: new BigNumber(0),
 			burntCollateral: new BigNumber(0)
 		},

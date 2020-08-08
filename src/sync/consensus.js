@@ -3,6 +3,9 @@ import { apiClient } from './index';
 import { getBlock } from '@/api/siacentral';
 import Store from '@/store';
 import { launch } from '@/sync/daemon';
+import { HOST_MANAGER_APP_ID } from '@/consts';
+import BigNumber from 'bignumber.js';
+import { formatPriceString, formatNumber } from '@/utils/format';
 
 let startTime, startBlock, finalBlock;
 
@@ -70,9 +73,39 @@ export async function refreshLastBlock() {
 			});
 		}
 
+		alerts.push(...(await refreshPendingFees(finalBlock)));
+
 		Store.dispatch('setLastBlock', remoteBlock.height);
 		Store.dispatch('setAlerts', alerts);
 	} catch (ex) {
 		log.error('refreshLastBlock', ex.message);
 	}
+}
+
+async function refreshPendingFees(currentHeight) {
+	try {
+		const pending = await apiClient.getPendingFees(HOST_MANAGER_APP_ID),
+			feeAlerts = [];
+
+		pending.forEach(f => {
+			if (f.payoutheight - currentHeight > 72)
+				return;
+
+			const remaining = formatNumber(f.payoutheight - currentHeight),
+				amount = formatPriceString(new BigNumber(f.amount), 2, 'sc', 1).value;
+
+			feeAlerts.push({
+				category: 'donations',
+				icon: 'coins',
+				severity: 'success',
+				message: `A recurring donation of ${amount} SC will be sent to Sia Central in ${remaining} blocks. To cancel go to the donations page.`
+			});
+		});
+
+		return feeAlerts;
+	} catch (ex) {
+		log.error('refreshPendingFees', ex.message);
+	}
+
+	return [];
 }

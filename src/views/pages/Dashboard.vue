@@ -1,6 +1,7 @@
 <template>
 	<div class="page page-dashboard">
 		<div class="wallet-controls">
+			<button class="btn btn-inline" @click="modal = 'subscribe'"><icon icon="coins" /> Donate</button>
 			<button class="btn btn-inline" @click="modal = 'receiveTransaction'"><icon icon="wallet" /> Receive Siacoin</button>
 		</div>
 		<div class="storage-usage">
@@ -39,12 +40,14 @@
 			</div>
 		</div>
 		<receive-modal v-if="modal === 'receiveTransaction'" @close="modal = null" />
+		<donate-modal v-else-if="modal === 'subscribe'" @close="modal = null" />
 	</div>
 </template>
 
 <script>
 import ContractChart from '@/components/charts/ContractChart';
 import RevenueChart from '@/components/charts/RevenueChart';
+import DonateModal from '@/components/donate/DonateModal';
 import ReceiveModal from '@/components/wallet/ReceiveModal';
 
 import { mapState, mapGetters } from 'vuex';
@@ -53,6 +56,7 @@ import { formatPriceString, formatByteString, formatNumber } from '@/utils/forma
 export default {
 	components: {
 		ContractChart,
+		DonateModal,
 		RevenueChart,
 		ReceiveModal
 	},
@@ -107,7 +111,7 @@ export default {
 	grid-area: auto / 1 / auto / span -1;
 	text-align: right;
 
-	button {
+	button:last-child {
 		margin: 0;
 	}
 }

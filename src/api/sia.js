@@ -563,4 +563,114 @@ export default class SiaApiClient {
 
 		return resp.body;
 	}
+
+	async feeManagerPayoutHeight() {
+		const apiPassword = await this.getDefaultAPIPassword(),
+			{ body } = await sendJSONRequest(`${this.config.siad_api_addr}/feemanager`, {
+				method: 'GET',
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
+
+		return body.payoutheight;
+	}
+
+	async addFee(amount, address, appID, recurring = false) {
+		const apiPassword = await this.getDefaultAPIPassword(),
+			{ body } = await sendJSONRequest(`${this.config.siad_api_addr}/feemanager/add`, {
+				method: 'POST',
+				auth: {
+					username: '',
+					password: apiPassword
+				},
+				form: {
+					amount,
+					address,
+					recurring,
+					appuid: appID
+				}
+			});
+
+		return (await this.getPendingFees()).filter(f => f.feeiud === body.feeuid)[0];
+	}
+
+	async cancelFee(feeID) {
+		const apiPassword = await this.getDefaultAPIPassword();
+
+		await sendJSONRequest(`${this.config.siad_api_addr}/feemanager/cancel`, {
+			method: 'POST',
+			auth: {
+				username: '',
+				password: apiPassword
+			},
+			form: {
+				feeuid: feeID
+			}
+		});
+	}
+
+	async getPendingFees(appID) {
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/feemanager/pendingfees`, {
+				method: 'GET',
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
+
+		return (resp.body.pendingfees || []).filter(f => !appID || f.appuid === appID);
+	}
+
+	async getPaidFees(appID) {
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/feemanager/paidfees`, {
+				method: 'GET',
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
+
+		return (resp.body.paidfees || []).filter(f => !appID || f.appuid === appID);
+	}
+
+	async sendSiacoins(amount, destination, feeIncluded = false) {
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/siacoins`, {
+				method: 'POST',
+				auth: {
+					username: '',
+					password: apiPassword
+				},
+				form: {
+					amount,
+					destination,
+					feeIncluded
+				}
+			});
+
+		return (resp.body.transaction || []);
+	}
+
+	async sendSiacoinOutputs(outputs) {
+		if (!Array.isArray(outputs))
+			throw new Error('outputs should be an array');
+
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/siacoins`, {
+				method: 'POST',
+				auth: {
+					username: '',
+					password: apiPassword
+				},
+				form: {
+					outputs: JSON.stringify(outputs)
+				}
+			});
+
+		return (resp.body.transaction || []);
+	}
 }
