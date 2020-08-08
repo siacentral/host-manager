@@ -93,6 +93,12 @@ export default {
 					format: 'currency'
 				},
 				{
+					text: 'Risked Collateral',
+					key: 'risked_collateral',
+					total_key: 'risked_collateral',
+					format: 'currency'
+				},
+				{
 					text: 'Returned Collateral',
 					key: 'returned_collateral',
 					total_key: 'returned_collateral',

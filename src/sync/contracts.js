@@ -176,6 +176,9 @@ function mergeContract(chain, sia, stats, snapshots) {
 		c.revenue = c.potential_revenue;
 		c.payout = new BigNumber(0);
 
+		if (c.sia_missed_proof_outputs[1].value.lt(sia.lockedcollateral))
+			c.risked_collateral = new BigNumber(sia.lockedcollateral).minus(c.sia_missed_proof_outputs[1].value);
+
 		if (!c.proof_required)
 			stats.unused++;
 
