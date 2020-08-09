@@ -2,6 +2,7 @@
 	<div class="donate-content">
 		<transition name="fade" mode="out-in" appear>
 			<div class="add-fee" v-if="!paid" key="add">
+				<p>Sia Central currently relies on donations to fund development and server costs. If you enjoy our apps and services consider contributing a small amount of Siacoin either once or on a monthly basis.</p>
 				<currency-input v-model="feeAmount" />
 				<div class="control">
 					<input type="checkbox" id="chkFeeRecurring" v-model="recurring" />
