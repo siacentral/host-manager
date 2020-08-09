@@ -125,6 +125,9 @@ export default {
 		},
 		async onDonate() {
 			try {
+				if (!this.confirmed)
+					return;
+
 				if (this.recurring)
 					await this.addFee();
 				else

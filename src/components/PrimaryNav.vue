@@ -20,11 +20,15 @@
 			<router-link class="nav-item" :to="{ name: 'contracts' }"><icon icon="file-contract" /> Contracts</router-link>
 			<router-link class="nav-item" :to="{ name: 'config' }"><icon icon="wrench" /> Configuration</router-link>
 		</div>
+		<div class="nav-bottom">
+			<a href="#" class="nav-item" @click.prevent="modal = 'donate'"><icon icon="coins" /> Donate</a>
+		</div>
 		<transition mode="out-in" name="fade" appear>
 			<update-item v-if="update && update.available" />
 		</transition>
 		<settings-modal v-if="modal === 'settings'" @close="modal = null" />
 		<about-modal v-if="modal === 'about'" @close="modal = null" />
+		<donate-modal v-if="modal === 'donate'" @close="modal = null" />
 		<alerts-panel v-if="modal === 'alerts'" @close="modal = null" />
 	</nav>
 </template>
@@ -35,6 +39,7 @@ import { mapState, mapGetters, mapActions } from 'vuex';
 
 import AboutModal from '@/components/AboutModal';
 import AlertsPanel from '@/components/Alerts';
+import DonateModal from '@/components/donate/DonateModal';
 import HealthStatus from '@/components/HealthStatus';
 import SettingsModal from '@/components/SettingsModal';
 import SiaCentral from '@/assets/siacentral.svg';
@@ -44,6 +49,7 @@ export default {
 	components: {
 		AboutModal,
 		AlertsPanel,
+		DonateModal,
 		HealthStatus,
 		SettingsModal,
 		SiaCentral,
