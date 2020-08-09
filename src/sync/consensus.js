@@ -13,10 +13,9 @@ export async function refreshBlockHeight() {
 	try {
 		const consensus = await apiClient.getConsensus();
 
-		if (!finalBlock || finalBlock < consensus.height) {
+		if (!finalBlock || finalBlock < consensus.height)
 			Store.dispatch('setSyncTime', 0);
-			finalBlock = consensus.height;
-		} else {
+		else {
 			if (!startTime || !startBlock) {
 				startTime = Date.now();
 				startBlock = consensus.height;
@@ -58,8 +57,9 @@ export async function refreshDaemonVersion() {
 export async function refreshLastBlock() {
 	try {
 		const alerts = [],
-			remoteBlock = await getBlock(),
-			localBlock = await apiClient.getBlock(remoteBlock.height);
+			lastSyncedBlock = (await apiClient.getConsensus()).height,
+			remoteBlock = await getBlock(lastSyncedBlock),
+			localBlock = await apiClient.getBlock(lastSyncedBlock);
 
 		finalBlock = remoteBlock.height;
 
