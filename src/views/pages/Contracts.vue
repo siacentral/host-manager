@@ -519,7 +519,7 @@ export default {
 				const csv = [headerRow.join(',')];
 
 				this.filtered.forEach(v => {
-					csv.push(columns.map(c => this.formatValue(v[c.key], c.format)).join(','));
+					csv.push(columns.map(c => `"${this.formatValue(v[c.key], c.format)}"`).join(','));
 				});
 
 				await fs.writeFile(filePath, csv.join(EOL));
