@@ -73,6 +73,7 @@ async function longRefresh() {
 
 		// refresh explorer relies on host config call being completed
 		await refreshExplorer();
+		window.gc();
 	} catch (ex) {
 		log.error('data refresh - long', ex.message);
 	} finally {

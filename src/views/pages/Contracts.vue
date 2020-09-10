@@ -6,15 +6,15 @@
 			<button @click="showFilter = true" class="btn btn-inline" :disabled="exporting"><icon icon="filter" /> Filter</button>
 		</div>
 		<div class="contracts">
-			<empty-state v-if="filtered.length === 0" text="You have no contracts matching that filter" icon="file-contract" />
+			<empty-state v-if="count === 0" text="You have no contracts matching that filter" icon="file-contract" />
 			<div v-else class="grid-wrapper">
-				<contract-grid :contracts="pageContracts" :columns="visibleColumns" :totals="totals" :sort="sort" @sort="onSort" />
+				<contract-grid :contracts="filtered" :columns="visibleColumns" :totals="totals" :sort="sort" @sort="onSort" />
 			</div>
 		</div>
 		<div class="contracts-pagination">
-			<button class="btn btn-inline" @click="page -= 1" :disabled="page === 0 || filtered.length < perPage"><icon icon="chevron-left" /></button>
+			<button class="btn btn-inline" @click="page -= 1" :disabled="page === 0 || count < perPage"><icon icon="chevron-left" /></button>
 			<div class="page-text">{{ pageText }}</div>
-			<button class="btn btn-inline" @click="page += 1" :disabled="perPage + (page * perPage) >= filtered.length || filtered.length < perPage"><icon icon="chevron-right" /></button>
+			<button class="btn btn-inline" @click="page += 1" :disabled="perPage + (page * perPage) >= count || count < perPage"><icon icon="chevron-right" /></button>
 		</div>
 		<filter-panel v-show="showFilter" @close="showFilter = false" :columns="columns" :filter="filter" @filtered="onFiltered" :visible="displayColumns" @shown="onColShown" />
 	</div>
@@ -24,7 +24,6 @@
 import { mapState, mapActions } from 'vuex';
 import { promises as fs } from 'fs';
 import log from 'electron-log';
-import BigNumber from 'bignumber.js';
 import { EOL } from 'os';
 
 import FilterPanel from '@/components/contracts/FilterPanel';
@@ -33,7 +32,7 @@ import EmptyState from '@/components/EmptyState';
 
 import { formatPriceString, formatByteString, formatShortDateString, formatFriendlyStatus } from '@/utils/formatLegacy';
 import { showSaveDialogAsync } from '@/utils';
-import { getConfirmedContracts } from '@/sync/contracts';
+import { filteredContracts } from '@/sync/contracts';
 
 export default {
 	components: {
@@ -46,10 +45,11 @@ export default {
 			showFilter: false,
 			exporting: false,
 			filterDebounce: null,
+			pageDebounce: null,
 			filtered: [],
-			contracts: [],
 			filter: {},
 			totals: {},
+			count: 0,
 			page: 0,
 			perPage: 50,
 			fixedColumns: [
@@ -182,8 +182,6 @@ export default {
 		try {
 			const visible = JSON.parse(localStorage.getItem('contracts_visible_columns'));
 
-			this.contracts = getConfirmedContracts();
-
 			if (Array.isArray(visible))
 				this.displayColumns = visible;
 		} catch (ex) { console.error(ex); }
@@ -218,7 +216,7 @@ export default {
 				this.sort.descending = sort.descending;
 		} catch (ex) { console.error(ex); }
 
-		this.filterContracts();
+		this.refreshContracts();
 	},
 	computed: {
 		...mapState({
@@ -268,33 +266,20 @@ export default {
 			else if (filter.revenue_max)
 				valueFilter = `with revenue less than ${formatPriceString(filter.revenue_max)}`;
 
-			return `Showing ${this.filtered.length} ${statusFilter} ${dateFilter} ${valueFilter}`;
+			return `Showing ${this.count} ${statusFilter} ${dateFilter} ${valueFilter}`;
 		},
 		pageText() {
-			if (this.filtered.length > this.perPage) {
+			if (this.count > this.perPage) {
 				let start = this.page * this.perPage,
 					end = start + this.perPage;
 
-				if (end > this.filtered.length)
-					end = this.filtered.length;
+				if (end > this.count)
+					end = this.count;
 
 				return `${start} - ${end}`;
 			}
 
-			return `${0} - ${this.filtered.length}`;
-		},
-		pageContracts() {
-			if (this.filtered.length > this.perPage) {
-				let start = this.page * this.perPage,
-					end = start + this.perPage;
-
-				if (end >= this.filtered.length)
-					end = this.filtered.length;
-
-				return this.filtered.slice(start, end);
-			}
-
-			return this.filtered;
+			return `${0} - ${this.count}`;
 		},
 		successRate() {
 			const num = this.stats.contracts.successful;
@@ -326,8 +311,6 @@ export default {
 				if (!value)
 					return formatPriceString(0, 4);
 
-				console.log(value, formatPriceString(value, 4));
-
 				return formatPriceString(value, 4);
 			case 'bytes':
 				if (!value)
@@ -341,157 +324,16 @@ export default {
 				return value;
 			}
 		},
-		filterContracts() {
-			try {
-				const filter = this.filter || {},
-					total = {
-						data_size: new BigNumber(0),
-						potential_revenue: new BigNumber(0),
-						earned_revenue: new BigNumber(0),
-						lost_revenue: new BigNumber(0),
-						revenue: new BigNumber(0),
-						locked_collateral: new BigNumber(0),
-						risked_collateral: new BigNumber(0),
-						returned_collateral: new BigNumber(0),
-						burnt_collateral: new BigNumber(0),
-						download_revenue: new BigNumber(0),
-						upload_revenue: new BigNumber(0),
-						storage_revenue: new BigNumber(0),
-						contract_cost: new BigNumber(0),
-						payout: new BigNumber(0)
-					},
-					contracts = this.contracts.reduce((val, c) => {
-						let added = false;
-
-						if (filter.start_date && filter.start_date > c.expiration_timestamp)
-							return val;
-
-						if (filter.end_date && filter.end_date < c.expiration_timestamp)
-							return val;
-
-						if (filter.revenue_min && filter.revenue_min.gt && filter.revenue_min.gt(c.revenue))
-							return val;
-
-						if (filter.revenue_max && filter.revenue_max.lt && filter.revenue_max.lt(c.revenue))
-							return val;
-
-						if (!added && filter.statuses.indexOf('active') !== -1 && c.status === 'obligationUnresolved') {
-							val.push(c);
-							added = true;
-						}
-
-						if (!added && filter.statuses.indexOf('successful') !== -1 && c.status === 'obligationSucceeded') {
-							val.push(c);
-							added = true;
-						}
-
-						if (!added && filter.statuses.indexOf('failed') !== -1 && c.status === 'obligationFailed') {
-							val.push(c);
-							added = true;
-						}
-
-						if (added) {
-							total.data_size = total.data_size.plus(c.data_size);
-							total.contract_cost = total.contract_cost.plus(c.contract_cost);
-							total.potential_revenue = total.potential_revenue.plus(c.potential_revenue);
-							total.earned_revenue = total.earned_revenue.plus(c.earned_revenue);
-							total.lost_revenue = total.lost_revenue.plus(c.lost_revenue);
-							total.revenue = total.revenue.plus(c.revenue);
-							total.locked_collateral = total.locked_collateral.plus(c.locked_collateral);
-							total.risked_collateral = total.risked_collateral.plus(c.risked_collateral);
-							total.returned_collateral = total.returned_collateral.plus(c.returned_collateral);
-							total.burnt_collateral = total.burnt_collateral.plus(c.burnt_collateral);
-							total.download_revenue = total.download_revenue.plus(c.download_revenue);
-							total.upload_revenue = total.upload_revenue.plus(c.upload_revenue);
-							total.storage_revenue = total.storage_revenue.plus(c.storage_revenue);
-							total.download_revenue = total.download_revenue.plus(c.download_revenue);
-							total.payout = total.payout.plus(c.payout);
-						}
-
-						return val;
-					}, []);
-
-				this.filtered = contracts;
-				this.totals = total;
-
-				this.sortContracts();
-			} catch (ex) {
-				log.error('onFilterContracts', ex.message);
-			}
-		},
-		sortContracts() {
-			if (!this.sort || !this.sort.key)
-				return this.filtered;
-
-			const sortColumn = this.columns.find(c => c.key === this.sort.key);
-
-			if (!sortColumn)
-				return this.filtered;
-
-			this.filtered.sort((a, b) => {
-				a = a[this.sort.key];
-				b = b[this.sort.key];
-
-				switch (sortColumn.format) {
-				case 'status':
-					a = formatFriendlyStatus(a).toLowerCase();
-					b = formatFriendlyStatus(b).toLowerCase();
-
-					if (a > b && this.sort.descending)
-						return -1;
-					else if (a > b)
-						return 1;
-
-					if (a < b && this.sort.descending)
-						return 1;
-					else if (a < b)
-						return -1;
-
-					return 0;
-				case 'date':
-					if (a > b && this.sort.descending)
-						return -1;
-					else if (a > b)
-						return 1;
-
-					if (a < b && this.sort.descending)
-						return 1;
-					else if (a < b)
-						return -1;
-
-					return 0;
-				case 'currency':
-				case 'bytes':
-					const aNum = new BigNumber(a),
-						agtB = aNum.gt(b);
-
-					if (agtB && this.sort.descending)
-						return -1;
-					else if (agtB)
-						return 1;
-
-					const altB = aNum.lt(b);
-
-					if (altB && this.sort.descending)
-						return 1;
-					else if (altB)
-						return -1;
-
-					return 0;
-				default:
-					if (a > b && this.sort.descending)
-						return -1;
-					else if (a > b)
-						return 1;
-
-					if (a < b && this.sort.descending)
-						return 1;
-					else if (a < b)
-						return -1;
-
-					return 0;
-				}
+		refreshContracts() {
+			const { contracts, total, length } = filteredContracts({
+				page: this.page,
+				sort: this.sort,
+				...this.filter
 			});
+
+			this.filtered = contracts;
+			this.totals = total;
+			this.count = length;
 		},
 		async onExport() {
 			if (this.exporting)
@@ -524,7 +366,7 @@ export default {
 
 				await fs.writeFile(filePath, csv.join(EOL));
 				this.pushNotification({
-					message: `${this.filtered.length} contracts exported`,
+					message: `${this.count} contracts exported`,
 					icon: 'file-contract',
 					severity: 'success'
 				});
@@ -548,7 +390,7 @@ export default {
 
 				this.sort.key = column;
 				localStorage.setItem('contracts_sort', JSON.stringify(this.sort));
-				this.sortContracts();
+				this.refreshContracts();
 			} catch (ex) {
 				log.error('onSort', ex.message);
 			}
@@ -563,18 +405,13 @@ export default {
 		}
 	},
 	watch: {
-		contracts() {
-			this.filterContracts();
-		},
-		filtered() {
-			if (this.page * this.perPage >= this.filtered.length)
-				this.page = 0;
-		},
 		filter() {
 			window.clearTimeout(this.filterDebounce);
-			this.filterDebounce = window.setTimeout(() => {
-				this.filterContracts();
-			}, 300);
+			this.filterDebounce = window.setTimeout(this.refreshContracts, 300);
+		},
+		page() {
+			window.clearTimeout(this.pageDebounce);
+			this.pageDebounce = window.setTimeout(this.refreshContracts, 300);
 		}
 	}
 };
