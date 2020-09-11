@@ -1,7 +1,11 @@
 <template>
 	<div class="donate-content">
 		<transition name="fade" mode="out-in" appear>
-			<div class="add-fee" v-if="!paid" key="add">
+			<div class="fee-error" v-if="error" key="error">
+				<h2 class="text-center text-error">Error Processing Donation</h2>
+				<p>There was a problem processing your donation: {{ error }}.</p>
+			</div>
+			<div class="add-fee" v-else-if="!paid" key="add">
 				<p>Sia Central currently relies on donations to fund development and server costs. If you enjoy our apps and services consider contributing a small amount of Siacoin either once or on a monthly basis.</p>
 				<currency-input v-model="feeAmount" />
 				<div class="control">
@@ -78,6 +82,7 @@ export default {
 	},
 	data() {
 		return {
+			error: null,
 			fees: [],
 			payoutHeight: 0,
 			feeAmount: new BigNumber(0),
@@ -139,6 +144,7 @@ export default {
 				this.$emit('donated');
 				this.paid = true;
 			} catch (ex) {
+				this.error = ex.message;
 				console.error('FeeModal.onDonate', ex);
 			}
 		},

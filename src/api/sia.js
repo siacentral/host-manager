@@ -652,6 +652,9 @@ export default class SiaApiClient {
 				}
 			});
 
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
 		return (resp.body.transaction || []);
 	}
 
@@ -670,6 +673,9 @@ export default class SiaApiClient {
 					outputs: JSON.stringify(outputs)
 				}
 			});
+
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
 
 		return (resp.body.transaction || []);
 	}
