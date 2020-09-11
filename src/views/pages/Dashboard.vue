@@ -37,6 +37,18 @@
 				<div class="item-title">Lost Revenue</div>
 				<div class="item-value">{{ formatPriceString(contractStats.lostRevenue, 4) }}</div>
 			</div>
+			<div class="grid-item">
+				<div class="item-title">Locked Collateral</div>
+				<div class="item-value">{{ formatPriceString(contractStats.lockedCollateral, 4) }}</div>
+			</div>
+			<div class="grid-item">
+				<div class="item-title">Risked Collateral</div>
+				<div class="item-value">{{ formatPriceString(contractStats.riskedCollateral, 4) }}</div>
+			</div>
+			<div class="grid-item">
+				<div class="item-title">Burnt Collateral</div>
+				<div class="item-value">{{ formatPriceString(contractStats.burntCollateral, 4) }}</div>
+			</div>
 		</div>
 		<receive-modal v-if="modal === 'receiveTransaction'" @close="modal = null" />
 	</div>
