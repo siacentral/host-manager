@@ -104,6 +104,7 @@ export function filteredContracts(filter = {}) {
 			b = b[filter.sort.key];
 
 			switch (key) {
+			case 'data_size':
 			case 'locked_collateral':
 			case 'risked_collateral':
 			case 'returned_collateral':
