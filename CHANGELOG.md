@@ -1,3 +1,16 @@
+## September 2020
+
+### v1.0.23
+
+### Bug Fixes
+
++ Fixed memory leak in contracts page
+
+### Changes
+
++ Added collateral totals to dashboard
++ Added donation modal
+
 ## August 2020
 
 ### v1.0.22
