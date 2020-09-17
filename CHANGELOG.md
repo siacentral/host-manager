@@ -10,6 +10,7 @@
 
 + Added collateral totals to dashboard
 + Added donation modal
++ Move "Receive Siacoin" modal to primary navigation
 
 ## August 2020
 
