@@ -1,7 +1,5 @@
 <template>
 	<div class="sia-status">
-		<!-- at the top to prevent the :last-child selector from firing -->
-		<receive-modal v-if="modal === 'receiveTransaction'" @close="modal = null" />
 		<a :href="connectivityLink" target="_blank" class="sia-status-item connection-status">
 			<div :class="connectionSeverity">
 				<icon icon="wifi" />
@@ -30,20 +28,10 @@
 </template>
 
 <script>
-import ReceiveModal from '@/components/wallet/ReceiveModal';
-
 import { mapState } from 'vuex';
 import { formatDuration, formatPriceString, formatNumber } from '@/utils/formatLegacy';
 
 export default {
-	components: {
-		ReceiveModal
-	},
-	data() {
-		return {
-			modal: null
-		};
-	},
 	computed: {
 		...mapState({
 			netAddress: state => state.netAddress,

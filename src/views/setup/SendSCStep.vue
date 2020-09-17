@@ -107,6 +107,12 @@ export default {
 					console.log(orderData);
 					transak.close();
 				});
+
+				// This will trigger when the user closes the widget
+				transak.on(transak.EVENTS.TRANSAK_WIDGET_CLOSE, () => {
+					// transak widget annoyingly sets overflow to 'scroll' reset it back to auto
+					document.querySelector('html').style.overflow = 'auto';
+				});
 			} catch (ex) {
 				console.error('ReceiveModal.onBuySiacoin', ex);
 				this.pushNotification({

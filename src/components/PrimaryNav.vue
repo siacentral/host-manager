@@ -17,6 +17,7 @@
 		<div class="nav-items">
 			<router-link class="nav-item" :to="{ name: 'dashboard' }"><icon icon="chart-pie" /> Dashboard</router-link>
 			<router-link class="nav-item" :to="{ name: 'storage' }"><icon icon="hdd" /> Storage</router-link>
+			<router-link class="nav-item" :to="{ name: 'wallet' }"><icon icon="wallet" /> Wallet</router-link>
 			<router-link class="nav-item" :to="{ name: 'contracts' }"><icon icon="file-contract" /> Contracts</router-link>
 			<router-link class="nav-item" :to="{ name: 'config' }"><icon icon="wrench" /> Configuration</router-link>
 		</div>

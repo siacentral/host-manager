@@ -1,8 +1,5 @@
 <template>
 	<div class="page page-dashboard">
-		<div class="wallet-controls">
-			<button class="btn btn-inline" @click="modal = 'receiveTransaction'"><icon icon="wallet" /> Receive Siacoin</button>
-		</div>
 		<div class="storage-usage">
 			<icon icon="hdd" />
 			<div class="usage-wrapper">
@@ -50,14 +47,12 @@
 				<div class="item-value">{{ formatPriceString(contractStats.burntCollateral, 4) }}</div>
 			</div>
 		</div>
-		<receive-modal v-if="modal === 'receiveTransaction'" @close="modal = null" />
 	</div>
 </template>
 
 <script>
 import ContractChart from '@/components/charts/ContractChart';
 import RevenueChart from '@/components/charts/RevenueChart';
-import ReceiveModal from '@/components/wallet/ReceiveModal';
 
 import { mapState, mapGetters } from 'vuex';
 import { formatPriceString, formatByteString, formatNumber } from '@/utils/formatLegacy';
@@ -65,13 +60,7 @@ import { formatPriceString, formatByteString, formatNumber } from '@/utils/forma
 export default {
 	components: {
 		ContractChart,
-		RevenueChart,
-		ReceiveModal
-	},
-	data() {
-		return {
-			modal: null
-		};
+		RevenueChart
 	},
 	computed: {
 		...mapGetters('hostContracts', ['snapshots']),
@@ -100,7 +89,7 @@ export default {
 	display: grid;
 	width: 100%;
 	height: 100%;
-	grid-template-rows: repeat(2, auto) repeat(2, 1fr) auto;
+	grid-template-rows: auto repeat(2, 1fr) auto;
 	grid-gap: 15px;
 	padding: 15px;
 	overflow: hidden;

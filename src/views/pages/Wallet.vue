@@ -1,18 +1,16 @@
 <template>
-	<modal title="Receive Siacoin" modalStyle="small" @close="$emit('close')">
-		<div class="receive-modal">
-			<div class="receive-qr-code">
-				<AddressQRCode class="qr-code" :address="address" />
-			</div>
-			<div class="control">
-				<input type="text" class="receive-address" :value="address" readonly />
-			</div>
-			<button class="btn btn-inline" @click="onCopyAddress"><icon icon="copy" /></button>
-			<div class="buy-button">
-				<button class="btn btn-inline" @click="onBuySiacoin">Buy Siacoin (PREVIEW)</button>
-			</div>
+	<div class="page page-wallet">
+		<div class="receive-qr-code">
+			<AddressQRCode class="qr-code" :address="address" />
 		</div>
-	</modal>
+		<div class="control">
+			<input type="text" class="receive-address" :value="address" readonly />
+		</div>
+		<button class="btn btn-inline" @click="onCopyAddress"><icon icon="copy" /></button>
+		<div class="buy-button">
+			<button class="btn btn-inline" @click="onBuySiacoin">Buy Siacoin (PREVIEW)</button>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -22,11 +20,9 @@ import { clipboard } from 'electron';
 import Transak from '@transak/transak-sdk';
 
 import AddressQRCode from '@/components/wallet/AddressQRCode';
-import Modal from '@/components/Modal';
 
 export default {
 	components: {
-		Modal,
 		AddressQRCode
 	},
 	computed: {
@@ -73,6 +69,12 @@ export default {
 					console.log(orderData);
 					transak.close();
 				});
+
+				// This will trigger when the user closes the widget
+				transak.on(transak.EVENTS.TRANSAK_WIDGET_CLOSE, () => {
+					// transak widget annoyingly sets overflow to 'scroll' reset it back to auto
+					document.querySelector('html').style.overflow = 'auto';
+				});
 			} catch (ex) {
 				console.error('ReceiveModal.onBuySiacoin', ex);
 				this.pushNotification({
@@ -86,16 +88,18 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
-.receive-modal {
+.page.page-wallet {
 	display: grid;
-	grid-template-rows: minmax(0, 1fr) auto;
 	grid-template-columns: minmax(0, 1fr) auto;
 	grid-gap: 30px 15px;
+	align-content: safe center;
+	justify-items: center;
+	padding: 15px;
 }
 
 .receive-qr-code, .buy-button {
 	text-align: center;
-	grid-column: 1 / span 2;
+	grid-column: 1 / -1;
 }
 
 .qr-code {

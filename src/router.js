@@ -4,6 +4,7 @@ import Router from 'vue-router';
 import Dashboard from './views/pages/Dashboard.vue';
 import Storage from './views/pages/Storage.vue';
 import Contracts from './views/pages/Contracts.vue';
+import Wallet from './views/pages/Wallet.vue';
 import Config from './views/pages/Config.vue';
 
 Vue.use(Router);
@@ -26,6 +27,11 @@ const router = new Router({
 			path: '/contracts',
 			name: 'contracts',
 			component: Contracts
+		},
+		{
+			path: '/wallet',
+			name: 'wallet',
+			component: Wallet
 		},
 		{
 			path: '/config',
