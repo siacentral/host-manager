@@ -55,7 +55,7 @@
     "eslint-plugin-vue": "^5.0.0",
     "eslint-utils": "^1.4.3",
     "lint-staged": "^8.1.5",
-    "node-forge": "^0.8.5",
+    "node-forge": "^0.10.0",
     "stylus": "^0.54.8",
     "stylus-loader": "^3.0.2",
     "vue-cli-plugin-electron-builder": "^2.0.0-rc.4",
