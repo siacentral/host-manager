@@ -23,7 +23,10 @@
 				<td></td><td></td>
 			</tr>
 			<tr v-for="contract in contracts" :key="contract.obligation_id">
-				<td v-for="column in columns" :key="column.key">{{ formatColumnValue(contract, column) }}</td>
+				<td v-for="column in columns" :key="column.key">
+					<input class="contract-id" v-if="column.key === 'id'" :value="contract[column.key]" />
+					<template v-else>{{ formatColumnValue(contract, column) }}</template>
+				</td>
 				<td class="fit-text">
 					<div class="tag-wrapper">
 						<div :class="getTagClasses(tag)" v-for="(tag, i) in contract.tags" :key="i">{{ tag.text }}</div>
@@ -167,6 +170,18 @@ a {
 	> svg {
 		margin-right: 3px;
 	}
+}
+
+input.contract-id {
+	display: block;
+	padding: 0;
+	max-width: 200px;
+	background: transparent;
+	border: none;
+	outline: none;
+	color: rgba(255, 255, 255, 0.84);
+	font-size: 1rem;
+	text-overflow: ellipsis;
 }
 
 .tag-wrapper {
