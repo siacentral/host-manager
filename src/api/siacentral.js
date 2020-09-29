@@ -96,12 +96,15 @@ export async function getContracts(ids) {
 }
 
 export async function getCoinPrice() {
-	const resp = await sendJSONRequest(`https://api.siacentral.com/v2/market/exchange-rate`, {
+	const resp = await sendJSONRequest(`https://api.siacentral.com/v2/market/exchange-rate?currencies=sc`, {
 		method: 'GET'
 	});
 
 	if (resp.statusCode !== 200)
 		throw new Error(resp.body.message);
 
-	return resp.body.price;
+	if (!resp.body.rates || !resp.body.rates.sc)
+		throw new Error('unrecognized response');
+
+	return resp.body.rates.sc;
 }
