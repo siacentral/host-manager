@@ -18,7 +18,6 @@
 
 <script>
 import log from 'electron-log';
-import { checkSiaDataFolders } from '@/utils';
 import SetupStep from './SetupStep';
 import SiaCentralSia from '@/assets/siacentral+sia.svg';
 
@@ -51,14 +50,8 @@ export default {
 
 				ev.skipImport = !doImport;
 
-				if (doImport) {
+				if (doImport)
 					ev.config = { ...this.config, ...this.import };
-
-					const missingFolders = await checkSiaDataFolders(ev.config.siad_data_path);
-
-					if (missingFolders.indexOf('consensus') >= 0)
-						ev.needsBootstrap = true;
-				}
 
 				this.$emit('done', ev);
 			} catch (ex) {

@@ -4,7 +4,6 @@
 			<welcome-step v-if="stepActive('welcome')" key="welcome" :import="imported" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<import-step v-else-if="stepActive('import')" key="import" :import="imported" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<consensus-location-step v-else-if="stepActive('consensus')" key="consensus" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
-			<bootstrap-step v-else-if="stepActive('bootstrap')" key="bootstrap" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<daemon-override-step v-else-if="stepActive('settings')" key="settings" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<review-step v-else-if="stepActive('review')" key="review" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
 			<create-wallet-step v-else-if="stepActive('create-wallet')" key="create-wallet" :config="config" :advanced="showAdvanced" @done="onStepComplete" />
@@ -20,7 +19,6 @@ import { mapActions } from 'vuex';
 import WelcomeStep from '@/views/setup/WelcomeStep';
 import ImportStep from '@/views/setup/ImportStep';
 import ConsensusLocationStep from '@/views/setup/ConsensusLocationStep';
-import BootstrapStep from '@/views/setup/BootstrapStep';
 import DaemonOverrideStep from '@/views/setup/DaemonOverrideStep';
 import ReviewStep from '@/views/setup/ReviewStep';
 import CreateWalletStep from '@/views/setup/CreateWalletStep';
@@ -33,7 +31,6 @@ export default {
 		WelcomeStep,
 		ImportStep,
 		ConsensusLocationStep,
-		BootstrapStep,
 		DaemonOverrideStep,
 		ReviewStep,
 		CreateWalletStep,
@@ -45,7 +42,6 @@ export default {
 			step: 0,
 			showAdvanced: false,
 			createWallet: false,
-			needsBootstrap: false,
 			skipImport: true,
 			config: {
 				dark_mode: true
@@ -62,9 +58,6 @@ export default {
 
 			if (!this.imported || this.skipImport)
 				steps.push('consensus');
-
-			if (this.needsBootstrap)
-				steps.push('bootstrap');
 
 			if (this.showAdvanced)
 				steps.push('settings');
@@ -108,9 +101,6 @@ export default {
 
 				if (typeof data.createWallet === 'boolean')
 					this.createWallet = data.createWallet;
-
-				if (typeof data.needsBootstrap === 'boolean')
-					this.needsBootstrap = data.needsBootstrap;
 
 				this.step += data.inc;
 
