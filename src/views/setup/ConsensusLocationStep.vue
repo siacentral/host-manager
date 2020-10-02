@@ -22,7 +22,6 @@
 import { remote } from 'electron';
 import path from 'path';
 import log from 'electron-log';
-import { checkSiaDataFolders } from '@/utils';
 import SetupStep from './SetupStep';
 
 const dialog = remote.dialog,
@@ -63,15 +62,11 @@ export default {
 					consensusPath = this.consensusLocation;
 
 				const ev = {
-						inc: n,
-						config: {
-							siad_data_path: consensusPath
-						}
-					},
-					missingFolders = await checkSiaDataFolders(consensusPath);
-
-				if (missingFolders.indexOf('consensus') >= 0)
-					ev.needsBootstrap = true;
+					inc: n,
+					config: {
+						siad_data_path: consensusPath
+					}
+				};
 
 				this.$emit('done', ev);
 			} catch (ex) {
