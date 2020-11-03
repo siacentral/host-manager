@@ -20,6 +20,9 @@ function buildArgs(config) {
 	if (typeof config.siad_siamux_port === 'string' && config.siad_siamux_port.length > 0)
 		args.push('--siamux-addr', config.siad_siamux_port);
 
+	if (typeof config.siad_siamux_ws_port === 'string' && config.siad_siamux_ws_port.length > 0)
+		args.push('--siamux-addr-ws', config.siad_siamux_ws_port);
+
 	if (typeof config.siad_rpc_port === 'string' && config.siad_rpc_port.length > 0)
 		args.push('--rpc-addr', config.siad_rpc_port);
 

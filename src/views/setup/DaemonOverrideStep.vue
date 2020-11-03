@@ -8,11 +8,15 @@
 			<p>Some hosts use custom ports or change their API authentication. Change any of the daemon settings you need to. Leave blank to use the default value.</p>
 		</template>
 		<div class="control">
-			<label>SiaMux Port</label>
-			<input type="text" v-model="hostPort" placeholder=":9983" />
+			<label>RHP3 Websocket Port</label>
+			<input type="text" v-model="siaMuxWSPort" placeholder=":9984" />
 		</div>
 		<div class="control">
-			<label>Host Port</label>
+			<label>RHP3 Port</label>
+			<input type="text" v-model="siaMuxPort" placeholder=":9983" />
+		</div>
+		<div class="control">
+			<label>RHP2 Port</label>
 			<input type="text" v-model="hostPort" placeholder=":9982" />
 		</div>
 		<div class="control">
@@ -52,6 +56,7 @@ export default {
 		this.userAgent = this.config.siad_api_agent;
 		this.hostPort = this.config.siad_host_port;
 		this.siaMuxPort = this.config.siad_siamux_port;
+		this.siaMuxWSPort = this.config.siad_siamux_ws_port;
 		this.rpcPort = this.config.siad_rpc_port;
 		this.apiAddr = this.config.siad_api_addr;
 	},
@@ -60,6 +65,7 @@ export default {
 			userAgent: null,
 			hostPort: null,
 			siaMuxPort: null,
+			siaMuxWSPort: null,
 			rpcPort: null,
 			apiAddr: null,
 			apiPassword: null
@@ -73,6 +79,7 @@ export default {
 					'siad_api_agent': this.userAgent,
 					'siad_host_port': this.hostPort,
 					'siad_siamux_port': this.siaMuxPort,
+					'siad_siamux_wx_port': this.siaMuxWSPort,
 					'siad_rpc_port': this.rpcPort,
 					'siad_api_addr': this.apiAddr,
 					'siad_api_password': this.apiPassword

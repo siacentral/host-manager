@@ -134,6 +134,7 @@ export default {
 			dataPath: '',
 			hostPort: '',
 			siaMuxPort: '',
+			siaMuxWSPort: '',
 			rpcPort: '',
 			notice: null,
 			errors: {},
@@ -151,6 +152,11 @@ export default {
 
 			if (this.hostPort && this.hostPort.length > 0 && portRegex.exec(this.hostPort) === null) {
 				errors['hostPort'] = 'host port must match the format :9982';
+				hasErrors = true;
+			}
+
+			if (this.siaMuxWSPort && this.siaMuxWSPort.length > 0 && portRegex.exec(this.siaMuxWSPort) === null) {
+				errors['siaMuxWSPort'] = 'SiaMux port must match the format :9984';
 				hasErrors = true;
 			}
 
@@ -180,6 +186,7 @@ export default {
 			this.apiPassword = this.config.siad_api_password;
 			this.dataPath = this.config.siad_data_path;
 			this.siaMuxPort = this.config.siad_siamux_port;
+			this.siaMuxWSPort = this.config.siad_siamux_ws_port;
 			this.hostPort = this.config.siad_host_port;
 			this.rpcPort = this.config.siad_rpc_port;
 		},
@@ -194,6 +201,7 @@ export default {
 					siad_api_password: this.apiPassword,
 					siad_data_path: this.dataPath,
 					siad_siamux_port: this.siaMuxPort,
+					siad_siamux_ws_port: this.siaMuxWSPort,
 					siad_host_port: this.hostPort,
 					siad_rpc_port: this.rpcPort
 				};
