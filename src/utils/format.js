@@ -72,7 +72,7 @@ export function formatBlockTimeString(blocks) {
 		if (blocks < d)
 			continue;
 
-		const value = Math.floor(blocks / d);
+		const value = Math.floor((blocks / d) * 100) / 100;
 
 		if (value > 1)
 			key += 's';
