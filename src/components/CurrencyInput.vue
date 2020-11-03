@@ -43,6 +43,7 @@ export default {
 				this.amount = parseSiacoinString(value);
 				this.$refs.txtCurrency.value = this.formatCurrencyString(this.amount);
 				this.$emit('input', this.amount);
+				this.$emit('update', { amount: this.amount, fiat: this.$refs.txtCurrency.value });
 			} catch (ex) {
 				console.error('CurrencyInput.onChangeSiacoin', ex);
 			}
@@ -56,6 +57,7 @@ export default {
 				this.amount = parsed;
 				this.$refs.txtSiacoin.value = siacoins.value;
 				this.$emit('input', this.amount);
+				this.$emit('update', { amount: this.amount, fiat: this.$refs.txtCurrency.value });
 			} catch (ex) {
 				console.error('CurrencyInput.onChangeCurrency', ex);
 			}
