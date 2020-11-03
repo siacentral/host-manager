@@ -39,7 +39,6 @@ export default {
 			if (!this.average)
 				return '';
 
-			console.log('size', this.average);
 			const { value, label } = formatByteString(this.average);
 
 			return `${value} <span class="currency-display">${label}</span>`;

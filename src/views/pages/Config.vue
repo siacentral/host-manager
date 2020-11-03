@@ -140,7 +140,6 @@ export default {
 		};
 	},
 	beforeMount() {
-		console.log(this.averageSettings);
 		this.updateConfig();
 	},
 	methods: {

@@ -41,7 +41,6 @@ export default {
 			if (!this.average)
 				return '';
 
-			console.log('duration', this.average);
 			const { value, label } = formatBlockTimeString(this.average);
 
 			return `${value} <span class="currency-display">${label}</span>`;

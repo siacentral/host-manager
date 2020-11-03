@@ -45,8 +45,6 @@ export default {
 			const sc = formatPriceString(this.average, 2, 'sc', 1),
 				disp = formatPriceString(this.average, 2, this.currency, this.coinPrice[this.currency]);
 
-			console.log(sc, disp);
-
 			return `<div>${sc.value} <span class="currency-dispay">${sc.label}</span></div><div>${disp.value} <span class="currency-dispay">${disp.label}</span></div>`;
 		}
 	},
