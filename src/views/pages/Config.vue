@@ -56,10 +56,10 @@
 				<template slot="title">Registry Size</template>
 				<template slot="description">The size of the Skynet Registry. The Skynet Registry is a key value store for linking uploaded data to a constant key. Hosts are payed much more than the resources actually consumed. Make sure that you have enough free space on your disk before allocating the registry. <span class="suggestion">Suggested: 4GB</span></template>
 			</size-item>
-			<directory-item :value="registryPath" @change="onChangeValue('customregistrypath', $event)">
-				<template slot="title">Custom Registry Path</template>
+			<file-item :value="registryPath" @change="onChangeRegPath('customregistrypath', $event)">
+				<template slot="title">Custom Registry Location</template>
 				<template slot="description">The location of the Skynet Registry on disk, leave blank for default. Defaults to your Sia data path, usually the disk your operating system is installed on.</template>
-			</directory-item>
+			</file-item>
 			<div class="config-header">Advanced</div>
 			<price-item :value="baseRPCPrice" :average="averageSettings.base_rpc_price" :pinned="isPinned('minbaserpcprice')" @change="onChangePrice('minbaserpcprice', $event)">
 				<template slot="title">Base RPC Price</template>
@@ -81,6 +81,7 @@
 
 <script>
 import log from 'electron-log';
+import path from 'path';
 import BigNumber from 'bignumber.js';
 import { mapState, mapActions } from 'vuex';
 import { writeConfig } from '@/utils';
@@ -91,13 +92,13 @@ import { refreshHostConfig } from '@/sync/config';
 import AnnounceHostModal from '@/components/config/AnnounceHostModal';
 import PriceItem from '@/components/config/PriceItem';
 import SizeItem from '@/components/config/SizeItem';
-import DirectoryItem from '@/components/config/DirectoryItem';
+import FileItem from '@/components/config/FileItem';
 import DurationItem from '@/components/config/DurationItem';
 
 export default {
 	components: {
 		AnnounceHostModal,
-		DirectoryItem,
+		FileItem,
 		DurationItem,
 		PriceItem,
 		SizeItem
@@ -226,6 +227,14 @@ export default {
 				console.error(`Config.onChangeSize (${key})`, ex);
 			}
 		},
+		onChangeRegPath(key, value) {
+			try {
+				this.config[key] = path.join(value, 'registry.dat');
+				this.changed = true;
+			} catch (ex) {
+				console.error(`Config.onChangeSize (${key})`, ex);
+			}
+		},
 		async onClickUpdate() {
 			if (this.updating)
 				return;
@@ -239,7 +248,7 @@ export default {
 				await client.updateHost({
 					...this.config,
 					windowsize: 144,
-					maxcollateral: this.convertRawValue(this.collateral, 'collateral').times(4).toFixed(0).toString(10)
+					maxcollateral: this.convertRawValue(this.collateral, 'collateral').times(1e12).times(4320).times(4).toFixed(0).toString(10)
 				});
 
 				for (let pin in this.pinned) {

@@ -32,9 +32,9 @@ export default {
 	},
 	methods: {
 		async onSelectDir() {
-			const { filePaths } = await dialog.showOpenDialog({ title: 'Select Your Registry Location', buttonLabel: 'Select', properties: ['openDirectory'] });
+			const { filePath } = await dialog.showSaveDialog({ title: 'Select Your Registry Location', defaultPath: 'registry.dat', nameFieldLabel: 'Filename', buttonLabel: 'Select' });
 
-			this.path = filePaths ? filePaths[0] : null;
+			this.path = filePath || '';
 
 			this.$emit('change', this.path);
 		}
