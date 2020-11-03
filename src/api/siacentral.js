@@ -1,7 +1,7 @@
 import { sendJSONRequest } from './common';
 
 export async function getAverageSettings() {
-	const resp = await sendJSONRequest(`https://api.siacentral.com/v2/hosts/settings/average`, {
+	const resp = await sendJSONRequest(`https://api.siacentral.com/v2/hosts/network/averages`, {
 		method: 'GET'
 	});
 
