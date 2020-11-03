@@ -1,5 +1,11 @@
 ## November 2020
 
+### v1.0.25
+
+### Bug Fixes
+
++ Fixed setting custom registry path
+
 ### v1.0.24
 
 ### Bug Fixes

@@ -56,7 +56,7 @@
 				<template slot="title">Registry Size</template>
 				<template slot="description">The size of the Skynet Registry. The Skynet Registry is a key value store for linking uploaded data to a constant key. Hosts are payed much more than the resources actually consumed. Make sure that you have enough free space on your disk before allocating the registry. <span class="suggestion">Suggested: 4GB</span></template>
 			</size-item>
-			<file-item :value="registryPath" @change="onChangeRegPath('customregistrypath', $event)">
+			<file-item :value="registryPath" @change="onChangeValue('customregistrypath', $event)">
 				<template slot="title">Custom Registry Location</template>
 				<template slot="description">The location of the Skynet Registry on disk, leave blank for default. Defaults to your Sia data path, usually the disk your operating system is installed on.</template>
 			</file-item>
@@ -81,7 +81,6 @@
 
 <script>
 import log from 'electron-log';
-import path from 'path';
 import BigNumber from 'bignumber.js';
 import { mapState, mapActions } from 'vuex';
 import { writeConfig } from '@/utils';
@@ -222,14 +221,6 @@ export default {
 		onChangeValue(key, value) {
 			try {
 				this.config[key] = value;
-				this.changed = true;
-			} catch (ex) {
-				console.error(`Config.onChangeSize (${key})`, ex);
-			}
-		},
-		onChangeRegPath(key, value) {
-			try {
-				this.config[key] = path.join(value, 'registry.dat');
 				this.changed = true;
 			} catch (ex) {
 				console.error(`Config.onChangeSize (${key})`, ex);
