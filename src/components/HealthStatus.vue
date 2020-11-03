@@ -15,21 +15,19 @@
 			<div class="sia-status-title">{{ formatNumber(blockHeight, 0) }}</div>
 			<div class="sia-status-text">{{ statusText }}</div>
 		</div>
-		<a href="#" class="sia-status-item" @click.prevent="modal = 'receiveTransaction'">
+		<router-link :to="{ name: 'wallet' }" class="sia-status-item">
 			<div :class="{'sia-status-icon': true, 'status-warning': !synced }">
 				<icon icon="wallet" />
 			</div>
-			<div class="sia-status-title">
-				{{ formatPriceString(balance, 2) }}
-			</div>
+			<div class="sia-status-title" v-html="walletBalanceDisplay" />
 			<div class="sia-status-text">Balance</div>
-		</a>
+		</router-link>
 	</div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
-import { formatDuration, formatPriceString, formatNumber } from '@/utils/formatLegacy';
+import { formatPriceString, formatNumber, formatDuration } from '@/utils/format';
 
 export default {
 	computed: {
@@ -41,7 +39,8 @@ export default {
 			balance: state => state.hostWallet.balance,
 			connection: state => state.explorer.report,
 			dataUnit: state => state.config.data_unit,
-			currency: state => state.config.currency
+			currency: state => state.config.currency,
+			coinPrice: state => state.coinPrice
 		}),
 		statusText() {
 			if (this.synced)
@@ -61,6 +60,12 @@ export default {
 			default:
 				return 'Online';
 			}
+		},
+		walletBalanceDisplay() {
+			const sc = formatPriceString(this.balance, 2, 'sc', 1),
+				disp = formatPriceString(this.balance, 2, this.currency, this.coinPrice[this.currency]);
+
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
 		},
 		connectivityLink() {
 			const params = [];
@@ -89,7 +94,6 @@ export default {
 		}
 	},
 	methods: {
-		formatPriceString,
 		formatNumber
 	}
 };

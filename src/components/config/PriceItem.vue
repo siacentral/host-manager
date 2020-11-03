@@ -45,7 +45,7 @@ export default {
 			const sc = formatPriceString(this.average, 2, 'sc', 1),
 				disp = formatPriceString(this.average, 2, this.currency, this.coinPrice[this.currency]);
 
-			return `<div>${sc.value} <span class="currency-dispay">${sc.label}</span></div><div>${disp.value} <span class="currency-dispay">${disp.label}</span></div>`;
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
 		}
 	},
 	props: {
