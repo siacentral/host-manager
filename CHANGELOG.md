@@ -1,3 +1,19 @@
+## November 2020
+
+### v1.0.24
+
+### Bug Fixes
+
++ Fixed issue with changing RHP3 ports in settings
+
+### Changes
+
++ All data will now be shown in Siacoin and the selected display currency
++ Added Skynet registry config to configuration page
++ Reordered configuration page
++ Use currency input on configuration page
++ Show skynet registry data on dashboard
+
 ## September 2020
 
 ### v1.0.23
