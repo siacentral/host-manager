@@ -147,7 +147,7 @@ export default {
 		isPinned(key) {
 			return this.appConfig.host_pricing_pins && this.appConfig.host_pricing_pins[key] && typeof this.appConfig.host_pricing_pins[key].currency === 'string' && typeof this.appConfig.host_pricing_pins[key].value === 'string';
 		},
-		convertRawValue(value, key) {
+		convertToBasePrice(value, key) {
 			const byteFactor = this.appConfig.data_unit === 'decimal' ? 1e12 : 1099511627776;
 
 			switch (key) {
@@ -163,9 +163,25 @@ export default {
 
 			return value;
 		},
+		convertToPrice(value, key) {
+			const byteFactor = this.appConfig.data_unit === 'decimal' ? 1e12 : 1099511627776;
+
+			switch (key) {
+			case 'minstorageprice':
+			case 'collateral':
+				value = value.times(byteFactor).times(4320);
+				break;
+			case 'mindownloadbandwidthprice':
+			case 'minuploadbandwidthprice':
+				value = value.times(byteFactor);
+				break;
+			}
+
+			return value;
+		},
 		setValueOrPin(key) {
 			if (!this.isPinned(key))
-				return this.convertRawValue(this.hostConfig[key], key);
+				return this.convertToPrice(this.hostConfig[key], key);
 
 			const { value, currency } = this.appConfig.host_pricing_pins[key];
 
@@ -182,6 +198,8 @@ export default {
 			this.collateralBudget = this.setValueOrPin('collateralbudget');
 			this.collateral = this.setValueOrPin('collateral');
 			this.maxDuration = this.hostConfig.maxduration;
+
+			console.log(this.collateral.toString(10));
 
 			this.reviseBatchSize = this.hostConfig.maxrevisebatchsize;
 			this.downloadBatchSize = this.hostConfig.maxdownloadbatchsize;
@@ -212,7 +230,7 @@ export default {
 				} else
 					this.pinned[key] = false;
 
-				this.config[key] = this.convertRawValue(value, key).toFixed(0).toString(10);
+				this.config[key] = this.convertToBasePrice(value, key).toFixed(0).toString(10);
 				this.changed = true;
 			} catch (ex) {
 				console.error(`Config.onChangePrice (${key})`, ex);
@@ -239,7 +257,7 @@ export default {
 				await client.updateHost({
 					...this.config,
 					windowsize: 144,
-					maxcollateral: this.convertRawValue(this.collateral, 'collateral').times(1e12).times(4320).times(4).toFixed(0).toString(10)
+					maxcollateral: this.collateral.times(4).toFixed(0).toString(10)
 				});
 
 				for (let pin in this.pinned) {
