@@ -104,9 +104,6 @@ function getSCValue(key, pin) {
 
 async function updatePinnedPricing() {
 	try {
-		if (Date.now() - parseInt(localStorage.getItem('lastPinRefresh'), 10) <= 8.64e+7)
-			return;
-
 		if (!Store.state.config || !Store.state.config.host_pricing_pins)
 			return;
 
@@ -139,7 +136,6 @@ async function updatePinnedPricing() {
 			return true;
 
 		await apiClient.updateHost(newConfig);
-		localStorage.setItem('lastPinRefresh', Date.now().toString());
 		await refreshHostConfig();
 	} catch (ex) {
 		log.error('update pinned pricing', ex.message);
