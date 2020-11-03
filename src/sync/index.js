@@ -116,11 +116,19 @@ async function updatePinnedPricing() {
 					typeof Store.state.config.host_pricing_pins[pin].value !== 'string')
 					continue;
 
-				const newValue = getSCValue(pin, Store.state.config.host_pricing_pins[pin]).toFixed(0),
+				const value = getSCValue(pin, Store.state.config.host_pricing_pins[pin]),
+					newValue = value.toFixed(0),
 					currentValue = Store.state.hostConfig.config[pin].toFixed(0);
 
 				if (currentValue === undefined || newValue === undefined || newValue === currentValue)
 					continue;
+
+				// removed the max collateral setting from config
+				if (pin === 'maxcollateral')
+					continue;
+
+				if (pin === 'collateral')
+					newConfig['maxcollateral'] = value.times(4);
 
 				log.debug('updated', pin, 'from', currentValue, 'to', newValue);
 
@@ -134,6 +142,8 @@ async function updatePinnedPricing() {
 
 		if (!changed)
 			return true;
+
+		newConfig.windowsize = 144;
 
 		await apiClient.updateHost(newConfig);
 		await refreshHostConfig();
