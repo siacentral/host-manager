@@ -18,13 +18,15 @@
 		<tbody>
 			<tr class="total-row">
 				<td v-for="column in columns" :key="`totals-${column.key}`">
-					{{ formatColumnTotal(column) }}
+					<div v-if="column.format === 'currency'" v-html="formatCurrencyTotal(column)" />
+					<template v-else>{{ formatColumnTotal(column) }}</template>
 				</td>
 				<td></td><td></td>
 			</tr>
 			<tr v-for="contract in contracts" :key="contract.obligation_id">
 				<td v-for="column in columns" :key="column.key">
 					<input class="contract-id" v-if="column.key === 'id'" :value="contract[column.key]" />
+					<div v-else-if="column.format === 'currency'" v-html="formatCurrencyDisplay(contract, column)" />
 					<template v-else>{{ formatColumnValue(contract, column) }}</template>
 				</td>
 				<td class="fit-text">
@@ -40,7 +42,8 @@
 
 <script>
 import { mapState } from 'vuex';
-import { formatPriceString, formatByteString, formatShortDateString, formatBlockTimeString, formatFriendlyStatus } from '@/utils/formatLegacy';
+import { formatByteString, formatShortDateString, formatBlockTimeString, formatFriendlyStatus } from '@/utils/formatLegacy';
+import { formatPriceString } from '@/utils/format';
 
 export default {
 	props: {
@@ -50,7 +53,11 @@ export default {
 		sort: Object
 	},
 	computed: {
-		...mapState(['block'])
+		...mapState({
+			block: state => state.block,
+			coinPrice: state => state.coinPrice,
+			currency: state => state.config.currency
+		})
 	},
 	data() {
 		return {
@@ -72,6 +79,23 @@ export default {
 				format = (column.format || '').toLowerCase();
 
 			return this.formatValue(value, format);
+		},
+		formatCurrencyTotal(column) {
+			if (!column.total_key)
+				return '';
+
+			const value = this.totals[column.total_key],
+				sc = formatPriceString(value, 2, 'sc', 1),
+				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]);
+
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
+		},
+		formatCurrencyDisplay(contract, column) {
+			const value = contract[column.key],
+				sc = formatPriceString(value, 2, 'sc', 1),
+				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]);
+
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
 		},
 		formatValue(value, format) {
 			format = (format || '').toLowerCase();
@@ -138,6 +162,7 @@ export default {
 <style lang="stylus" scoped>
 td.contracts-header {
 	cursor: pointer;
+	z-index: 1000;
 
 	&.contracts-sort, &:hover {
 		color: primary;
