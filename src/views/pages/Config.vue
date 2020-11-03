@@ -7,144 +7,70 @@
 			</div>
 			<button class="btn btn-inline" @click="modal='announce'">Announce</button>
 		</div>
-		<div class="host-config-header">
-			<div>Current</div>
-			<div>Average</div>
-		</div>
 		<div class="host-config">
-			<div class="config-header">Financials</div>
-			<config-item title="Contract Price"
-				configKey="mincontractprice"
-				:showPin="true"
-				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['mincontractprice'] != null"
-				:value="currentConfig.contractPrice"
-				:avgValue="formatPriceString(averageSettings.contract_price, 2)"
-				:error="errors['mincontractprice']"
-				description="The amount of money to form a contract
-					with the host."
-				@change="onChangePrice" />
-			<config-item title="Storage Price"
-				configKey="minstorageprice"
-				:showPin="true"
-				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['minstorageprice'] != null"
-				:value="currentConfig.storagePrice"
-				:avgValue="formatMonthlyPriceString(averageSettings.storage_price, 2)"
-				:sublabel="perMonthLabel"
-				:error="errors['minstorageprice']"
-				:description="storageDesc"
-				@change="onChangeMonthlyPrice" />
-			<config-item title="Download Price"
-				configKey="mindownloadbandwidthprice"
-				:showPin="true"
-				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['mindownloadbandwidthprice'] != null"
-				:value="currentConfig.downloadPrice"
-				:avgValue="formatDataPriceString(averageSettings.download_price, 2)"
-				:sublabel="dataLabel"
-				:error="errors['mindownloadbandwidthprice']"
-				:description="downloadDesc"
-				@change="onChangeDataPrice" />
-			<config-item title="Upload Price"
-				configKey="minuploadbandwidthprice"
-				:showPin="true"
-				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['minuploadbandwidthprice'] != null"
-				:value="currentConfig.uploadPrice"
-				:avgValue="formatDataPriceString(averageSettings.upload_price, 2)"
-				:sublabel="dataLabel"
-				:error="errors['minuploadbandwidthprice']"
-				:description="uploadDesc"
-				@change="onChangeDataPrice" />
-			<config-item title="Base RPC Price"
-				configKey="minbaserpcprice"
-				:showPin="true"
-				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['minbaserpcprice'] != null"
-				:value="currentConfig.baseRPCPrice"
-				:avgValue="formatPriceString(averageSettings.base_rpc_price, 2)"
-				sublabel="per request"
-				:error="errors['minuploadbandwidthprice']"
-				description="The amount of money that the renter will be
-					charged to for each upload, download, and contract formation request to the host."
-				@change="onChangePrice" />
-			<config-item title="Sector Access Price"
-				configKey="minsectoraccessprice"
-				:showPin="true"
-				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['minsectoraccessprice'] != null"
-				:value="currentConfig.sectorAccessPrice"
-				:avgValue="formatPriceString(averageSettings.sector_access_price, 2)"
-				sublabel="per sector"
-				:error="errors['minuploadbandwidthprice']"
-				description="The amount of money that the renter will be charged to read a
-					single sector of data from disk. The host has to read at least one full 4MB sector
-					from disk regardless of how much the renter intends to download
-					this is charged to pay for the physical disk resources the renter consumes."
-				@change="onChangePrice" />
-			<div class="config-header">Collateral</div>
-			<config-item title="Collateral Budget"
-				configKey="collateralbudget"
-				:showPin="true"
-				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['collateralbudget'] != null"
-				:value="currentConfig.collateralBudget"
-				:error="errors['collateralbudget']"
-				description="The maximum amount of collateral
-					the host will lock for all contracts. When this is full the host will reject new
-					contracts"
-				@change="onChangePrice" />
-			<config-item title="Max Collateral"
-				configKey="maxcollateral"
-				:showPin="true"
-				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['maxcollateral'] != null"
-				:value="currentConfig.maxCollateral"
-				:avgValue="formatPriceString(averageSettings.max_collateral, 2)"
-				sublabel="per contract"
-				:error="errors['maxcollateral']"
-				description="The maximum amount of collateral
-					that the host will risk per contract. If an individual contract reaches this maximum
-					the host will refuse to accept any more data from that contract."
-				@change="onChangePrice" />
-			<config-item title="Collateral"
-				configKey="collateral"
-				:showPin="true"
-				:pinned="appConfig.host_pricing_pins && appConfig.host_pricing_pins['collateral'] != null"
-				:value="currentConfig.collateral"
-				:avgValue="formatMonthlyPriceString(averageSettings.collateral, 2)"
-				:sublabel="perMonthLabel"
-				:error="errors['collateral']"
-				:description="collateralDesc"
-				@change="onChangeMonthlyPrice" />
-			<div class="config-header">Duration</div>
-			<config-item title="Max Duration"
-				configKey="maxduration"
-				:value="currentConfig.maxDuration"
-				:avgValue="formatBlockTimeString(averageSettings.max_duration)"
-				:error="errors['maxduration']"
-				description="The maximum amount of time the host will
-					accept for a storage contract. Hosts are only payed at the end of a storage contract."
-				@change="onChangeTime" />
-			<config-item title="Proof Window Duration"
-				configKey="windowsize"
-				:value="currentConfig.windowSize"
-				:avgValue="formatBlockTimeString(averageSettings.window_size)"
-				:error="errors['windowsize']"
-				description="The amount of time the host has to submit
-					a storage proof when the contract expires."
-				@change="onChangeTime" />
+			<div class="config-header">Storage</div>
+			<price-item :value="contractPrice" :average="averageSettings.contract_price" :pinned="isPinned('mincontractprice')" @change="onChangePrice('mincontractprice', $event)">
+				<template slot="title">Contract Price</template>
+				<template slot="denomination">per contract</template>
+				<template slot="description">The amount of money to form a contract with the host. A contract is required to upload, download and store data. <span class="suggestion">Suggested: less than 1 SC. The contract fee should only be used to cover expected transaction fees.</span></template>
+			</price-item>
+			<price-item :value="storagePrice" :average="averageSettings.storage_price.times(4320).times(1e12)" :pinned="isPinned('minstorageprice')" @change="onChangePrice('minstorageprice', $event)">
+				<template slot="title">Storage Price</template>
+				<template slot="denomination">per {{ dataUnit }}/Month</template>
+				<template slot="description">The amount of money to store 1 {{ dataUnit }} for 1 month</template>
+			</price-item>
+			<price-item :value="collateral" :average="averageSettings.collateral.times(4320).times(1e12)" :pinned="isPinned('collateral')" @change="onChangePrice('collateral', $event)">
+				<template slot="title">Collateral</template>
+				<template slot="denomination">per sector</template>
+				<template slot="description">The amount of money per 1 {{ dataUnit }}/month stored to be locked as collateral. <span class="suggestion">Suggested: 2x storage price.</span></template>
+			</price-item>
+			<price-item :value="collateralBudget" :pinned="isPinned('collateralbudget')" @change="onChangePrice('collateralbudget', $event)">
+				<template slot="title">Collateral Budget</template>
+				<template slot="description">The maximum amount of money that can be used as collateral. <span class="suggestion">Suggested: to prevent issues with stale contracts, a very large number or multiple times your wallet balance.</span></template>
+			</price-item>
+			<duration-item :value="maxDuration" :average="averageSettings.max_duration" @change="onChangeValue('maxduration', $event)">
+				<template slot="title">Max Contract Duration</template>
+				<template slot="description">The maximum amount of time a contract can be created for. Payouts only occur at the end of the contract. <span class="suggestion">Suggested: at least 3 months.</span></template>
+			</duration-item>
 			<div class="config-header">Network</div>
-			<config-item title="Download Batch Size"
-				configKey="maxdownloadbatchsize"
-				:value="currentConfig.maxDownloadSize"
-				:avgValue="formatByteString(averageSettings.max_download_batch_size, 2)"
-				:error="errors['maxdownloadbatchsize']"
-				description="The maximum size of a single download request from
-					the renter. Larger batch sizes mean fewer round trips and better performance,
-					but more financial risk for the host."
-				@change="onChangeBytes" />
-			<config-item title="Revise Batch Size"
-				configKey="maxrevisebatchsize"
-				:value="currentConfig.maxReviseSize"
-				:avgValue="formatByteString(averageSettings.max_revise_batch_size, 2)"
-				:error="errors['maxrevisebatchsize']"
-				description="The maximum size of a single file contract revision.
-					Larger batch sizes allow for higher throughput of renters, but more financial risk for the host."
-				@change="onChangeBytes" />
+			<price-item :value="downloadPrice" :average="averageSettings.download_price.times(1e12)" :pinned="isPinned('mindownloadbandwidthprice')" @change="onChangePrice('mindownloadbandwidthprice', $event)">
+				<template slot="title">Download Price</template>
+				<template slot="denomination">per {{ dataUnit }}</template>
+				<template slot="description">The amount of money to download 1 {{ dataUnit }} from the host</template>
+			</price-item>
+			<price-item :value="uploadPrice" :average="averageSettings.upload_price.times(1e12)" :pinned="isPinned('minuploadbandwidthprice')" @change="onChangePrice('minuploadbandwidthprice', $event)">
+				<template slot="title">Upload Price</template>
+				<template slot="denomination">per {{ dataUnit }}</template>
+				<template slot="description">The amount of money to download 1 {{ dataUnit }} from the host</template>
+			</price-item>
+			<size-item :value="downloadBatchSize" :average="averageSettings.max_download_batch_size" @change="onChangeValue('maxdownloadbatchsize', $event)">
+				<template slot="title">Download Batch Size</template>
+				<template slot="description">The maximum size of a download request. Larger batch size means better performance, but higher risk of losing money when downloading data.</template>
+			</size-item>
+			<size-item :value="reviseBatchSize" :average="averageSettings.max_revise_batch_size" @change="onChangeValue('maxrevisebatchsize', $event)">
+				<template slot="title">Download Batch Size</template>
+				<template slot="description">The maximum size of an upload request. Larger batch size means better performance, but higher risk of losing money when uploading data.</template>
+			</size-item>
+			<div class="config-header">Skynet</div>
+			<size-item :value="registrySize" @change="onChangeValue('registrysize', $event)">
+				<template slot="title">Registry Size</template>
+				<template slot="description">The size of the Skynet Registry. The Skynet Registry is a key value store for linking uploaded data to a constant key. Hosts are payed much more than the resources actually consumed. Make sure that you have enough free space on your disk before allocating the registry. <span class="suggestion">Suggested: 4GB</span></template>
+			</size-item>
+			<directory-item :value="registryPath" @change="onChangeValue('customregistrypath', $event)">
+				<template slot="title">Custom Registry Path</template>
+				<template slot="description">The location of the Skynet Registry on disk, leave blank for default. Defaults to your Sia data path, usually the disk your operating system is installed on.</template>
+			</directory-item>
+			<div class="config-header">Advanced</div>
+			<price-item :value="baseRPCPrice" :average="averageSettings.base_rpc_price" :pinned="isPinned('minbaserpcprice')" @change="onChangePrice('minbaserpcprice', $event)">
+				<template slot="title">Base RPC Price</template>
+				<template slot="denomination">per RPC</template>
+				<template slot="description">The amount of money required to interact with the host. <span class="suggestion">Suggested: very low or zero since this is charged per interaction.</span></template>
+			</price-item>
+			<price-item :value="sectorAccessPrice" :average="averageSettings.sector_access_price" :pinned="isPinned('minsectoraccessprice')" @change="onChangePrice('minsectoraccessprice', $event)">
+				<template slot="title">Sector Access Price</template>
+				<template slot="denomination">per sector</template>
+				<template slot="description">The amount of money required to download or upload a single sector from the host. <span class="suggestion">Suggested: very low or zero since this is charged per sector in addition to download price.</span></template>
+			</price-item>
 		</div>
 		<div class="controls">
 			<button class="btn btn-success btn-inline" @click="onClickUpdate" :disabled="!changed || updating">Update Configuration</button>
@@ -155,71 +81,55 @@
 
 <script>
 import log from 'electron-log';
-
+import BigNumber from 'bignumber.js';
 import { mapState, mapActions } from 'vuex';
 import { writeConfig } from '@/utils';
-import { formatByteString, formatBlockTimeString, formatPriceString, formatDataPriceString, formatMonthlyPriceString } from '@/utils/formatLegacy';
-import { parseCurrencyString, parseByteString, parseBlockTimeString } from '@/utils/parseLegacy';
+import { parseCurrencyString } from '@/utils/parse';
 import SiaApiClient from '@/api/sia';
 import { refreshHostConfig } from '@/sync/config';
 
 import AnnounceHostModal from '@/components/config/AnnounceHostModal';
-import ConfigItem from '@/components/config/ConfigItem';
+import PriceItem from '@/components/config/PriceItem';
+import SizeItem from '@/components/config/SizeItem';
+import DirectoryItem from '@/components/config/DirectoryItem';
+import DurationItem from '@/components/config/DurationItem';
 
 export default {
 	components: {
 		AnnounceHostModal,
-		ConfigItem
+		DirectoryItem,
+		DurationItem,
+		PriceItem,
+		SizeItem
 	},
 	computed: {
 		...mapState({
 			appConfig: state => state.config,
 			hostConfig: state => state.hostConfig.config,
-			averageSettings: state => state.explorer.averageSettings
+			averageSettings: state => state.explorer.averageSettings,
+			currency: state => state.config.currency,
+			coinPrice: state => state.coinPrice
 		}),
-		storageDesc() {
-			const dataUnit = this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
-
-			return `The amount of money that the renter will be charged for storing 1 ${dataUnit} of
-				data for a month. Payment is not received until after the contract has expired and a
-				valid proof has been submitted.`;
-		},
-		uploadDesc() {
-			const dataUnit = this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
-
-			return `The amount of money that the renter will be charged to upload 1 ${dataUnit} of data
-				to store. Payment is not received until after the contract has expired and a valid
-				proof has been submitted.`;
-		},
-		downloadDesc() {
-			const dataUnit = this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
-
-			return `The amount of money that the renter will be
-				charged to download 1 ${dataUnit} of stored data. Payment is not received until after
-				the contract has expired and a valid proof has been submitted.`;
-		},
-		collateralDesc() {
-			const dataUnit = this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
-
-			return `The amount of collateral the host will
-				risk for 1 ${dataUnit} of stored data per month. A good amount is 2x Storage Price.
-				Any risked collateral will be lost if a valid storage proof is not
-				submitted after contract expiration`;
-		},
-		perMonthLabel() {
-			const dataUnit = this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
-
-			return `per ${dataUnit}/month`;
-		},
-		dataLabel() {
-			const dataUnit = this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
-
-			return `per ${dataUnit}`;
+		dataUnit() {
+			return this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
 		}
 	},
 	data() {
 		return {
 			acceptContracts: false,
+			contractPrice: new BigNumber(0),
+			storagePrice: new BigNumber(0),
+			downloadPrice: new BigNumber(0),
+			uploadPrice: new BigNumber(0),
+			sectorAccessPrice: new BigNumber(0),
+			baseRPCPrice: new BigNumber(0),
+			collateralBudget: new BigNumber(0),
+			collateral: new BigNumber(0),
+			downloadBatchSize: new BigNumber(0),
+			reviseBatchSize: new BigNumber(0),
+			maxDuration: 0,
+			registrySize: new BigNumber(0),
+			registryPath: '',
 			errors: {},
 			config: {},
 			currentConfig: {},
@@ -229,16 +139,57 @@ export default {
 			modal: null
 		};
 	},
-	mounted() {
+	beforeMount() {
+		console.log(this.averageSettings);
 		this.updateConfig();
 	},
 	methods: {
 		...mapActions(['pushNotification', 'setConfig']),
-		formatBlockTimeString,
-		formatByteString,
-		formatPriceString,
-		formatDataPriceString,
-		formatMonthlyPriceString,
+		isPinned(key) {
+			return this.appConfig.host_pricing_pins && this.appConfig.host_pricing_pins[key] && typeof this.appConfig.host_pricing_pins[key].currency === 'string' && typeof this.appConfig.host_pricing_pins[key].value === 'string';
+		},
+		convertRawValue(value, key) {
+			const byteFactor = this.appConfig.data_unit === 'decimal' ? 1e12 : 1099511627776;
+
+			switch (key) {
+			case 'minstorageprice':
+			case 'collateral':
+				value = value.div(byteFactor).div(4320);
+				break;
+			case 'mindownloadbandwidthprice':
+			case 'minuploadbandwidthprice':
+				value = value.div(byteFactor);
+				break;
+			}
+
+			return value;
+		},
+		setValueOrPin(key) {
+			if (!this.isPinned(key))
+				return this.convertRawValue(this.hostConfig[key], key);
+
+			const { value, currency } = this.appConfig.host_pricing_pins[key];
+
+			return parseCurrencyString(value, this.coinPrice[currency]);
+		},
+		updateConfig() {
+			this.acceptContracts = this.hostConfig.acceptingcontracts;
+			this.contractPrice = this.setValueOrPin('mincontractprice');
+			this.storagePrice = this.setValueOrPin('minstorageprice');
+			this.downloadPrice = this.setValueOrPin('mindownloadbandwidthprice');
+			this.uploadPrice = this.setValueOrPin('minuploadbandwidthprice');
+			this.baseRPCPrice = this.setValueOrPin('minbaserpcprice');
+			this.sectorAccessPrice = this.setValueOrPin('minsectoraccessprice');
+			this.collateralBudget = this.setValueOrPin('collateralbudget');
+			this.collateral = this.setValueOrPin('collateral');
+			this.maxDuration = this.hostConfig.maxduration;
+
+			this.reviseBatchSize = this.hostConfig.maxrevisebatchsize;
+			this.downloadBatchSize = this.hostConfig.maxdownloadbatchsize;
+
+			this.registrySize = this.hostConfig.registrysize;
+			this.registryPath = this.hostConfig.customregistrypath;
+		},
 		async onModalClose() {
 			try {
 				this.modal = null;
@@ -252,26 +203,29 @@ export default {
 				this.updating = false;
 			}
 		},
-		updateConfig() {
-			const byteFactor = this.appConfig.data_unit === 'decimal' ? 1e12 : 1099511627776;
+		onChangePrice(key, { value, fiat, pinned }) {
+			try {
+				if (pinned) {
+					this.pinned[key] = {
+						currency: this.appConfig.currency,
+						value: fiat
+					};
+				} else
+					this.pinned[key] = false;
 
-			this.acceptContracts = this.hostConfig.acceptingcontracts;
-
-			this.currentConfig = {
-				contractPrice: formatPriceString(this.hostConfig.mincontractprice, 2),
-				storagePrice: formatPriceString(this.hostConfig.minstorageprice.times(byteFactor).times(4320), 2),
-				downloadPrice: formatPriceString(this.hostConfig.mindownloadbandwidthprice.times(byteFactor), 2),
-				uploadPrice: formatPriceString(this.hostConfig.minuploadbandwidthprice.times(byteFactor), 2),
-				collateralBudget: formatPriceString(this.hostConfig.collateralbudget, 2),
-				baseRPCPrice: formatPriceString(this.hostConfig.minbaserpcprice, 2),
-				sectorAccessPrice: formatPriceString(this.hostConfig.minsectoraccessprice, 2),
-				maxCollateral: formatPriceString(this.hostConfig.maxcollateral, 2),
-				collateral: formatPriceString(this.hostConfig.collateral.times(byteFactor).times(4320), 2),
-				maxDuration: formatBlockTimeString(this.hostConfig.maxduration),
-				windowSize: formatBlockTimeString(this.hostConfig.windowsize),
-				maxDownloadSize: formatByteString(this.hostConfig.maxdownloadbatchsize, 2),
-				maxReviseSize: formatByteString(this.hostConfig.maxrevisebatchsize, 2)
-			};
+				this.config[key] = this.convertRawValue(value, key).toFixed(0).toString(10);
+				this.changed = true;
+			} catch (ex) {
+				console.error(`Config.onChangePrice (${key})`, ex);
+			}
+		},
+		onChangeValue(key, value) {
+			try {
+				this.config[key] = value;
+				this.changed = true;
+			} catch (ex) {
+				console.error(`Config.onChangeSize (${key})`, ex);
+			}
 		},
 		async onClickUpdate() {
 			if (this.updating)
@@ -280,11 +234,14 @@ export default {
 			try {
 				this.updating = true;
 
-				const client = new SiaApiClient(this.appConfig);
+				const client = new SiaApiClient(this.appConfig),
+					configPins = { ...this.appConfig.host_pricing_pins };
 
-				await client.updateHost(this.config);
-
-				const configPins = { ...this.appConfig.host_pricing_pins };
+				await client.updateHost({
+					...this.config,
+					windowsize: 144,
+					maxcollateral: this.convertRawValue(this.collateral, 'collateral').times(4).toFixed(0).toString(10)
+				});
 
 				for (let pin in this.pinned) {
 					if (!pin)
@@ -303,6 +260,7 @@ export default {
 				await refreshHostConfig();
 				this.updateConfig();
 				await writeConfig(this.appConfig);
+				this.config = {};
 
 				this.pushNotification({
 					message: 'Host Configuration Updated',
@@ -319,106 +277,11 @@ export default {
 				this.updating = false;
 				this.changed = false;
 			}
-		},
-		onChangePrice(obj) {
-			const { key, value, pinned } = obj;
-
-			try {
-				const val = parseCurrencyString(value);
-				let pin = null;
-
-				this.config[key] = val.toFixed(0).toString(10);
-
-				if (pinned) {
-					pin = {
-						currency: this.appConfig.currency,
-						value: value
-					};
-				}
-
-				this.changed = true;
-				this.$set(this.pinned, key, pin);
-				this.$set(this.errors, key, null);
-			} catch (ex) {
-				this.$set(this.errors, key, ex.message);
-			}
-		},
-		onChangeMonthlyPrice(obj) {
-			const { key, value, pinned } = obj;
-
-			try {
-				const val = parseCurrencyString(value),
-					byteFactor = this.appConfig.data_unit === 'decimal' ? 1e12 : 1099511627776;
-				let pin = null;
-
-				this.config[key] = val.div(byteFactor).div(4320).toFixed(0).toString(10);
-
-				if (pinned) {
-					pin = {
-						currency: this.appConfig.currency,
-						value: value
-					};
-				}
-
-				this.changed = true;
-				this.$set(this.pinned, key, pin);
-				this.$set(this.errors, key, null);
-			} catch (ex) {
-				this.$set(this.errors, key, ex.message);
-			}
-		},
-		onChangeDataPrice(obj) {
-			const { key, value, pinned } = obj;
-
-			try {
-				const val = parseCurrencyString(value),
-					byteFactor = this.appConfig.data_unit === 'decimal' ? 1e12 : 1099511627776;
-				let pin = null;
-
-				this.config[key] = val.div(byteFactor).toFixed(0).toString(10);
-
-				if (pinned) {
-					pin = {
-						currency: this.appConfig.currency,
-						value: value
-					};
-				}
-
-				this.changed = true;
-				this.$set(this.pinned, key, pin);
-				this.$set(this.errors, key, null);
-			} catch (ex) {
-				this.$set(this.errors, key, ex.message);
-			}
-		},
-		onChangeTime(obj) {
-			const { key, value } = obj;
-
-			try {
-				this.config[key] = parseBlockTimeString(value);
-				this.$set(this.errors, key, null);
-
-				this.changed = true;
-			} catch (ex) {
-				this.$set(this.errors, key, ex.message);
-			}
-		},
-		onChangeBytes(obj) {
-			const { key, value } = obj;
-
-			try {
-				this.config[key] = parseByteString(value).toString(10);
-				this.$set(this.errors, key, null);
-
-				this.changed = true;
-			} catch (ex) {
-				this.$set(this.errors, key, ex.message);
-			}
 		}
 	},
 	watch: {
-		acceptContracts(value, oldvalue) {
-			if (value === oldvalue)
+		acceptContracts(value) {
+			if (this.hostConfig.acceptingcontracts === value)
 				return;
 
 			this.config['acceptingcontracts'] = value;
@@ -431,27 +294,8 @@ export default {
 <style lang="stylus" scoped>
 .page-config {
 	display: grid;
-	grid-template-rows: repeat(2, auto) minmax(0, 1fr) auto;
-}
-
-.host-config-header {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    grid-gap: 30px;
-    padding: 15px 30px 5px;
-    text-align: right;
-    color: rgba(255, 255, 255,0.54);
-}
-
-.config-header {
-    margin-bottom: 15px;
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.54);
-    margin-top: 45px;
-
-    &:first-of-type {
-        margin-top: 0;
-    }
+	grid-template-rows: auto minmax(0, 1fr) auto;
+	overflow: hidden;
 }
 
 .controls {
@@ -469,9 +313,37 @@ export default {
 }
 
 .host-config {
+	display: grid;
+	grid-template-columns: repeat(1, minmax(0, 1fr));
+	grid-gap: 15px;
+	padding: 15px;
 	width: 100%;
 	height: 100%;
-	padding: 15px;
 	overflow-y: auto;
+
+	@media screen and (min-width: 1000px) {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	@media screen and (min-width: 1500px) {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+.config-header {
+    font-size: 1rem;
+	background: bg-dark;
+    color: rgba(255, 255, 255, 0.54);
+	grid-column: 1 / -1;
+	z-index: 1;
+
+    &:first-of-type {
+        margin-top: 0;
+    }
+}
+
+.suggestion {
+	color: primary;
+	font-size: 0.9em;
 }
 </style>

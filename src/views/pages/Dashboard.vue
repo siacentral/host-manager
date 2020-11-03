@@ -3,10 +3,20 @@
 		<div class="storage-usage">
 			<icon icon="hdd" />
 			<div class="usage-wrapper">
+				<div class="usage-title">Storage Usage</div>
 				<div class="usage-bar"><div class="bar" :style="storagePct" /></div>
 				<div class="usage-label">{{ formatByteString(usedStorage, 2) }} / {{ formatByteString(totalStorage, 2) }}</div>
 			</div>
 		</div>
+		<div class="registry-usage" v-if="totalRegKeys !== 0">
+			<icon icon="database" />
+			<div class="usage-wrapper">
+				<div class="usage-title">Skynet Registry Usage</div>
+				<div class="usage-bar"><div class="bar" :style="registryPct" /></div>
+				<div class="usage-label">{{ formatNumber(totalRegKeys - remainingRegKeys, 0) }} / {{ formatNumber(totalRegKeys, 0) }}</div>
+			</div>
+		</div>
+		<div v-else />
 		<revenue-chart class="chart" :snapshots="snapshots" />
 		<contract-chart class="chart" :snapshots="snapshots" />
 		<div class="display-grid">
@@ -66,6 +76,8 @@ export default {
 		...mapGetters('hostContracts', ['snapshots']),
 		...mapState({
 			config: state => state.config,
+			remainingRegKeys: state => state.hostConfig.pricetable.registryentriesleft,
+			totalRegKeys: state => state.hostConfig.pricetable.registryentriestotal,
 			contractStats: state => state.hostContracts.stats,
 			totalStorage: state => state.hostStorage.totalStorage,
 			usedStorage: state => state.hostStorage.usedStorage
@@ -73,6 +85,16 @@ export default {
 		storagePct() {
 			return {
 				width: `${(this.usedStorage / this.totalStorage) * 100}%`
+			};
+		},
+		registryPct() {
+			const used = this.totalRegKeys - this.remainingRegKeys;
+
+			if (typeof this.totalRegKeys !== 'number' || this.totalRegKeys === 0)
+				return {};
+
+			return {
+				width: `${Math.ceil((used / this.totalRegKeys) * 100)}%`
 			};
 		}
 	},
@@ -89,7 +111,7 @@ export default {
 	display: grid;
 	width: 100%;
 	height: 100%;
-	grid-template-rows: auto repeat(2, 1fr) auto;
+	grid-template-rows: repeat(2, auto) repeat(2, 1fr) auto;
 	grid-gap: 15px;
 	padding: 15px;
 	overflow: hidden;
@@ -113,19 +135,32 @@ export default {
 	}
 }
 
-.storage-usage {
+.storage-usage, .registry-usage {
     display: grid;
     grid-gap: 15px;
     padding: 15px;
     background: bg-dark-accent;
     border-radius: 8px;
-    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-columns: 48px minmax(0, 1fr);
     align-items: center;
 
 	svg {
-		width: 32px;
+		width: 24px;
 		height: auto;
 		margin: 0 auto;
+		color: rgba(255, 255, 255, 0.84);
+	}
+
+	&.registry-usage svg {
+		height: 24px;
+		width: auto;
+	}
+
+	.usage-title {
+		color: rgba(255, 255, 255, 0.54);
+		font-size: 0.8rem;
+		margin-bottom: 5px;
+		text-align: center;
 	}
 
 	.usage-bar {
