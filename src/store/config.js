@@ -2,6 +2,7 @@ export default {
 	namespaced: true,
 	state: {
 		config: {},
+		pricetable: {},
 		alerts: [],
 		newAlertsCount: 0
 	},
@@ -20,6 +21,9 @@ export default {
 		},
 		setConfig(state, config) {
 			state.config = config;
+		},
+		setPriceTable(state, pt) {
+			state.pricetable = pt;
 		}
 	},
 	actions: {
@@ -28,6 +32,9 @@ export default {
 		},
 		setConfig(context, config) {
 			context.commit('setConfig', config);
+		},
+		setPriceTable(context, pt) {
+			context.commit('setPriceTable', pt);
 		}
 	}
 };

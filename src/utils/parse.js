@@ -41,3 +41,22 @@ export function parseCurrencyString(str, rate, precision = new BigNumber(1e24)) 
 
 	return parseSiacoinString(str);
 }
+
+const decimalUnits = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB'].map(u => u.toLowerCase()),
+	binaryUnits = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB'].map(u => u.toLowerCase());
+
+export function parseByteString(str) {
+	const unit = str.replace(/[^a-z]/gi, '').toLowerCase(),
+		num = parseNumberString(str).toString(10);
+	let n = binaryUnits.indexOf(unit);
+
+	if (n !== -1)
+		return num * Math.pow(1024, n);
+
+	n = decimalUnits.indexOf(unit);
+
+	if (n !== -1)
+		return num * Math.pow(1000, n);
+
+	return num;
+}

@@ -47,8 +47,11 @@ export async function refreshHostConfig() {
 			maxcollateral: new BigNumber(host.internalsettings.maxcollateral),
 			collateralbudget: new BigNumber(host.internalsettings.collateralbudget),
 			minbaserpcprice: new BigNumber(host.internalsettings.minbaserpcprice),
-			minsectoraccessprice: new BigNumber(host.internalsettings.minsectoraccessprice)
+			minsectoraccessprice: new BigNumber(host.internalsettings.minsectoraccessprice),
+			registrysize: new BigNumber(host.internalsettings.registrysize),
+			customregistrypath: host.internalsettings.customregistrypath
 		});
+		Store.dispatch('hostConfig/setPriceTable', host.pricetable);
 	} catch (ex) {
 		log.error('refreshHostConfig', ex.message);
 	}
