@@ -7,7 +7,6 @@
 					<div class="control">
 						<label>Currency</label>
 						<select v-model="currency">
-							<option value="siacoin">Siacoin</option>
 							<optgroup label="Fiat">
 								<option value="usd">USD</option>
 								<option value="jpy">JPY</option>
@@ -126,7 +125,7 @@ export default {
 	},
 	data() {
 		return {
-			currency: 'siacoin',
+			currency: 'usd',
 			dataUnit: 'decimal',
 			apiAddr: '',
 			apiAgent: '',
@@ -179,7 +178,7 @@ export default {
 			this.valid = !hasErrors;
 		},
 		updateConfig() {
-			this.currency = this.config.currency || 'siacoin';
+			this.currency = this.config.currency || 'usd';
 			this.dataUnit = this.config.data_unit || 'decimal';
 			this.apiAddr = this.config.siad_api_addr;
 			this.apiAgent = this.config.siad_api_agent;
