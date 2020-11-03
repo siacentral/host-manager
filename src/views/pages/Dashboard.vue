@@ -34,27 +34,27 @@
 			</div>
 			<div class="grid-item">
 				<div class="item-title">Potential Revenue</div>
-				<div class="item-value">{{ formatPriceString(contractStats.potentialRevenue, 4) }}</div>
+				<div class="item-value" v-html="formatCurrencyDisplay(contractStats.potentialRevenue)" />
 			</div>
 			<div class="grid-item">
 				<div class="item-title">Earned Revenue</div>
-				<div class="item-value">{{ formatPriceString(contractStats.earnedRevenue, 4) }}</div>
+				<div class="item-value" v-html="formatCurrencyDisplay(contractStats.earnedRevenue)" />
 			</div>
 			<div class="grid-item">
 				<div class="item-title">Lost Revenue</div>
-				<div class="item-value">{{ formatPriceString(contractStats.lostRevenue, 4) }}</div>
+				<div class="item-value" v-html="formatCurrencyDisplay(contractStats.lostRevenue)" />
 			</div>
 			<div class="grid-item">
 				<div class="item-title">Locked Collateral</div>
-				<div class="item-value">{{ formatPriceString(contractStats.lockedCollateral, 4) }}</div>
+				<div class="item-value" v-html="formatCurrencyDisplay(contractStats.lockedCollateral)" />
 			</div>
 			<div class="grid-item">
 				<div class="item-title">Risked Collateral</div>
-				<div class="item-value">{{ formatPriceString(contractStats.riskedCollateral, 4) }}</div>
+				<div class="item-value" v-html="formatCurrencyDisplay(contractStats.riskedCollateral)" />
 			</div>
 			<div class="grid-item">
 				<div class="item-title">Burnt Collateral</div>
-				<div class="item-value">{{ formatPriceString(contractStats.burntCollateral, 4) }}</div>
+				<div class="item-value" v-html="formatCurrencyDisplay(contractStats.burntCollateral)" />
 			</div>
 		</div>
 	</div>
@@ -65,7 +65,8 @@ import ContractChart from '@/components/charts/ContractChart';
 import RevenueChart from '@/components/charts/RevenueChart';
 
 import { mapState, mapGetters } from 'vuex';
-import { formatPriceString, formatByteString, formatNumber } from '@/utils/formatLegacy';
+import { formatByteString, formatNumber } from '@/utils/formatLegacy';
+import { formatPriceString } from '@/utils/format';
 
 export default {
 	components: {
@@ -76,6 +77,8 @@ export default {
 		...mapGetters('hostContracts', ['snapshots']),
 		...mapState({
 			config: state => state.config,
+			currency: state => state.config.currency,
+			coinPrice: state => state.coinPrice,
 			remainingRegKeys: state => state.hostConfig.pricetable.registryentriesleft,
 			totalRegKeys: state => state.hostConfig.pricetable.registryentriestotal,
 			contractStats: state => state.hostContracts.stats,
@@ -99,9 +102,14 @@ export default {
 		}
 	},
 	methods: {
-		formatPriceString,
 		formatByteString,
-		formatNumber
+		formatNumber,
+		formatCurrencyDisplay(value) {
+			const sc = formatPriceString(value, 2, 'sc', 1),
+				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]);
+
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
+		}
 	}
 };
 </script>
@@ -124,6 +132,10 @@ export default {
 .display-grid {
 	padding: 15px;
 	grid-area: auto / 1 / auto / span -1;
+
+	.item-value {
+		font-size: 1.2rem;
+	}
 }
 
 .wallet-controls {
