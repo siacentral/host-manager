@@ -48,7 +48,7 @@
 				<template slot="description">The maximum size of a download request. Larger batch size means better performance, but higher risk of losing money when downloading data.</template>
 			</size-item>
 			<size-item :value="reviseBatchSize" :average="averageSettings.max_revise_batch_size" @change="onChangeValue('maxrevisebatchsize', $event)">
-				<template slot="title">Download Batch Size</template>
+				<template slot="title">Revise Batch Size</template>
 				<template slot="description">The maximum size of an upload request. Larger batch size means better performance, but higher risk of losing money when uploading data.</template>
 			</size-item>
 			<div class="config-header">Skynet</div>
