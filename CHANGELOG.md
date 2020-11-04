@@ -1,10 +1,11 @@
 ## November 2020
 
-### v1.0.25
+### v1.0.26
 
 ### Bug Fixes
 
 + Fixed setting custom registry path
++ Fixed unpinned prices updating
 
 ### v1.0.24
 
