@@ -6,6 +6,7 @@
 
 + Fixed setting custom registry path
 + Fixed unpinned prices updating
++ Fix filter panel showing under table headers
 
 ### v1.0.24
 
