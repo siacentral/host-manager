@@ -64,10 +64,12 @@ export default {
 		},
 		onFormatValues() {
 			try {
-				const siacoins = formatPriceString(this.amount, 2);
+				const siacoins = formatPriceString(this.amount, 2),
+					display = this.formatCurrencyString(this.amount);
 
-				this.$refs.txtCurrency.value = this.formatCurrencyString(this.amount);
+				this.$refs.txtCurrency.value = display;
 				this.$refs.txtSiacoin.value = siacoins.value;
+				this.$emit('update', { amount: this.amount, fiat: display });
 			} catch (ex) {
 				console.error('CurrencyInput.onFormatValues');
 			}

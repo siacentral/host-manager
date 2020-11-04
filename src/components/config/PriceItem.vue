@@ -61,7 +61,7 @@ export default {
 		return {
 			pricePinned: false,
 			price: new BigNumber(0),
-			fiatPrice: new BigNumber(0)
+			fiatPrice: '$0.00'
 		};
 	},
 	methods: {

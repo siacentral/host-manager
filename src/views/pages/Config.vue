@@ -223,6 +223,7 @@ export default {
 		onChangePrice(key, { value, fiat, pinned }) {
 			try {
 				if (pinned) {
+					console.log(key, fiat.toString(10));
 					this.pinned[key] = {
 						currency: this.appConfig.currency,
 						value: fiat
