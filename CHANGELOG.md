@@ -1,5 +1,15 @@
 ## November 2020
 
+### v1.0.27
+
+### Changes
+
++ Update to Sia v1.5.2
+
+### Bug Fixes
+
++ Fixed mislabeled Revise Batch Size field on host config page
+
 ### v1.0.26
 
 ### Bug Fixes
