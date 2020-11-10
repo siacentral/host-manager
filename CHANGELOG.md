@@ -1,5 +1,11 @@
 ## November 2020
 
+### v1.0.28
+
+### Changes
+
++ Update to Sia v1.5.3
+
 ### v1.0.27
 
 ### Changes
