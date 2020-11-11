@@ -97,7 +97,7 @@ const store = new Vuex.Store({
 			state.netAddress = netaddress;
 		},
 		setConfig(state, value) {
-			if (value.currency === 'siacoin')
+			if (typeof value.currency !== 'string' || value.currency === 'siacoin')
 				value.currency = 'usd';
 
 			state.config = { ...state.config, ...value, dark_mode: true };
