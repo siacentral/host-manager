@@ -57,9 +57,13 @@ export async function refreshDaemonVersion() {
 export async function refreshLastBlock() {
 	try {
 		const alerts = [],
-			lastSyncedBlock = (await apiClient.getConsensus()).height,
-			remoteBlock = await getBlock(lastSyncedBlock),
-			localBlock = await apiClient.getBlock(lastSyncedBlock);
+			lastSyncedBlock = (await apiClient.getConsensus()).height;
+
+		if (lastSyncedBlock <= 6)
+			return;
+
+		const remoteBlock = await getBlock(lastSyncedBlock - 6),
+			localBlock = await apiClient.getBlock(lastSyncedBlock - 6);
 
 		finalBlock = remoteBlock.height;
 
