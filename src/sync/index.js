@@ -42,7 +42,7 @@ async function shortRefresh() {
 
 		clearTimeout(shortTimeout);
 
-		await Promise.all([
+		await Promise.allSettled([
 			refreshDaemonVersion(),
 			refreshBlockHeight(),
 			refreshHostWallet(),
@@ -65,7 +65,7 @@ async function longRefresh() {
 
 		clearTimeout(longTimeout);
 
-		await Promise.all([
+		await Promise.allSettled([
 			refreshLastBlock(),
 			refreshHostConfig(),
 			refreshHostContracts()
