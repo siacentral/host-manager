@@ -42,10 +42,13 @@ export default {
 		};
 	},
 	methods: {
-		onSearchFile() {
-			const paths = dialog.showOpenDialog({ title: 'Locate Your Sia Data Path', buttonLabel: 'Select', properties: ['openDirectory'] });
+		async onSearchFile() {
+			const fp = await dialog.showOpenDialog({ title: 'Locate Your Sia Data Path', buttonLabel: 'Select', properties: ['openDirectory'] });
 
-			this.consensusLocation = paths ? paths[0] : null;
+			if (!fp || !Array.isArray(fp.filePaths) || fp.filePaths.length === 0)
+				return;
+
+			this.consensusLocation = fp.filePaths[0];
 		},
 		async onNext(n) {
 			if (this.setting)
