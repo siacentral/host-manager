@@ -1,3 +1,14 @@
+## December 2020
+
+### v1.0.29
+
+### Bug Fixes
+
++ Fixed issue where users were not being asked to import data path from Sia-UI
++ Fixed issue where users were not able to select a folder from the dialog
++ Fixed issues with setup when siad is inaccessible
++ Fixed issue where display currency was defaulting to sc
+
 ## November 2020
 
 ### v1.0.28
