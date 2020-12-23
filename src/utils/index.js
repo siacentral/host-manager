@@ -17,13 +17,30 @@ export function getUserDataPath(subdir) {
 }
 
 export async function readSiaUIConfig() {
-	const configPath = path.join(getUserDataPath('Sia-UI'), 'sia', 'config.json'),
-		config = JSON.parse(decode(await fs.readFile(configPath)));
-
-	return {
-		'siad_data_path': config.siad.datadir,
+	const siaUIDataPath = path.join(getUserDataPath('Sia-UI'), 'sia');
+	let config = {
 		'dark_mode': true // config.darkMode
 	};
+
+	try {
+		const consensusFolder = await fs.stat(path.join(siaUIDataPath, 'consensus'));
+
+		if (consensusFolder && consensusFolder.isDirectory())
+			config.siad_data_path = siaUIDataPath;
+	} catch (ex) {
+		console.log('unable to stat sia data folder', ex);
+	}
+
+	try {
+		const { siad } = JSON.parse(decode(await fs.readFile(path.join(siaUIDataPath, 'config.json'))));
+
+		if (typeof siad.datadir === 'string' && siad.datadir.length !== 0)
+			config.siad_data_path = siad.datadir;
+	} catch (ex) {
+		console.log('unable to decode Sia-UI config json', ex);
+	}
+
+	return config;
 }
 
 export async function mkdirIfNotExist(path) {
