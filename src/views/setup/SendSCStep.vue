@@ -59,13 +59,23 @@ export default {
 			return formatSiacoinString(this.minAmountSC, 2);
 		},
 		syncedHeight() {
-			return formatNumber(this.block.height);
+			let height = 0;
+
+			if (this.block && this.block.height)
+				height = this.block.height;
+
+			return formatNumber(height);
 		},
 		targetHeight() {
-			return formatNumber(this.block.target);
+			let height = 1;
+
+			if (this.block && this.block.target)
+				height = this.block.target;
+
+			return formatNumber(height);
 		},
 		syncPercent() {
-			return `${formatNumber(Math.ceil(this.block.height / this.block.target) * 100, 0)}%`;
+			return `${formatNumber(Math.ceil(this.syncedHeight / this.targetHeight) * 100, 0)}%`;
 		}
 	},
 	methods: {
