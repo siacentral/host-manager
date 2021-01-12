@@ -1,3 +1,9 @@
+## January 2021
+
+### Changes
+
++ Update to Sia v1.5.4
+
 ## December 2020
 
 ### v1.0.29
