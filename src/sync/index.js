@@ -128,7 +128,7 @@ async function updatePinnedPricing() {
 					continue;
 
 				if (pin === 'collateral') {
-					newConfig['maxcollateral'] = value.times(1e12).times(4320).times(4).toFixed(0);
+					newConfig['maxcollateral'] = value.times(1e12).times(4).times(4320).times(6).toFixed(0);
 					log.debug('maxcollateral', newConfig['maxcollateral']);
 				}
 
