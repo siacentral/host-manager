@@ -97,10 +97,11 @@ const store = new Vuex.Store({
 			state.netAddress = netaddress;
 		},
 		setConfig(state, value) {
-			if (typeof value.currency !== 'string' || value.currency === 'siacoin')
-				value.currency = 'usd';
-
 			state.config = { ...state.config, ...value, dark_mode: true };
+
+			// we now display both fiat and SC on the same page so currency should not be set to SC
+			if (typeof state.currency !== 'string' || state.currency === 'siacoin')
+				state.currency = 'usd';
 		},
 		setCoinPrice(state, price) {
 			state.coinPrice = price;
