@@ -1,4 +1,18 @@
+## February 2021
+
+### v1.0.31
+
+### Changes
+
++ Update to Sia v1.5.5
+
+### Bug Fixes
+
++ Fixed issue with display currency being overridden to USD
+
 ## January 2021
+
+### v1.0.30
 
 ### Changes
 

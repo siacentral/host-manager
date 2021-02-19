@@ -19,17 +19,9 @@ export function getUserDataPath(subdir) {
 export async function readSiaUIConfig() {
 	const siaUIDataPath = path.join(getUserDataPath('Sia-UI'), 'sia');
 	let config = {
-		'dark_mode': true // config.darkMode
+		'dark_mode': true,
+		'siad_data_path': siaUIDataPath
 	};
-
-	try {
-		const consensusFolder = await fs.stat(path.join(siaUIDataPath, 'consensus'));
-
-		if (consensusFolder && consensusFolder.isDirectory())
-			config.siad_data_path = siaUIDataPath;
-	} catch (ex) {
-		console.log('unable to stat sia data folder', ex);
-	}
 
 	try {
 		const { siad } = JSON.parse(decode(await fs.readFile(path.join(siaUIDataPath, 'config.json'))));
@@ -39,6 +31,8 @@ export async function readSiaUIConfig() {
 	} catch (ex) {
 		console.log('unable to decode Sia-UI config json', ex);
 	}
+
+	console.log(config);
 
 	return config;
 }
