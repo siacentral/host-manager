@@ -4,14 +4,13 @@
 			<div class="setup-icon">
 				<SiaCentralSia />
 			</div>
-			<h3>Would you like to import your configuration?</h3>
-			<p>It looks like you already have Sia-UI. Would you like to import your configuration?
-				This will save you a little time with the initial setup.</p>
+			<h3>Would you like to link Host Manager to Sia-UI?</h3>
+			<p>This ensures that Sia-UI and Host Manager will share the same Sia wallet.</p>
 		</template>
 
 		<template v-slot:controls>
 			<button class="btn btn-inline" @click="onNext(false)">No Thanks</button>
-			<button class="btn btn-success btn-inline" @click="onNext(true)">Import</button>
+			<button class="btn btn-success btn-inline" @click="onNext(true)">Link</button>
 		</template>
 	</setup-step>
 </template>
