@@ -1,5 +1,13 @@
 ## February 2021
 
+### v1.0.32
+
+### Bug Fixes
+
++ Set default display currency to USD
++ Remove Transak integration
++ Fix max collateral calculation for unpinned settings
+
 ### v1.0.31
 
 ### Changes
