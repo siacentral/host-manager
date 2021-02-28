@@ -255,7 +255,7 @@ export default {
 				await client.updateHost({
 					...this.config,
 					windowsize: 144,
-					maxcollateral: this.collateral.times(4).toFixed(0).toString(10)
+					maxcollateral: this.collateral.times(this.maxDuration / 4320).times(4).toFixed(0)
 				});
 
 				for (let pin in this.pinned) {
