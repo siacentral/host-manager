@@ -11,7 +11,7 @@ module.exports = function notarizing(context) {
 	return notarize({
 		appBundleId: 'com.siacentral.desktop',
 		appPath: `${appOutDir}/${appName}.app`,
-		appleId: process.env.APPLE_ID,
-		appleIdPassword: `@keychain:Application Loader: ${process.env.APPLE_ID}`
+		appleApiKey: process.env.APPLE_API_KEY,
+		appleApiIssuer: process.env.APPLE_API_ISSUER
 	});
 };
