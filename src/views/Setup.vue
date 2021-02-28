@@ -44,7 +44,8 @@ export default {
 			createWallet: false,
 			skipImport: true,
 			config: {
-				dark_mode: true
+				dark_mode: true,
+				currency: 'usd'
 			},
 			imported: null
 		};
