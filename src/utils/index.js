@@ -32,8 +32,6 @@ export async function readSiaUIConfig() {
 		console.log('unable to decode Sia-UI config json', ex);
 	}
 
-	console.log(config);
-
 	return config;
 }
 
