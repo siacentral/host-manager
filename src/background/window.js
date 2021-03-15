@@ -3,16 +3,36 @@ import log from 'electron-log';
 import { app, BrowserWindow, shell } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { shutdown } from './tray';
+import { readWinConfigSync, writeWinConfigSync } from './utils';
 
 export var mainWindow;
 
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 app.commandLine.appendSwitch('js-flags', '--expose_gc --max-old-space-size=1024');
 
-async function createWindow() {
+function validNumber(n, def) {
+	n = parseInt(n, 10);
+
+	if (!n || isNaN(n) || !isFinite(n))
+		return def;
+
+	return n;
+}
+
+function createWindow() {
+	const windowState = readWinConfigSync(),
+		width = validNumber(windowState.width, 1000),
+		height = validNumber(windowState.height, 800),
+		x = validNumber(windowState.x, null),
+		y = validNumber(windowState.y, null);
+
+	log.info(width, height, x, y);
+
 	const opts = {
-		width: 1000,
-		height: 800,
+		width,
+		height,
+		x,
+		y,
 		minWidth: 800,
 		minHeight: 600,
 		title: 'Sia Host Manager',
@@ -68,6 +88,8 @@ async function createWindow() {
 
 	mainWindow.on('close', (e) => {
 		try {
+			writeWinConfigSync(mainWindow.getBounds());
+
 			if (shutdown) {
 				mainWindow = null;
 				return;
