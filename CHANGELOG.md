@@ -1,6 +1,19 @@
-## February 2021
+# March 2021
 
-### v1.0.32
+## v1.0.33
+
+### Bug Fixes
+
++ Fixed icons on macOS
+
+### Changes
+
++ Window state will now be stored/loaded when opening Host Manager
++ Patches Sia v1.5.5 to fix gateway using excessive bandwidth. For more information see: [Sia MR#5144](https://gitlab.com/NebulousLabs/Sia/-/merge_requests/5144)
+
+# February 2021
+
+## v1.0.32
 
 ### Bug Fixes
 
@@ -8,7 +21,7 @@
 + Remove Transak integration
 + Fix max collateral calculation for unpinned settings
 
-### v1.0.31
+## v1.0.31
 
 ### Changes
 
@@ -18,17 +31,17 @@
 
 + Fixed issue with display currency being overridden to USD
 
-## January 2021
+# January 2021
 
-### v1.0.30
+## v1.0.30
 
 ### Changes
 
 + Update to Sia v1.5.4
 
-## December 2020
+# December 2020
 
-### v1.0.29
+## v1.0.29
 
 ### Bug Fixes
 
@@ -37,15 +50,15 @@
 + Fixed issues with setup when siad is inaccessible
 + Fixed issue where display currency was defaulting to sc
 
-## November 2020
+# November 2020
 
-### v1.0.28
+## v1.0.28
 
 ### Changes
 
 + Update to Sia v1.5.3
 
-### v1.0.27
+## v1.0.27
 
 ### Changes
 
@@ -55,7 +68,7 @@
 
 + Fixed mislabeled Revise Batch Size field on host config page
 
-### v1.0.26
+## v1.0.26
 
 ### Bug Fixes
 
@@ -63,7 +76,7 @@
 + Fixed unpinned prices updating
 + Fix filter panel showing under table headers
 
-### v1.0.24
+## v1.0.24
 
 ### Bug Fixes
 
@@ -77,9 +90,9 @@
 + Use currency input on configuration page
 + Show skynet registry data on dashboard
 
-## September 2020
+# September 2020
 
-### v1.0.23
+## v1.0.23
 
 ### Bug Fixes
 
@@ -91,16 +104,16 @@
 + Added donation modal
 + Move "Receive Siacoin" modal to primary navigation
 
-## August 2020
+# August 2020
 
-### v1.0.22
+## v1.0.22
 
 ### Bug Fixes
 
 + Fixed earned revenue and lost revenue calculations
 + Fix display issue for negative values
 
-### v1.0.21
+## v1.0.21
 
 ### Changes
 
@@ -111,18 +124,18 @@
 
 + Fix memory leak on large hosts
 
-## July 2020
+# July 2020
 
-### v1.0.20
+## v1.0.20
 
 ### Bug Fixes
 
 + Fixed issues from Electron 9 upgrade
 + Fixed contract export button
 
-## June 2020
+# June 2020
 
-### v1.0.19
+## v1.0.19
 
 ### Changes
 
@@ -134,33 +147,33 @@
 
 + Fixed issue with connecting to the Sia Central API with certain Linux distributions
 
-### v1.0.18
+## v1.0.18
 
 ### Changes
 
 + Updated Sia to v1.4.11
 
-### v1.0.17
+## v1.0.17
 
 ### Changes
 
 + Updated Sia to v1.4.10
 
-## May 2020
+# May 2020
 
-### v1.0.16
+## v1.0.16
 
 ### Changes
 
 + Added SiaMux port config option
 
-### v1.0.15
+## v1.0.15
 
 ### Bug Fixes
 
 + Fix issues with contract filtering
 
-### v1.0.14
+## v1.0.14
 
 ### Changes
 
@@ -171,15 +184,15 @@
 + Fixed issue with unit conversion when using binary units
 + Fixed issue with close icon on filter panel being covered on windows
 
-## April 2020
+# April 2020
 
-### v1.0.13
+## v1.0.13
 
 ### Changes
 
 + Added 24 hour delay between pinned price updates due to a bug in Sia causing renters to not renew contracts when the host's pricing has changed. https://gitlab.com/NebulousLabs/Sia/-/merge_requests/4326
 
-### v1.0.12
+## v1.0.12
 
 ### Bug Fixes
 
@@ -190,15 +203,15 @@
 + Removed "unused" label from contracts
 + Update bundled Sia Daemon to v1.4.7
 
-## March 2020
+# March 2020
 
-### v1.0.11
+## v1.0.11
 
 ### Changes
 
 + Update bundled Sia Daemon to v1.4.6
 
-### v1.0.10
+## v1.0.10
 
 ### Bug Fixes
 
@@ -208,24 +221,24 @@
 
 + Update bundled Sia Daemon to v1.4.5
 
-### v1.0.9
+## v1.0.9
 
 ### Changes
 
 + Update bundled Sia Daemon to v1.4.4
 + Allow changing Sia API password from within Host Manager when incorrect
 
-## February 2020
+# February 2020
 
-### v1.0.8
+## v1.0.8
 
 ### Changes
 
 + Update bundled Sia Daemon to v1.4.3
 
-## January 2020
+# January 2020
 
-### v1.0.7
+## v1.0.7
 
 ### Changes
 
@@ -235,9 +248,9 @@
 
 + Fixed issue with automatic bootstrap during setup
 
-## December 2019
+# December 2019
 
-### v1.0.6
+## v1.0.6
 
 #### Features
 
@@ -254,9 +267,9 @@
 + Fixed memory issues with contract parsing. Older and larger hosts should be quicker and more stable.
 + Fixed memory leaks when communicating with the main js process
 
-## October 2019
+# October 2019
 
-### v1.0.5
+## v1.0.5
 
 Some features, bug fixes and more fine tuning!
 
@@ -283,9 +296,9 @@ Some features, bug fixes and more fine tuning!
 + Fixed issue with setup not accepting a blank data path for default location
 + User Agent and API Password settings will now actually work and override the defaults when starting the daemon or accessing the API
 
-## September 2019
+# September 2019
 
-### v1.0.4
+## v1.0.4
 
 Quick bug fix release from issues discovered with v1.0.3
 
@@ -296,7 +309,7 @@ Quick bug fix release from issues discovered with v1.0.3
 + Changing host port or RPC port from the settings modal didn't work
 + Saving settings could trigger Host Manager to start in light mode instead of dark mode which is not complete.
 
-### v1.0.3
+## v1.0.3
 
 Updates Sia to the latest hotfix v1.4.1.2 along with bug fixes, minor improvements, and consensus bootstraping
 
@@ -318,9 +331,9 @@ Updates Sia to the latest hotfix v1.4.1.2 along with bug fixes, minor improvemen
 + Fix issue with "Contract Cost" being `NaN` when revenue is split
 + Fix about modal not scrolling when at smallest screen size
 
-## August 2019
+# August 2019
 
-### v1.0.2
+## v1.0.2
 
 Release to update Sia to latest hotfix
 
@@ -333,7 +346,7 @@ Release to update Sia to latest hotfix
 
 + Fix an issue where exiting Sia-UI would cause Host Manager to lose connection to Sia
 
-### v1.0.1
+## v1.0.1
 
 Small bug fix release with a few additional features. 
 
@@ -351,7 +364,7 @@ Small bug fix release with a few additional features.
 + Replace all branding titles with "Sia Host Manager" instead of "Sia Central"
 + siad will now properly be included on all platforms
 
-### v1.0.0 Initial Release of Sia Central
+## v1.0.0 Initial Release of Sia Central
 
 #### Bug Fixes
 
@@ -362,7 +375,7 @@ Small bug fix release with a few additional features.
 + Fixed the display issues on Linux
 + Fixed issue with clicking Accept Contract not enabling the Update button on the config page
 
-### v0.1.3
+## v0.1.3
 
 Fourth alpha release of Sia Central.
 
@@ -379,9 +392,9 @@ Fourth alpha release of Sia Central.
 + Changed dashboard contract graph to only include used contracts
 + Fixed an issue with the configuration page update button being enabled before any values had changed
 
-## July 2019
+# July 2019
 
-### v0.1.2
+## v0.1.2
 
 Third alpha release of Sia Central Desktop. All functionality implemented
 
@@ -392,7 +405,7 @@ Third alpha release of Sia Central Desktop. All functionality implemented
 + Add automatic wallet unlock
 + Add friendly status `Rejected` for contract status of `obligationRejected`
 
-### v0.1.1
+## v0.1.1
 
 Second alpha release of Sia Central Desktop.
 
@@ -405,7 +418,7 @@ Second alpha release of Sia Central Desktop.
 + Automatically starts Sia Daemon if it's not already running
 + Add additional host information from Sia Central explorer
 
-### v0.1.0
+## v0.1.0
 
 Initial alpha release of Sia Central Desktop. Most of the main features have been completed and tested.
 
