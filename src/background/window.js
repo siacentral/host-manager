@@ -26,8 +26,6 @@ function createWindow() {
 		x = validNumber(windowState.x, null),
 		y = validNumber(windowState.y, null);
 
-	log.info(width, height, x, y);
-
 	const opts = {
 		width,
 		height,
