@@ -1,3 +1,15 @@
+# April 2021
+
+## v1.0.34
+
+### Bug Fixes
+
++ Fix description for upload price
+
+### Changes
+
++ Update siad to v1.5.6
+
 # March 2021
 
 ## v1.0.33
