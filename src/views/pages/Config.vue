@@ -41,7 +41,7 @@
 			<price-item :value="uploadPrice" :average="averageSettings.upload_price.times(1e12)" :pinned="isPinned('minuploadbandwidthprice')" @change="onChangePrice('minuploadbandwidthprice', $event)">
 				<template slot="title">Upload Price</template>
 				<template slot="denomination">per {{ dataUnit }}</template>
-				<template slot="description">The amount of money to download 1 {{ dataUnit }} from the host</template>
+				<template slot="description">The amount of money to upload 1 {{ dataUnit }} to the host</template>
 			</price-item>
 			<size-item :value="downloadBatchSize" :average="averageSettings.max_download_batch_size" @change="onChangeValue('maxdownloadbatchsize', $event)">
 				<template slot="title">Download Batch Size</template>
