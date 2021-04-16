@@ -398,7 +398,6 @@ async function parseHostContracts() {
 	try {
 		const currentBlock = await apiClient.getLastBlock(),
 			alerts = [],
-			invalidStatusMap = {},
 			siaContracts = await apiClient.getHostContracts(),
 			contractMap = {};
 
@@ -420,20 +419,6 @@ async function parseHostContracts() {
 				});
 			}
 
-			if (c.status !== c.sia_status && c.proof_deadline < currentBlock.height) {
-				const key = `${c.status}-${c.sia_status}`;
-
-				if (!invalidStatusMap[key])
-					invalidStatusMap[key] = 0;
-
-				invalidStatusMap[key] += 1;
-
-				c.tags.push({
-					severity: 'warning',
-					text: 'Status Mismatch'
-				});
-			}
-
 			confirmed[i] = c;
 		}
 
@@ -451,30 +436,6 @@ async function parseHostContracts() {
 				category: 'contracts',
 				message: `${prefix} failed resulting in ${formatPriceString(stats.lostRevenue)} lost revenue and ${formatPriceString(stats.burntCollateral)} burnt collateral. Check the contracts page and your logs for more details`,
 				icon: 'file-contract'
-			});
-		}
-
-		for (let key in invalidStatusMap) {
-			const count = invalidStatusMap[key];
-
-			if (isNaN(count) || !isFinite(count) || count <= 0)
-				continue;
-
-			const statuses = key.split('-'),
-				actualStatus = formatFriendlyStatus(statuses[0].trim()),
-				siaStatus = formatFriendlyStatus(statuses[1].trim());
-			let prefix;
-
-			if (count === 1)
-				prefix = `${count} contract is`;
-			else
-				prefix = `${count} contracts are`;
-
-			alerts.push({
-				category: 'contracts',
-				message: `Sia shows ${prefix} ${siaStatus} but should be ${actualStatus}.`,
-				icon: 'file-contract',
-				severity: 'warning'
 			});
 		}
 

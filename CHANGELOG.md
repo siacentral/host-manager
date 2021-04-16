@@ -9,6 +9,7 @@
 ### Changes
 
 + Update siad to v1.5.6
++ Remove contract status warnings
 
 # March 2021
 
