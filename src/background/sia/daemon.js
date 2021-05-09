@@ -11,6 +11,9 @@ function buildArgs(config) {
 	if (typeof config.siad_data_path === 'string' && config.siad_data_path.length > 0)
 		args.push('-d', config.siad_data_path);
 
+	if (typeof config.siad_modules === 'string' && config.siad_modules.length !== 0)
+		args.push('-M', config.siad_modules);
+
 	if (typeof config.siad_api_agent === 'string' && config.siad_api_agent.length > 0)
 		args.push('--agent', config.siad_api_agent);
 
