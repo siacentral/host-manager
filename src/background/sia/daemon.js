@@ -57,6 +57,9 @@ function checkConfig(config) {
 	if (typeof config.siad_data_path !== 'string')
 		throw new Error('siad_data_path is required');
 
+	if (typeof config.siad_modules !== 'string')
+		config.siad_modules = 'gctwhf';
+
 	return config;
 }
 
@@ -135,94 +138,94 @@ export default class SiaDaemon {
 		return waitForExit;
 	}
 
-	start() {
+	async start() {
 		const that = this;
 
-		if (that.running())
+		if (that.running() || (await that.available()))
 			return Promise.reject(new Error('daemon is already running'));
 
-		return that.available()
-			.then(running => {
-				if (running)
-					return Promise.reject(new Error('daemon is already running'));
-			})
-			.then(() => new Promise((resolve, reject) => {
-				try {
-					const opts = {
-						windowsHide: true,
-						env: buildEnv(that._config)
-					};
+		return new Promise((resolve, reject) => {
+			try {
+				const opts = {
+					windowsHide: true,
+					env: buildEnv(that._config)
+				};
 
-					that._start = Date.now();
+				that._start = Date.now();
 
-					if (process.geteuid)
-						opts.uid = process.geteuid();
+				if (process.geteuid)
+					opts.uid = process.geteuid();
 
-					that._proc = spawn(that._config.siad_path, buildArgs(that._config), opts);
+				that._proc = spawn(that._config.siad_path, buildArgs(that._config), opts);
 
-					that._proc.on('error', ex => {
-						try {
-							that._trigger('error', ex.message);
-						} catch (ex) {
-							log.error('daemon.on.error', ex);
+				that._proc.on('error', ex => {
+					try {
+						that._trigger('error', ex.message);
+					} catch (ex) {
+						log.error('daemon.on.error', ex);
+					}
+				});
+
+				that._proc.stdout.on('data', data => {
+					try {
+						that._stdout = that._stdout || '';
+						that._stdout += decode(data);
+
+						const { loaded, total, current } = parseStdOut(that._stdout);
+
+						that._loadedMods = loaded;
+						that._totalMods = total;
+						that._currentMod = current;
+
+						if (!that._loaded)
+							log.info('SIA STDOUT:\n', that._stdout);
+
+						if (that._stdout.indexOf('API is now available') !== -1 && !that._loaded) {
+							that._loaded = true;
+
+							that._trigger('loaded', that.stats());
+
+							log.info('Sia finished loading');
+							resolve();
 						}
-					});
 
-					that._proc.stdout.on('data', data => {
-						try {
-							that._stdout = that._stdout || '';
-							that._stdout += decode(data);
+						that._trigger('stdout', that.stats());
+					} catch (ex) {
+						log.error('daemon.on.stdout', ex);
+					}
+				});
 
-							const { loaded, total, current } = parseStdOut(that._stdout);
+				that._proc.stderr.on('data', data => {
+					try {
+						that._stderr = that._stderr || '';
+						that._stderr += decode(data);
 
-							that._loadedMods = loaded;
-							that._totalMods = total;
-							that._currentMod = current;
+						that._trigger('stderr', that.stats());
+					} catch (ex) {
+						log.error('daemon.on.stderr', ex);
+					}
+				});
 
-							if (that._stdout.indexOf('API is now available') !== -1 && !that._loaded) {
-								that._loaded = true;
+				that._proc.on('close', code => {
+					try {
+						that._trigger('exit', code, that.stats());
 
-								that._trigger('loaded', that.stats());
-								resolve();
-							}
-
-							that._trigger('stdout', that.stats());
-						} catch (ex) {
-							log.error('daemon.on.stdout', ex);
-						}
-					});
-
-					that._proc.stderr.on('data', data => {
-						try {
-							that._stderr = that._stderr || '';
-							that._stderr += decode(data);
-
-							that._trigger('stderr', that.stats());
-						} catch (ex) {
-							log.error('daemon.on.stderr', ex);
-						}
-					});
-
-					that._proc.on('close', code => {
-						try {
-							that._trigger('exit', code, that.stats());
-
-							that._proc = null;
-							that._stdout = null;
-							that._stderr = null;
-							that._start = null;
-							that._loaded = null;
-							that._loadedMods = null;
-							that._totalMods = null;
-							that._currentMod = null;
-						} catch (ex) {
-							log.error('daemon.on.close', ex);
-						}
-					});
-				} catch (ex) {
-					reject(ex);
-				}
-			}));
+						that._proc = null;
+						that._stdout = null;
+						that._stderr = null;
+						that._start = null;
+						that._loaded = null;
+						that._loadedMods = null;
+						that._totalMods = null;
+						that._currentMod = null;
+					} catch (ex) {
+						log.error('daemon.on.close', ex);
+					}
+				});
+			} catch (ex) {
+				reject(ex);
+			}
+		});
 	}
 
 	stats() {
