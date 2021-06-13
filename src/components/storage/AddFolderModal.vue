@@ -99,13 +99,16 @@ export default {
 	},
 	methods: {
 		...mapActions(['pushNotification']),
-		onBrowsePath() {
+		async onBrowsePath() {
 			try {
 				this.errors['path'] = null;
 
-				const paths = dialog.showOpenDialog({ title: 'Path for new Storage Folder', buttonLabel: 'Select', properties: ['openDirectory'] });
+				const fp = await dialog.showOpenDialog({ title: 'Path for new Storage Folder', buttonLabel: 'Select', properties: ['openDirectory'] });
 
-				this.path = paths ? paths[0] : null;
+				if (!fp || !Array.isArray(fp.filePaths) || fp.filePaths.length === 0)
+					return;
+
+				this.path = fp.filePaths[0];
 			} catch (ex) {
 				log.error('add folder browse', ex.message);
 			}
