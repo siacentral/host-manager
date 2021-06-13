@@ -52,18 +52,32 @@ async function loadHostStorage() {
 		failedReads += f.failed_reads;
 		failedWrites += f.failed_writes;
 
-		if (f.failed_reads > 0) {
+		if (f.failed_reads === 9999999999 && f.failed_writes === 9999999999) {
 			storageAlerts.push({
 				category: 'storage',
 				severity: 'danger',
+				icon: 'hdd',
+				message: `'${f.path}' is inaccessible. This can cause data corruption and revenue loss. Check your folder path and permissions.`
+			});
+		} else if (f.failed_reads > 0 && f.failed_writes > 0) {
+			storageAlerts.push({
+				category: 'storage',
+				severity: 'danger',
+				icon: 'hdd',
+				message: `'${f.path}' has read and write errors. This can cause data corruption and revenue loss`
+			});
+		} else if (f.failed_reads > 0) {
+			storageAlerts.push({
+				category: 'storage',
+				severity: 'danger',
+				icon: 'hdd',
 				message: `'${f.path}' has ${f.failed_reads > 1 ? f.failed_reads + ' failed reads' : 'a failed read'}. This can cause data corruption and revenue loss`
 			});
-		}
-
-		if (f.failed_writes > 0) {
+		} else if (f.failed_writes > 0) {
 			storageAlerts.push({
 				category: 'storage',
 				severity: 'danger',
+				icon: 'hdd',
 				message: `'${f.path}' has ${f.failed_writes > 1 ? f.failed_writes + ' failed writes' : 'a failed write'}. This can cause data corruption and revenue loss`
 			});
 		}
