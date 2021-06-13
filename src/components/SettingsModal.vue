@@ -49,6 +49,13 @@
 						</transition>
 					</div>
 					<div class="control">
+						<label>RPC Port</label>
+						<input type="text" v-model="rpcPort" placeholder=":9981" />
+						<transition name="fade" mode="out-in" appear>
+							<label class="error" v-if="errors['rpcPort']">{{ errors['rpcPort'] }}</label>
+						</transition>
+					</div>
+					<div class="control">
 						<label>Host Port</label>
 						<input type="text" v-model="hostPort" placeholder=":9982" />
 						<transition name="fade" mode="out-in" appear>
@@ -63,10 +70,10 @@
 						</transition>
 					</div>
 					<div class="control">
-						<label>RPC Port</label>
-						<input type="text" v-model="rpcPort" placeholder=":9981" />
+						<label>SiaMux WebSocket Port</label>
+						<input type="text" v-model="siaMuxWSPort" placeholder=":9984" />
 						<transition name="fade" mode="out-in" appear>
-							<label class="error" v-if="errors['rpcPort']">{{ errors['rpcPort'] }}</label>
+							<label class="error" v-if="errors['siaMuxWSPort']">{{ errors['siaMuxWSPort'] }}</label>
 						</transition>
 					</div>
 					<div class="control">

@@ -79,7 +79,7 @@ export default {
 					'siad_api_agent': this.userAgent,
 					'siad_host_port': this.hostPort,
 					'siad_siamux_port': this.siaMuxPort,
-					'siad_siamux_wx_port': this.siaMuxWSPort,
+					'siad_siamux_ws_port': this.siaMuxWSPort,
 					'siad_rpc_port': this.rpcPort,
 					'siad_api_addr': this.apiAddr,
 					'siad_api_password': this.apiPassword
