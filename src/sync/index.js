@@ -6,7 +6,7 @@ import { refreshHostStorage } from './storage';
 import { refreshHostWallet } from './wallet';
 import { refreshHostConfig } from './config';
 import { refreshExplorer } from './explorer';
-import { getCoinPrice } from '@/api/siacentral';
+import { getCoinPrice, getBootstrapPeers } from '@/api/siacentral';
 import { parseCurrencyString } from '@/utils/parseLegacy';
 import Store from '@/store';
 import SiaApiClient from '@/api/sia';
@@ -68,7 +68,8 @@ async function longRefresh() {
 		await Promise.allSettled([
 			refreshLastBlock(),
 			refreshHostConfig(),
-			refreshHostContracts()
+			refreshHostContracts(),
+			checkPeers()
 		]);
 
 		// refresh explorer relies on host config call being completed
@@ -166,5 +167,23 @@ async function refreshCoinPrice() {
 		log.error('refreshCoinPrice', ex.message);
 	} finally {
 		priceTimeout = setTimeout(refreshCoinPrice, 1000 * 60 * 15);
+	}
+}
+
+export async function checkPeers() {
+	try {
+		const g = await apiClient.gateway();
+
+		if (Array.isArray(g.peers) && g.peers.length > 1)
+			return;
+
+		const peers = await getBootstrapPeers(),
+			promises = [];
+		for (let i = 0; i < peers.length; i++)
+			promises.push(apiClient.gatewayConnect(peers[i]));
+
+		await Promise.allSettled(promises);
+	} catch (ex) {
+		log.error('checkPeers', ex.message);
 	}
 }

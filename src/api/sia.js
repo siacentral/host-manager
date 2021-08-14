@@ -73,6 +73,47 @@ export default class SiaApiClient {
 		return resp.body;
 	}
 
+	async gateway() {
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/gateway`, {
+				method: 'GET',
+				headers: {
+					'User-Agent': this.config.siad_api_agent
+				},
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
+
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
+	}
+
+	async gatewayConnect(addr) {
+		try {
+			console.log('connecting to', addr);
+			const apiPassword = await this.getDefaultAPIPassword(),
+				resp = await sendJSONRequest(`${this.config.siad_api_addr}/gateway/connect/${encodeURIComponent(addr)}`, {
+					method: 'POST',
+					headers: {
+						'User-Agent': this.config.siad_api_agent
+					},
+					auth: {
+						username: '',
+						password: apiPassword
+					}
+				});
+
+			if (resp.statusCode !== 200)
+				throw new Error(resp.body.message);
+		} catch (ex) {
+			log.error('gatewayConnect', ex.message);
+		}
+	}
+
 	async checkCredentials() {
 		try {
 			// hard coded address doesn't matter since we just want to check the API credentials

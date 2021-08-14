@@ -1,5 +1,7 @@
-export async function sendJSONRequest(url, opts) {
+export async function sendRequest(url, opts = {}) {
 	const headers = new Headers();
+
+	if (!opts) opts = {};
 
 	if (opts.headers) {
 		const keys = Object.keys(headers);
@@ -33,17 +35,21 @@ export async function sendJSONRequest(url, opts) {
 		opts.body = JSON.stringify(opts.body);
 
 	const r = await fetch(url, opts);
+	r.statusCode = r.status;
+	if (r.statusCode >= 200 && r.statusCode < 300)
+		r.statusCode = 200;
 
-	let resp = { statusCode: r.status };
+	return r;
+}
+
+export async function sendJSONRequest(url, opts) {
+	const r = await sendRequest(url, opts);
+
+	let resp = { statusCode: r.statusCode };
 
 	try {
-		const body = await r.json();
-
-		resp = { statusCode: r.status, body: body };
+		resp.body = await r.json();
 	} catch (ex) {}
-
-	if (resp.statusCode >= 200 && resp.statusCode < 300)
-		resp.statusCode = 200;
 
 	return resp;
 }

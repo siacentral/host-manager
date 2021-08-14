@@ -108,3 +108,13 @@ export async function getCoinPrice() {
 
 	return resp.body.rates.sc;
 }
+
+export async function getBootstrapPeers() {
+	const resp = await fetch('https://api.siacentral.com/v2/scanner'),
+		body = await resp.text();
+
+	if (resp.status !== 200)
+		throw new Error(body);
+
+	return body.split('\n').map(p => p.trim());
+}
