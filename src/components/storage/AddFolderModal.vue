@@ -1,5 +1,5 @@
 <template>
-	<modal @close="$emit('close')" title="Add Storage Location">
+	<modal @close="canClose" title="Add Storage Location">
 		<div class="control control-search">
 			<label>Path</label>
 			<input type="text" v-model="path" />
@@ -30,12 +30,12 @@
 					<input type="number" min="1" increment="1" v-model.number="splitCount" />
 					<label class="error" v-if="errors['splitcount']">{{ errors['splitcount'] }}</label>
 				</div>
-				<progress-bar :progress="createdCount / splitCount" v-if="splitFolders && creating" />
+				<progress-bar :progress="(createdCount / splitCount) * 100" v-if="splitFolders && creating" />
 			</div>
 		</transition>
 		<p v-if="valid">{{ creationText }}</p>
 		<div class="controls">
-			<button class="btn btn-default btn-inline" @click="$emit('close')">Cancel</button>
+			<button class="btn btn-default btn-inline" @click="canClose">Cancel</button>
 			<button class="btn btn-success btn-inline" @click="onCreateFolder" :disabled="!valid || creating">Add Folder</button>
 		</div>
 	</modal>
@@ -99,6 +99,12 @@ export default {
 	},
 	methods: {
 		...mapActions(['pushNotification']),
+		canClose() {
+			if (this.creating)
+				return;
+
+			this.$emit('close');
+		},
 		async onBrowsePath() {
 			try {
 				this.errors['path'] = null;
@@ -140,11 +146,6 @@ export default {
 					await this.createFolder(this.path, this.sizeValue);
 
 				await refreshHostStorage();
-
-				this.pushNotification({
-					message: 'Successfully added storage folder',
-					icon: 'hdd'
-				});
 				this.$emit('close');
 			} catch (ex) {
 				log.error('add folder create', ex.message);
@@ -158,14 +159,27 @@ export default {
 			}
 		},
 		async createFolder(path, size) {
-			await mkdirIfNotExist(path);
+			try {
+				await mkdirIfNotExist(path);
 
-			// all folders must be a factor of 64 sectors
-			size = new BigNumber(Math.floor(size.div(sectorSize * granularity).toNumber())).times(sectorSize * granularity);
+				// all folders must be a factor of 64 sectors
+				size = new BigNumber(Math.floor(size.div(sectorSize * granularity).toNumber())).times(sectorSize * granularity);
 
-			const client = new SiaApiClient(this.config);
+				const client = new SiaApiClient(this.config);
 
-			await client.addStorageFolder(path, size);
+				await client.addStorageFolder(path, size);
+				this.pushNotification({
+					message: 'Successfully added storage folder',
+					icon: 'hdd'
+				});
+			} catch (ex) {
+				log.error('createFolder', ex.message);
+				this.pushNotification({
+					message: ex.message,
+					icon: 'hdd',
+					severity: 'danger'
+				});
+			}
 		},
 		validate() {
 			let errors = {};

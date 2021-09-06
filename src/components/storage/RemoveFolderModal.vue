@@ -1,5 +1,5 @@
 <template>
-	<modal @close="$emit('close')" title="Remove Storage Location">
+	<modal @close="canClose" title="Remove Storage Location">
 		<p>Are you sure you want to remove the storage location at <span class="storage-location">{{ folder.path }}</span>?</p>
 		<p>Your host will lose {{ formatByteString(folder.total_capacity, 2) }} of storage. <span v-if="folder.used_capacity > 0">This will attempt
 			to relocate the {{ formatByteString(folder.used_capacity, 2) }} of data stored to a different folder. If there is not enough
@@ -19,7 +19,7 @@
 			This will cause data loss and contract failure for any data that is stored on this
 			folder. Use this as a last resort only.</p>
 		<div class="controls">
-			<button class="btn btn-default btn-inline" @click="$emit('close')">Cancel</button>
+			<button class="btn btn-default btn-inline" @click="canClose">Cancel</button>
 			<button class="btn btn-danger btn-inline" @click="onRemoveFolder" :disabled="validateName !== folder.path || removing">Remove Folder</button>
 		</div>
 	</modal>
@@ -53,6 +53,12 @@ export default {
 	},
 	methods: {
 		...mapActions(['pushNotification']),
+		canClose() {
+			if (this.removing)
+				return;
+
+			this.$emit('close');
+		},
 		formatByteString,
 		async onRemoveFolder() {
 			if (this.removing)

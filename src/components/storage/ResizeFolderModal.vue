@@ -1,5 +1,5 @@
 <template>
-	<modal @close="$emit('close')" title="Resize Storage Location">
+	<modal @close="canClose" title="Resize Storage Location">
 		<div class="control">
 			<label>Path</label>
 			<input type="text" v-model="folder.path" readonly/>
@@ -10,7 +10,7 @@
 			<label class="error" v-if="errors['size']">{{ errors['size'] }}</label>
 		</div>
 		<div class="controls">
-			<button class="btn btn-default btn-inline" @click="$emit('close')">Cancel</button>
+			<button class="btn btn-default btn-inline" @click="canClose">Cancel</button>
 			<button class="btn btn-success btn-inline" @click="onResizeFolder" :disabled="!valid">Resize Folder</button>
 		</div>
 	</modal>
@@ -56,6 +56,12 @@ export default {
 	},
 	methods: {
 		...mapActions(['pushNotification']),
+		canClose() {
+			if (this.resizing)
+				return;
+
+			this.$emit('close');
+		},
 		async onResizeFolder() {
 			if (this.resizing)
 				return;
