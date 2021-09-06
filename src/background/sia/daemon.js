@@ -114,6 +114,17 @@ export default class SiaDaemon {
 		return false;
 	}
 
+	async loaded() {
+		try {
+			const client = new SiaApiClient(this._config);
+			await client.getHost();
+			return true;
+		} catch (ex) {
+			log.warn('SiaDaemon.loaded', ex);
+		}
+		return false;
+	}
+
 	running() {
 		return this._proc && this._proc.pid;
 	}
@@ -158,6 +169,16 @@ export default class SiaDaemon {
 
 				that._proc = spawn(that._config.siad_path, buildArgs(that._config), opts);
 
+				const loadedCheck = setInterval(async() => {
+					this._loaded = await that.loaded();
+					if (this._loaded) {
+						clearInterval(loadedCheck);
+						that._trigger('loaded', that.stats());
+						log.info('Sia API available');
+						resolve();
+					}
+				}, 1000);
+
 				that._proc.on('error', ex => {
 					try {
 						that._trigger('error', ex.message);
@@ -179,15 +200,6 @@ export default class SiaDaemon {
 
 						if (!that._loaded)
 							log.info('SIA STDOUT:\n', that._stdout);
-
-						if (that._stdout.indexOf('API is now available') !== -1 && !that._loaded) {
-							that._loaded = true;
-
-							that._trigger('loaded', that.stats());
-
-							log.info('Sia finished loading');
-							resolve();
-						}
 
 						that._trigger('stdout', that.stats());
 					} catch (ex) {
