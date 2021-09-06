@@ -184,6 +184,6 @@ export async function checkPeers() {
 
 		await Promise.allSettled(promises);
 	} catch (ex) {
-		log.error('checkPeers', ex.message);
+		log.warn('checkPeers', ex.message);
 	}
 }

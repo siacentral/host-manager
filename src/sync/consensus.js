@@ -11,9 +11,12 @@ let startTime, startBlock, finalBlock;
 
 export async function refreshBlockHeight() {
 	try {
-		const consensus = await apiClient.getConsensus();
+		const consensus = await apiClient.getConsensus(),
+			remoteBlock = await getBlock(),
+			targetHeight = remoteBlock.height;
 
-		if (!finalBlock || finalBlock < consensus.height)
+		// sanity check; should never happen
+		if (targetHeight <= consensus.height)
 			Store.dispatch('setSyncTime', 0);
 		else {
 			if (!startTime || !startBlock) {
@@ -22,8 +25,11 @@ export async function refreshBlockHeight() {
 			}
 
 			const syncedBlocks = consensus.height - startBlock,
-				blockTime = (Date.now() - startTime) / (syncedBlocks <= 0 ? 1 : syncedBlocks),
-				remainingBlocks = finalBlock - consensus.height;
+				blockTime = (Date.now() - startTime) / (syncedBlocks <= 0 ? 1 : syncedBlocks);
+			let remainingBlocks = targetHeight - consensus.height;
+
+			if (remainingBlocks < 0)
+				remainingBlocks = 0;
 
 			Store.dispatch('setSyncTime', remainingBlocks * blockTime);
 		}
@@ -31,7 +37,7 @@ export async function refreshBlockHeight() {
 		Store.dispatch('setBlock', {
 			hash: consensus.currentblock,
 			height: consensus.height,
-			target: finalBlock
+			target: targetHeight
 		});
 		Store.dispatch('setSynced', consensus.synced);
 	} catch (ex) {

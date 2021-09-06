@@ -71,7 +71,13 @@ export default {
 			return formatNumber(height);
 		},
 		syncPercent() {
-			return `${formatNumber(Math.ceil(this.syncedHeight / this.targetHeight) * 100, 0)}%`;
+			const synced = this.block && this.block.height ? this.block.height : 0;
+			let target = this.block && this.block.target ? this.block.target : 0;
+
+			if (!target)
+				target = 1;
+
+			return `${formatNumber(Math.ceil((synced / target) * 100), 0)}%`;
 		}
 	},
 	methods: {
