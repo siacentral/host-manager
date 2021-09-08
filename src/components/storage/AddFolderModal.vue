@@ -6,10 +6,16 @@
 			<button @click="onBrowsePath"><icon icon="search" /> Browse</button>
 			<label class="error" v-if="errors['path']">{{ errors['path'] }}</label>
 		</div>
-		<div class="control">
+		<div class="split">
 			<label>Size</label>
-			<input type="text" v-model="sizeStr" />
-			<label class="error" v-if="errors['size']">{{ errors['size'] }}</label>
+			<div class="control">
+				<input type="text" v-model="sizeStr" :readonly="useMax" />
+				<label class="error" v-if="errors['size']">{{ errors['size'] }}</label>
+			</div>
+			<div class="control">
+				<input type="checkbox" id="chk-max-folder-size" v-model="useMax" @change="onUseMax" />
+				<label for="chk-max-folder-size">Max</label>
+			</div>
 		</div>
 		<transition name="fade" appear>
 			<div class="advanced" v-if="sizeValue.gte(4e12)">
@@ -47,6 +53,7 @@ import path from 'path';
 import { BigNumber } from 'bignumber.js';
 import { mapActions, mapState } from 'vuex';
 import { remote } from 'electron';
+import checkDiskSpace from 'check-disk-space';
 
 import { mkdirIfNotExist } from '@/utils';
 import { parseByteString } from '@/utils/parseLegacy';
@@ -56,7 +63,8 @@ import { refreshHostStorage } from '@/sync/storage';
 import ProgressBar from '@/components/ProgressBar';
 import Modal from '@/components/Modal';
 
-const dialog = remote.dialog;
+const dialog = remote.dialog,
+	app = remote.app;
 
 const sectorSize = 1 << 22,
 	minSectors = 1 << 6,
@@ -71,10 +79,12 @@ export default {
 	},
 	data() {
 		return {
-			path: '',
+			path: app.getPath('home'),
 			sizeStr: '100 GiB',
+			maxValue: new BigNumber(0),
 			sizeValue: new BigNumber(0),
 			errors: {},
+			useMax: false,
 			valid: false,
 			splitFolders: false,
 			splitCount: 1,
@@ -83,22 +93,41 @@ export default {
 			creating: false
 		};
 	},
-	mounted() {
-		if (this.config.data_unit === 'decimal')
-			this.sizeStr = '100 GB';
+	async mounted() {
+		await this.updateFreeSpace();
+		this.setMaximum();
 	},
 	computed: {
 		...mapState(['config']),
 		creationText() {
 			const folderSize = this.sizeValue.div(this.splitFolders ? this.splitCount : 1),
-				actualSize = new BigNumber(Math.floor(folderSize.div(sectorSize * granularity)
-					.toNumber())).times(sectorSize * granularity);
+				actualSize = folderSize.div(sectorSize * granularity).dp(0).times(sectorSize * granularity);
 
 			return `Adding ${this.splitFolders && this.splitCount > 1 ? this.splitCount + ' folders' : '1 folder'} of size ${formatByteString(actualSize, 2)}`;
 		}
 	},
 	methods: {
 		...mapActions(['pushNotification']),
+		setMaximum() {
+			const buffer = BigNumber.minimum(new BigNumber(1e10), this.maxValue.times(0.05)),
+				val = this.maxValue.minus(buffer).div(sectorSize * granularity).dp(0).times(sectorSize * granularity);
+			this.sizeStr = formatByteString(val, 2);
+			this.validate();
+		},
+		async updateFreeSpace() {
+			try {
+				const { free } = await checkDiskSpace(this.path);
+				this.maxValue = new BigNumber(free);
+
+				if (this.maxValue.eq(0))
+					return;
+
+				if (this.useMax) // if we're using the max, set the size to the new max
+					this.setMaximum();
+			} catch (ex) {
+				log.error('AddFolderModal.getFreeSpace', ex);
+			}
+		},
 		canClose() {
 			if (this.creating)
 				return;
@@ -117,6 +146,23 @@ export default {
 				this.path = fp.filePaths[0];
 			} catch (ex) {
 				log.error('add folder browse', ex.message);
+			}
+		},
+		async onUseMax() {
+			try {
+				if (this.creating)
+					return;
+
+				await this.updateFreeSpace();
+
+				if (!this.path || !this.path.length) {
+					this.useMax = false;
+					return;
+				}
+
+				this.setMaximum();
+			} catch (ex) {
+				log.error('AddFolderModal.onUseMax', ex);
 			}
 		},
 		async onCreateFolder() {
@@ -220,7 +266,8 @@ export default {
 		sizeStr() {
 			this.validate();
 		},
-		path() {
+		async path() {
+			await this.updateFreeSpace();
 			this.validate();
 		},
 		subName() {
@@ -242,6 +289,24 @@ export default {
 
 	.btn:last-of-type {
 		margin-right: 0;
+	}
+}
+
+.split {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	grid-gap: 5px 15px;
+
+	label {
+		font-size: 0.9rem;
+		color: rgba(255,255, 255, 0.54);
+		margin: 0;
+		grid-column: 1 / -1;
+	}
+
+	.control {
+		margin: 0;
 	}
 }
 </style>
