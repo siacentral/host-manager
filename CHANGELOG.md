@@ -1,3 +1,18 @@
+# September 2021
+
+## v1.0.35
+
+### Bug Fixes
+
++ Fix lockup when starting host manager
++ Fix sync status in setup showing NaN%
++ Add/remove/delete folder dialogs can no longer be closed when they're waiting to complete.
+
+### Changes
+
++ Added a "max" button to the add storage folder modal.
++ Additional random known working peers from Sia Central's network scanner will be added for the initial sync.
+
 # April 2021
 
 ## v1.0.34
