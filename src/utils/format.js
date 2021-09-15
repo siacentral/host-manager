@@ -208,6 +208,48 @@ function formatCryptoString(val, dec, currency = 'sc', rate = 1, precision = new
 	};
 }
 
+/**
+ * Safari does not support 'narrowSymbol' and will throw an exception
+ */
+const symbolStyle = (() => {
+	try {
+		new Intl.NumberFormat([], {
+			style: 'currency',
+			currency: 'usd',
+			currencyDisplay: 'narrowSymbol'
+		}).format(1.512);
+
+		return 'narrowSymbol';
+	} catch (ex) {
+		return 'symbol';
+	}
+})();
+
+export function formatCurrency(v, rate = 0.015, code = 'usd', sign = 'always', maxDigits = 4, precision = new BigNumber('1e24')) {
+	const value = v.div(precision).times(rate).toFixed(4);
+	let formatted;
+
+	switch (code) {
+	case 'btc':
+	case 'eth':
+		formatted = new Intl.NumberFormat([], {
+			signDisplay: sign,
+			minimumFractionDigits: 2,
+			maximumFractionDigits: maxDigits
+		}).format(value);
+		return `${formatted} ${code.toUpperCase()}`;
+	default:
+		return new Intl.NumberFormat([], {
+			signDisplay: sign,
+			style: 'currency',
+			currency: code,
+			currencyDisplay: symbolStyle,
+			minimumFractionDigits: 2,
+			maximumFractionDigits: maxDigits
+		}).format(value);
+	}
+}
+
 function formatCurrencyString(val, currency, rate, precision = new BigNumber(1e24)) {
 	const formatter = new Intl.NumberFormat([], { style: 'currency', currency: currency || 'usd', maximumFractionDigits: 20 });
 

@@ -41,6 +41,10 @@ export function filteredContracts(filter = {}) {
 		upload_revenue: new BigNumber(0),
 		storage_revenue: new BigNumber(0),
 		contract_cost: new BigNumber(0),
+		cost_basis: {
+			value: new BigNumber(0),
+			currency: 'usd'
+		},
 		payout: new BigNumber(0)
 	};
 	let contracts = confirmedContracts.reduce((val, c) => {
@@ -78,6 +82,8 @@ export function filteredContracts(filter = {}) {
 			total.contract_cost = total.contract_cost.plus(c.contract_cost);
 			total.potential_revenue = total.potential_revenue.plus(c.potential_revenue);
 			total.earned_revenue = total.earned_revenue.plus(c.earned_revenue);
+			total.cost_basis.value = total.cost_basis.value.plus(c.earned_revenue.div('1e24').times(c.expiration_exchange_rate.rate));
+			total.cost_basis.currency = c.expiration_exchange_rate.currency;
 			total.lost_revenue = total.lost_revenue.plus(c.lost_revenue);
 			total.revenue = total.revenue.plus(c.revenue);
 			total.locked_collateral = total.locked_collateral.plus(c.locked_collateral);
@@ -98,8 +104,9 @@ export function filteredContracts(filter = {}) {
 
 	if (filter.sort && filter.sort.key) {
 		contracts.sort((a, b) => {
-			const key = filter.sort.key;
-
+			const key = filter.sort.key,
+				ac = a,
+				bc = b;
 			a = a[filter.sort.key];
 			b = b[filter.sort.key];
 
@@ -134,6 +141,26 @@ export function filteredContracts(filter = {}) {
 					return -1;
 
 				return 0;
+			case 'cost_basis':
+				return (() => {
+					const aNum = new BigNumber(ac.earned_revenue).div('1e24').times(ac.expiration_exchange_rate.rate),
+						bNum = new BigNumber(bc.earned_revenue).div('1e24').times(bc.expiration_exchange_rate.rate),
+						agtB = aNum.gt(bNum);
+
+					if (agtB && filter.sort.descending)
+						return -1;
+					else if (agtB)
+						return 1;
+
+					const altB = aNum.lt(bNum);
+
+					if (altB && filter.sort.descending)
+						return 1;
+					else if (altB)
+						return -1;
+
+					return 0;
+				})();
 			case 'status':
 			case 'sia_status':
 				a = formatFriendlyStatus(a).toLowerCase();
@@ -249,6 +276,10 @@ function mergeContract(chain, sia, stats, snapshots) {
 	c.lost_revenue = new BigNumber(0);
 	c.potential_revenue = new BigNumber(0);
 	c.proof_required = !c.valid_proof_outputs[1].value.eq(c.missed_proof_outputs[1].value);
+	c.expiration_exchange_rate = {
+		rate: new BigNumber(chain.expiration_exchange_rate.rate),
+		currency: chain.expiration_exchange_rate.currency
+	};
 	c.tags = [];
 
 	stats.total++;
@@ -406,7 +437,7 @@ async function parseHostContracts() {
 		for (let i = 0; i < siaContracts.contracts.length; i++)
 			contractMap[siaContracts.contracts[i].obligationid] = siaContracts.contracts[i];
 
-		const confirmed = await getContracts(Object.keys(contractMap));
+		const confirmed = await getContracts(Object.keys(contractMap), Store.state.config.currency);
 
 		for (let i = 0; i < confirmed.length; i++) {
 			const contract = confirmed[i],

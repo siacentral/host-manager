@@ -30,6 +30,7 @@ import FilterPanel from '@/components/contracts/FilterPanel';
 import ContractGrid from '@/components/contracts/ContractGrid';
 import EmptyState from '@/components/EmptyState';
 
+import { formatCurrency, formatPriceString as formatPriceStringNew } from '@/utils/format';
 import { formatPriceString, formatByteString, formatShortDateString, formatFriendlyStatus } from '@/utils/formatLegacy';
 import { showSaveDialogAsync } from '@/utils';
 import { filteredContracts } from '@/sync/contracts';
@@ -163,6 +164,12 @@ export default {
 					key: 'revenue',
 					total_key: 'revenue',
 					format: 'currency'
+				},
+				{
+					text: 'Cost Basis',
+					key: 'cost_basis',
+					total_key: 'cost_basis',
+					format: 'cost-basis'
 				}
 			],
 			displayColumns: [
@@ -170,7 +177,8 @@ export default {
 				'expiration_timestamp',
 				'contract_cost',
 				'locked_collateral',
-				'revenue'
+				'revenue',
+				'cost_basis'
 			],
 			sort: {
 				key: 'expiration_timestamp',
@@ -354,14 +362,38 @@ export default {
 
 				if (!filePath || canceled)
 					return;
+				const exchangeRate = (this.filtered[0].expiration_exchange_rate.currency || 'usd').toUpperCase(),
+					columns = this.visibleColumns,
+					headerRow = columns.map(c => {
+						switch (c.key) {
+						case 'cost_basis':
+							return `Earned Revenue (SC), Exchange Rate (${exchangeRate}), Cost Basis (${exchangeRate})`;
+						default:
+							return c.text;
+						}
+					});
 
-				const columns = this.visibleColumns,
-					headerRow = columns.map(c => c.text);
+				const csv = [headerRow.join(',')],
+					{ contracts } = filteredContracts({
+						sort: this.sort,
+						...this.filter
+					});
 
-				const csv = [headerRow.join(',')];
+				contracts.forEach(v => {
+					const row = columns.map(c => {
+						switch (c.key) {
+						case 'cost_basis':
+							return [
+								`"${formatPriceStringNew(v.earned_revenue, 2, 'sc').value}"`,
+								`"${formatCurrency(v.expiration_exchange_rate.rate, 1, v.expiration_exchange_rate.currency, 'never', 4, 1)}"`,
+								`"${formatPriceStringNew(v.earned_revenue, 2, v.expiration_exchange_rate.currency, v.expiration_exchange_rate.rate).value}"`
+							].join(',');
+						default:
+							return `"${this.formatValue(v[c.key], c.format)}"`;
+						}
+					});
 
-				this.filtered.forEach(v => {
-					csv.push(columns.map(c => `"${this.formatValue(v[c.key], c.format)}"`).join(','));
+					csv.push(row.join(','));
 				});
 
 				await fs.writeFile(filePath, csv.join(EOL));

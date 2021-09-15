@@ -9,20 +9,16 @@
 						<select v-model="currency">
 							<optgroup label="Fiat">
 								<option value="usd">USD</option>
-								<option value="jpy">JPY</option>
 								<option value="eur">EUR</option>
-								<option value="gbp">GBP</option>
-								<option value="aus">AUS</option>
-								<option value="cad">CAD</option>
-								<option value="rub">RUB</option>
+								<option value="jpy">JPY</option>
 								<option value="cny">CNY</option>
+								<option value="cad">CAD</option>
+								<option value="gbp">GBP</option>
+								<option value="rub">RUB</option>
 							</optgroup>
 							<optgroup label="Crypto">
 								<option value="btc">BTC</option>
-								<option value="bch">BCH</option>
 								<option value="eth">ETH</option>
-								<option value="xrp">XRP</option>
-								<option value="ltc">LTC</option>
 							</optgroup>
 						</select>
 						<transition name="fade" mode="out-in" appear>

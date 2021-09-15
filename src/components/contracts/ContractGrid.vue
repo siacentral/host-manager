@@ -19,6 +19,7 @@
 			<tr class="total-row">
 				<td v-for="column in columns" :key="`totals-${column.key}`">
 					<div v-if="column.format === 'currency'" v-html="formatCurrencyTotal(column)" />
+					<div v-else-if="column.format === 'cost-basis'" v-html="formatCostBasisTotal(column)" />
 					<template v-else>{{ formatColumnTotal(column) }}</template>
 				</td>
 				<td></td><td></td>
@@ -27,6 +28,7 @@
 				<td v-for="column in columns" :key="column.key">
 					<input class="contract-id" v-if="column.key === 'id'" :value="contract[column.key]" />
 					<div v-else-if="column.format === 'currency'" v-html="formatCurrencyDisplay(contract, column)" />
+					<div v-else-if="column.format === 'cost-basis'" v-html="formatCostBasis(contract, column)" />
 					<template v-else>{{ formatColumnValue(contract, column) }}</template>
 				</td>
 				<td class="fit-text">
@@ -41,9 +43,10 @@
 </template>
 
 <script>
+import BigNumber from 'bignumber.js';
 import { mapState } from 'vuex';
 import { formatByteString, formatShortDateString, formatBlockTimeString, formatFriendlyStatus } from '@/utils/formatLegacy';
-import { formatPriceString } from '@/utils/format';
+import { formatPriceString, formatCurrency } from '@/utils/format';
 
 export default {
 	props: {
@@ -86,16 +89,37 @@ export default {
 
 			const value = this.totals[column.total_key],
 				sc = formatPriceString(value, 2, 'sc', 1),
-				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]);
+				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]),
+				rate = formatCurrency(new BigNumber(this.coinPrice[this.currency]), 1, this.currency, 'never', 4, 1);
+
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label} (@${rate})</span></div>`;
+		},
+		formatCostBasisTotal(column) {
+			if (!column.total_key)
+				return '';
+
+			const scValue = this.totals.earned_revenue,
+				currencyValue = this.totals.cost_basis.value,
+				sc = formatPriceString(scValue, 2, 'sc', 1),
+				disp = formatPriceString(currencyValue, 2, this.totals.cost_basis.currency, 1, 1);
 
 			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
 		},
 		formatCurrencyDisplay(contract, column) {
 			const value = contract[column.key],
 				sc = formatPriceString(value, 2, 'sc', 1),
-				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]);
+				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]),
+				rate = formatCurrency(new BigNumber(this.coinPrice[this.currency]), 1, this.currency, 'never', 4, 1);
 
-			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label} (@${rate})</span></div>`;
+		},
+		formatCostBasis(contract) {
+			const value = contract.earned_revenue,
+				sc = formatPriceString(value, 2, 'sc', 1),
+				disp = formatPriceString(value, 2, contract.expiration_exchange_rate.currency, contract.expiration_exchange_rate.rate),
+				rate = formatCurrency(contract.expiration_exchange_rate.rate, 1, contract.expiration_exchange_rate.currency, 'never', 4, 1);
+
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label} (@${rate})</span></div>`;
 		},
 		formatValue(value, format) {
 			format = (format || '').toLowerCase();
@@ -200,7 +224,9 @@ a {
 input.contract-id {
 	display: block;
 	padding: 0;
-	max-width: 200px;
+	min-width: 100px;
+	width: 100%;
+	margin: 0;
 	background: transparent;
 	border: none;
 	outline: none;
