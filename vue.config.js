@@ -72,10 +72,10 @@ module.exports = {
 					perMachine: true
 				},
 				publish: {
-					provider: 'generic',
-					/* eslint-disable no-template-curly-in-string */
-					url: 'https://public.siacentral.com/host-manager/releases/${channel}',
-					channel: 'latest'
+					provider: 'github',
+					repo: 'host-manager',
+					owner: 'siacentral',
+					releaseType: 'prerelease'
 				}
 			}
 		}

@@ -1,0 +1,84 @@
+name: Package
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-alpha'
+      - 'v[0-9]+.[0-9]+.[0-9]+-beta'
+
+jobs:
+  package:
+    runs-on: macos-latest
+    env:
+      EP_GH_IGNORE_TIME: true
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      APPLE_CERT_ID: ${{ secrets.APPLE_CERT_ID }}
+      APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+      APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+      APPLE_CONNECT_JWT: ${{ secrets.APPLE_CONNECT_JWT }}
+      APPLE_CERT_B64: ${{ secrets.APPLE_CERT_B64 }}
+      APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
+      APPLE_KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD }}
+      WIN_CODE_SIGNING_B64: ${{ secrets.SIA_CENTRAL_CODE_SIGNING }}
+      WIN_CSC_KEY_PASSWORD: ${{ secrets.SIA_CENTRAL_CODE_SIGNING_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '~1.16.7'
+      - run: npm i
+      - run: npm run lint
+      - name: setup
+        run: |
+          # extract apple cert
+          APPLE_CERT_PATH=$RUNNER_TEMP/apple_cert.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          echo -n "$APPLE_CERT_B64" | base64 --decode --output $APPLE_CERT_PATH
+
+          # extract itunes connect JWT
+          mkdir -p ~/private_keys
+          APPLE_CONNECT_JWT_PATH=~/private_keys/AuthKey_$APPLE_API_KEY.p8
+          echo -n "$APPLE_CONNECT_JWT" | base64 --decode --output $APPLE_CONNECT_JWT_PATH
+
+          # extract windows cert
+          WIN_CSC_LINK=$RUNNER_TEMP/win_cert.p12
+          echo -n "$WIN_CODE_SIGNING_B64" | base64 --decode --output $WIN_CSC_LINK
+
+          # create temp keychain
+          security create-keychain -p "$APPLE_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$APPLE_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import keychain
+          security import $APPLE_CERT_PATH -P $APPLE_CERT_PASSWORD -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $APPLE_KEYCHAIN_PASSWORD $KEYCHAIN_PATH
+      - name: build
+        run: |
+          # build sia
+          mkdir -p build/bin/linux build/bin/mac build/bin/win
+          export SIA_VERSION=v$(jq -r .siaVersion package.json)
+          export wd=$PWD
+
+          git clone https://github.com/siafoundation/siad build/bin/tmp/sia
+          cd build/bin/tmp/sia
+          git checkout $SIA_VERSION
+          GOOS=linux make static
+          cp release/* $wd/build/bin/linux && rm -rf release
+          GOOS=darwin make static
+          cp release/* $wd/build/bin/mac && rm -rf release
+          GOOS=windows make static
+          cp release/* $wd/build/bin/win && rm -rf release
+
+          # package
+          cd $wd
+          npm run publish -- --win --linux --mac --x64
+      - name: cleanup
+        if: ${{ always() }}
+        run: |
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+          rm -rf build/bin $RUNNER_TEMP/* ~/private_keys 2> /dev/null
+
+

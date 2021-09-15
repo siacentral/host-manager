@@ -11,6 +11,7 @@
 ### Changes
 
 + Added a "max" button to the add storage folder modal.
++ Added "Cost Basis" column to contract financials and contract export. "Cost Basis" is calculated using the exchange rate at the time the revenue was received.
 + Additional random known working peers from Sia Central's network scanner will be added for the initial sync.
 
 # April 2021
