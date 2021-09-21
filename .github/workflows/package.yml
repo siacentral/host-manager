@@ -45,6 +45,8 @@ jobs:
           # extract windows cert
           WIN_CSC_LINK=$RUNNER_TEMP/win_cert.p12
           echo -n "$WIN_CODE_SIGNING_B64" | base64 --decode --output $WIN_CSC_LINK
+          echo "WIN_CSC_LINK=$WIN_CSC_LINK" >> .env.local
+          echo "WIN_CSC_KEY_PASSWORD=$WIN_CSC_KEY_PASSWORD" >> .env.local
 
           # create temp keychain
           security create-keychain -p "$APPLE_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
@@ -125,6 +127,6 @@ jobs:
         if: ${{ always() }}
         run: |
           security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
-          rm -rf build/bin $RUNNER_TEMP/* ~/private_keys 2> /dev/null
+          rm -rf .env* build/bin $RUNNER_TEMP/* ~/private_keys 2> /dev/null
 
 
