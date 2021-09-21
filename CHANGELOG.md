@@ -1,11 +1,11 @@
-# 1.0.35-beta (2021-09-15)
+# 1.0.35 (2021-09-21)
 
 ## Fixed
 + Fix lockup when starting host manager
 + Fix sync status in setup showing NaN%
 
 ## Changed
-+ Update to Sia v1.5.7-rc1
++ Update to Sia v1.5.7
 + Add/remove/delete folder dialogs can no longer be closed when they're waiting to complete.
 
 ## Added 
