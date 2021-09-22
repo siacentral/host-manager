@@ -50,6 +50,7 @@ import { formatPriceString, formatCurrency } from '@/utils/format';
 
 export default {
 	props: {
+		hideExchangeRate: Boolean,
 		columns: Array,
 		contracts: Array,
 		totals: Object,
@@ -92,7 +93,7 @@ export default {
 				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]),
 				rate = formatCurrency(new BigNumber(this.coinPrice[this.currency]), 1, this.currency, 'never', 4, 1);
 
-			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label} (@${rate})</span></div>`;
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}${this.hideExchangeRate ? '' : ` (@${rate})`}</span></div>`;
 		},
 		formatCostBasisTotal(column) {
 			if (!column.total_key)
@@ -111,7 +112,7 @@ export default {
 				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]),
 				rate = formatCurrency(new BigNumber(this.coinPrice[this.currency]), 1, this.currency, 'never', 4, 1);
 
-			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label} (@${rate})</span></div>`;
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}${this.hideExchangeRate ? '' : ` (@${rate})`}</span></div>`;
 		},
 		formatCostBasis(contract) {
 			const value = contract.earned_revenue,
@@ -119,7 +120,7 @@ export default {
 				disp = formatPriceString(value, 2, contract.expiration_exchange_rate.currency, contract.expiration_exchange_rate.rate),
 				rate = formatCurrency(contract.expiration_exchange_rate.rate, 1, contract.expiration_exchange_rate.currency, 'never', 4, 1);
 
-			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label} (@${rate})</span></div>`;
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}${this.hideExchangeRate ? '' : ` (@${rate})`}</span></div>`;
 		},
 		formatValue(value, format) {
 			format = (format || '').toLowerCase();

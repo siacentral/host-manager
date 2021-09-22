@@ -8,7 +8,7 @@
 		<div class="contracts">
 			<empty-state v-if="count === 0" text="You have no contracts matching that filter" icon="file-contract" />
 			<div v-else class="grid-wrapper">
-				<contract-grid :contracts="filtered" :columns="visibleColumns" :totals="totals" :sort="sort" @sort="onSort" />
+				<contract-grid :contracts="filtered" :hideExchangeRate="hideExchangeRate" :columns="visibleColumns" :totals="totals" :sort="sort" @sort="onSort" />
 			</div>
 		</div>
 		<div class="contracts-pagination">
@@ -230,6 +230,9 @@ export default {
 		...mapState({
 			stats: state => state.hostContracts.stats
 		}),
+		hideExchangeRate() {
+			return this.filter && this.filter.hideExchangeRate;
+		},
 		visibleColumns() {
 			return this.fixedColumns.concat(this.columns.filter(c => this.displayColumns.indexOf(c.key) !== -1));
 		},
@@ -428,6 +431,7 @@ export default {
 			}
 		},
 		onFiltered(filter) {
+			console.log(filter);
 			localStorage.setItem('contracts_filter', JSON.stringify(filter));
 			this.filter = filter;
 		},
