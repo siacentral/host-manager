@@ -37,10 +37,6 @@
 						<input type="text" v-model="revenueMaxStr" />
 						<label class="error" v-if="errors['revenue']">{{ errors['revenue'] }}</label>
 					</div>
-					<div class="control" style="margin-bottom: 15px;">
-						<input type="checkbox" id="chk-contracts-hide-exchange-rate" v-model="hideExchangeRate" />
-						<label for="chk-contracts-hide-exchange-rate">Hide Exchange Rate</label>
-					</div>
 				</div>
 				<div class="filter-content visible-columns">
 					<label class="filter-header">Visible Columns</label>
@@ -71,7 +67,6 @@ export default {
 	data() {
 		return {
 			errors: {},
-			hideExchangeRate: false,
 			active: false,
 			successful: false,
 			failed: false,
@@ -118,8 +113,6 @@ export default {
 			this.successful = Array.isArray(this.filter.statuses) && this.filter.statuses.indexOf('successful') !== -1;
 			this.failed = Array.isArray(this.filter.statuses) && this.filter.statuses.indexOf('failed') !== -1;
 
-			this.hideExchangeRate = this.filter.hideExchangeRate;
-
 			if (this.filter.start_date)
 				this.startDateStr = this.dateControlFormat(this.filter.start_date);
 
@@ -134,9 +127,7 @@ export default {
 		},
 		buildFilter() {
 			try {
-				const filter = {
-						hideExchangeRate: this.hideExchangeRate
-					},
+				const filter = {},
 					statuses = [];
 
 				if (this.active)
@@ -228,9 +219,6 @@ export default {
 			this.buildFilter();
 		},
 		failed() {
-			this.buildFilter();
-		},
-		hideExchangeRate() {
 			this.buildFilter();
 		},
 		startDateStr(val) {

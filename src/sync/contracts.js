@@ -161,6 +161,28 @@ export function filteredContracts(filter = {}) {
 
 					return 0;
 				})();
+			case 'gain_loss':
+				return (() => {
+					const currentRate = new BigNumber(Store.state.coinPrice[Store.state.config.currency]),
+						aRate = new BigNumber(ac.expiration_exchange_rate.rate),
+						bRate = new BigNumber(bc.expiration_exchange_rate.rate),
+						aPct = currentRate.minus(aRate).div(aRate).times(100),
+						bPct = currentRate.minus(bRate).div(bRate).times(100),
+						agtB = aPct.gt(bPct),
+						altB = aPct.lt(bPct);
+
+					if (agtB && filter.sort.descending)
+						return -1;
+					else if (agtB)
+						return 1;
+
+					if (altB && filter.sort.descending)
+						return 1;
+					else if (altB)
+						return -1;
+
+					return 0;
+				})();
 			case 'status':
 			case 'sia_status':
 				a = formatFriendlyStatus(a).toLowerCase();

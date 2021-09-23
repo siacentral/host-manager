@@ -20,6 +20,7 @@
 				<td v-for="column in columns" :key="`totals-${column.key}`">
 					<div v-if="column.format === 'currency'" v-html="formatCurrencyTotal(column)" />
 					<div v-else-if="column.format === 'cost-basis'" v-html="formatCostBasisTotal(column)" />
+					<div v-else-if="column.format === 'capital-gain-loss'" v-html="formatTotalGainLoss(column)" />
 					<template v-else>{{ formatColumnTotal(column) }}</template>
 				</td>
 				<td></td><td></td>
@@ -29,6 +30,8 @@
 					<input class="contract-id" v-if="column.key === 'id'" :value="contract[column.key]" />
 					<div v-else-if="column.format === 'currency'" v-html="formatCurrencyDisplay(contract, column)" />
 					<div v-else-if="column.format === 'cost-basis'" v-html="formatCostBasis(contract, column)" />
+					<div v-else-if="column.format === 'cost-basis-rate'" v-html="formatCostBasisRate(contract, column)" />
+					<div v-else-if="column.format === 'capital-gain-loss'" v-html="formatGainLoss(contract, column)" />
 					<template v-else>{{ formatColumnValue(contract, column) }}</template>
 				</td>
 				<td class="fit-text">
@@ -50,7 +53,6 @@ import { formatPriceString, formatCurrency } from '@/utils/format';
 
 export default {
 	props: {
-		hideExchangeRate: Boolean,
 		columns: Array,
 		contracts: Array,
 		totals: Object,
@@ -90,10 +92,9 @@ export default {
 
 			const value = this.totals[column.total_key],
 				sc = formatPriceString(value, 2, 'sc', 1),
-				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]),
-				rate = formatCurrency(new BigNumber(this.coinPrice[this.currency]), 1, this.currency, 'never', 4, 1);
+				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]);
 
-			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}${this.hideExchangeRate ? '' : ` (@${rate})`}</span></div>`;
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
 		},
 		formatCostBasisTotal(column) {
 			if (!column.total_key)
@@ -106,21 +107,35 @@ export default {
 
 			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
 		},
+		formatTotalGainLoss() {
+			const earned = this.totals.earned_revenue.div(1e24).times(this.coinPrice[this.currency]),
+				basis = this.totals.cost_basis.value;
+
+			return earned.minus(basis).div(basis).times(100).toFixed(2) + '%';
+		},
 		formatCurrencyDisplay(contract, column) {
 			const value = contract[column.key],
 				sc = formatPriceString(value, 2, 'sc', 1),
-				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]),
-				rate = formatCurrency(new BigNumber(this.coinPrice[this.currency]), 1, this.currency, 'never', 4, 1);
+				disp = formatPriceString(value, 2, this.currency, this.coinPrice[this.currency]);
 
-			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}${this.hideExchangeRate ? '' : ` (@${rate})`}</span></div>`;
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
 		},
 		formatCostBasis(contract) {
 			const value = contract.earned_revenue,
 				sc = formatPriceString(value, 2, 'sc', 1),
-				disp = formatPriceString(value, 2, contract.expiration_exchange_rate.currency, contract.expiration_exchange_rate.rate),
-				rate = formatCurrency(contract.expiration_exchange_rate.rate, 1, contract.expiration_exchange_rate.currency, 'never', 4, 1);
+				disp = formatPriceString(value, 2, contract.expiration_exchange_rate.currency, contract.expiration_exchange_rate.rate);
 
-			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}${this.hideExchangeRate ? '' : ` (@${rate})`}</span></div>`;
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
+		},
+		formatCostBasisRate(contract) {
+			const rate = formatCurrency(contract.expiration_exchange_rate.rate, 1, contract.expiration_exchange_rate.currency, 'never', 4, 1);
+
+			return `<div>${rate}</div>`;
+		},
+		formatGainLoss(contract) {
+			const pct = new BigNumber(this.coinPrice[this.currency]).minus(contract.expiration_exchange_rate.rate).times(100).div(contract.expiration_exchange_rate.rate).toFixed(2);
+
+			return `${pct}%`;
 		},
 		formatValue(value, format) {
 			format = (format || '').toLowerCase();

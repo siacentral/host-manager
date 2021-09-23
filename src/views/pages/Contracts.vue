@@ -8,7 +8,7 @@
 		<div class="contracts">
 			<empty-state v-if="count === 0" text="You have no contracts matching that filter" icon="file-contract" />
 			<div v-else class="grid-wrapper">
-				<contract-grid :contracts="filtered" :hideExchangeRate="hideExchangeRate" :columns="visibleColumns" :totals="totals" :sort="sort" @sort="onSort" />
+				<contract-grid :contracts="filtered" :columns="visibleColumns" :totals="totals" :sort="sort" @sort="onSort" />
 			</div>
 		</div>
 		<div class="contracts-pagination">
@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import BigNumber from 'bignumber.js';
 import { mapState, mapActions } from 'vuex';
 import { promises as fs } from 'fs';
 import log from 'electron-log';
@@ -170,6 +171,17 @@ export default {
 					key: 'cost_basis',
 					total_key: 'cost_basis',
 					format: 'cost-basis'
+				},
+				{
+					text: 'Base Exchange Rate',
+					key: 'cost_basis_rate',
+					format: 'cost-basis-rate'
+				},
+				{
+					text: 'Gain/Loss',
+					key: 'gain_loss',
+					total_key: 'gain_loss',
+					format: 'capital-gain-loss'
 				}
 			],
 			displayColumns: [
@@ -228,11 +240,10 @@ export default {
 	},
 	computed: {
 		...mapState({
-			stats: state => state.hostContracts.stats
+			stats: state => state.hostContracts.stats,
+			coinPrice: state => state.coinPrice,
+			currency: state => state.config.currency
 		}),
-		hideExchangeRate() {
-			return this.filter && this.filter.hideExchangeRate;
-		},
 		visibleColumns() {
 			return this.fixedColumns.concat(this.columns.filter(c => this.displayColumns.indexOf(c.key) !== -1));
 		},
@@ -366,17 +377,21 @@ export default {
 				if (!filePath || canceled)
 					return;
 				const exchangeRate = (this.filtered[0].expiration_exchange_rate.currency || 'usd').toUpperCase(),
-					columns = this.visibleColumns,
-					headerRow = columns.map(c => {
-						switch (c.key) {
-						case 'cost_basis':
-							return `Earned Revenue (SC), Exchange Rate (${exchangeRate}), Cost Basis (${exchangeRate})`;
-						default:
-							return c.text;
-						}
-					});
+					added = {},
+					columns = this.visibleColumns.reduce((columns, c) => {
+						const toAdd = [];
+						if (c.key === 'cost_basis')
+							toAdd.push({ key: 'earned_revenue', format: 'siacoin', text: 'Earned Revenue (SC)' }, { format: 'currency', text: `Cost Basis (${exchangeRate})` });
+						else if (c.format === 'currency')
+							toAdd.push({ ...c, text: `${c.text} (${exchangeRate})` }, { ...c, format: 'siacoin', text: `${c.text} (SC)` });
+						else
+							toAdd.push(c);
 
-				const csv = [headerRow.join(',')],
+						columns.push(...toAdd.filter(c => !added[c.text]));
+						toAdd.forEach(c => { added[c.text] = true; });
+						return columns;
+					}, []),
+					csv = [columns.map(c => c.text).join(',')],
 					{ contracts } = filteredContracts({
 						sort: this.sort,
 						...this.filter
@@ -384,19 +399,19 @@ export default {
 
 				contracts.forEach(v => {
 					const row = columns.map(c => {
-						switch (c.key) {
-						case 'cost_basis':
-							return [
-								`"${formatPriceStringNew(v.earned_revenue, 2, 'sc').value}"`,
-								`"${formatCurrency(v.expiration_exchange_rate.rate, 1, v.expiration_exchange_rate.currency, 'never', 4, 1)}"`,
-								`"${formatPriceStringNew(v.earned_revenue, 2, v.expiration_exchange_rate.currency, v.expiration_exchange_rate.rate).value}"`
-							].join(',');
-						default:
-							return `"${this.formatValue(v[c.key], c.format)}"`;
-						}
+						if (c.format === 'siacoin')
+							return formatPriceStringNew(v[c.key], 4, 'sc', 1).value;
+						else if (c.text === `Cost Basis (${exchangeRate})`)
+							return formatCurrency(v.earned_revenue, v.expiration_exchange_rate.rate, v.expiration_exchange_rate.currency, 'auto');
+						else if (c.key === 'cost_basis_rate')
+							return formatCurrency(v.expiration_exchange_rate.rate, 1, v.expiration_exchange_rate.currency, 'never', 4, 1);
+						else if (c.key === 'gain_loss')
+							return new BigNumber(this.coinPrice[this.currency]).minus(v.expiration_exchange_rate.rate).div(v.expiration_exchange_rate.rate).times(100).toFixed(2) + '%';
+
+						return this.formatValue(v[c.key], c.format);
 					});
 
-					csv.push(row.join(','));
+					csv.push(row.map(v => `"${v}"`).join(','));
 				});
 
 				await fs.writeFile(filePath, csv.join(EOL));
@@ -431,7 +446,6 @@ export default {
 			}
 		},
 		onFiltered(filter) {
-			console.log(filter);
 			localStorage.setItem('contracts_filter', JSON.stringify(filter));
 			this.filter = filter;
 		},
