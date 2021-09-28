@@ -111,6 +111,9 @@ export default {
 			const earned = this.totals.earned_revenue.div(1e24).times(this.coinPrice[this.currency]),
 				basis = this.totals.cost_basis.value;
 
+			if (earned.eq(0) || basis.eq(0))
+				return '0%';
+
 			return earned.minus(basis).div(basis).times(100).toFixed(2) + '%';
 		},
 		formatCurrencyDisplay(contract, column) {
@@ -133,6 +136,9 @@ export default {
 			return `<div>${rate}</div>`;
 		},
 		formatGainLoss(contract) {
+			if (contract.status === 'obligationUnresolved')
+				return '';
+
 			const pct = new BigNumber(this.coinPrice[this.currency]).minus(contract.expiration_exchange_rate.rate).times(100).div(contract.expiration_exchange_rate.rate).toFixed(2);
 
 			return `${pct}%`;
