@@ -1,8 +1,8 @@
 <template>
 	<div class="currency-control">
-		<input ref="txtSiacoin" type="text" value="0.00" @input="onChangeSiacoin" @blur="onFormatValues" />
+		<input ref="txtSiacoin" type="text" value="0.00" @input="onChangeSiacoin" @blur="onFormatValues" :readonly="readonly" />
 		<label>SC</label>
-		<input ref="txtCurrency" type="text" value="$0.00" @input="onChangeCurrency" @blur="onFormatValues" />
+		<input ref="txtCurrency" type="text" value="$0.00" @input="onChangeCurrency" @blur="onFormatValues" :readonly="readonly" />
 		<label>{{ currency }}</label>
 	</div>
 </template>
@@ -15,7 +15,9 @@ import { parseSiacoinString, parseCurrencyString } from '@/utils/parse';
 
 export default {
 	props: {
-		value: Object
+		value: Object,
+		readonly: Boolean,
+		refresh: Number
 	},
 	computed: {
 		...mapState({
@@ -38,6 +40,8 @@ export default {
 		},
 		onChangeSiacoin() {
 			try {
+				if (this.readonly) return;
+
 				const value = this.$refs.txtSiacoin.value;
 
 				this.amount = parseSiacoinString(value);
@@ -50,6 +54,8 @@ export default {
 		},
 		onChangeCurrency() {
 			try {
+				if (this.readonly) return;
+
 				const value = this.$refs.txtCurrency.value,
 					parsed = parseCurrencyString(value, this.coinPrice[this.currency]),
 					siacoins = formatPriceString(parsed, 2, 'sc', 1);
@@ -62,17 +68,25 @@ export default {
 				console.error('CurrencyInput.onChangeCurrency', ex);
 			}
 		},
-		onFormatValues() {
+		onFormatValues(emit = true) {
 			try {
 				const siacoins = formatPriceString(this.amount, 2),
 					display = this.formatCurrencyString(this.amount);
 
 				this.$refs.txtCurrency.value = display;
 				this.$refs.txtSiacoin.value = siacoins.value;
-				this.$emit('update', { amount: this.amount, fiat: display });
+
+				if (emit)
+					this.$emit('update', { amount: this.amount, fiat: display });
 			} catch (ex) {
 				console.error('CurrencyInput.onFormatValues');
 			}
+		}
+	},
+	watch: {
+		refresh() {
+			this.amount = this.value;
+			this.onFormatValues(false);
 		}
 	}
 };

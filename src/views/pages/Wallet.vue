@@ -7,6 +7,10 @@
 			<input type="text" class="receive-address" :value="address" readonly />
 		</div>
 		<button class="btn btn-inline" @click="onCopyAddress"><icon icon="copy" /></button>
+		<div class="send-wrapper">
+			<button class="btn btn-inline" @click="modal = 'send' "><icon icon="copy" /> Send Siacoins</button>
+		</div>
+		<send-modal v-if="modal === 'send'" @close="modal = null" />
 	</div>
 </template>
 
@@ -16,15 +20,22 @@ import { mapState, mapActions } from 'vuex';
 import { clipboard } from 'electron';
 
 import AddressQRCode from '@/components/wallet/AddressQRCode';
+import SendModal from '@/components/wallet/SendModal';
 
 export default {
 	components: {
-		AddressQRCode
+		AddressQRCode,
+		SendModal
 	},
 	computed: {
 		...mapState({
 			address: state => state.hostWallet.lastAddress
 		})
+	},
+	data() {
+		return {
+			modal: null
+		};
 	},
 	methods: {
 		...mapActions(['pushNotification']),
@@ -54,7 +65,7 @@ export default {
 	padding: 15px;
 }
 
-.receive-qr-code, .buy-button {
+.receive-qr-code, .buy-button, .send-wrapper {
 	text-align: center;
 	grid-column: 1 / -1;
 }
