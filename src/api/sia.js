@@ -605,79 +605,6 @@ export default class SiaApiClient {
 		return resp.body;
 	}
 
-	async feeManagerPayoutHeight() {
-		const apiPassword = await this.getDefaultAPIPassword(),
-			{ body } = await sendJSONRequest(`${this.config.siad_api_addr}/feemanager`, {
-				method: 'GET',
-				auth: {
-					username: '',
-					password: apiPassword
-				}
-			});
-
-		return body.payoutheight;
-	}
-
-	async addFee(amount, address, appID, recurring = false) {
-		const apiPassword = await this.getDefaultAPIPassword(),
-			{ body } = await sendJSONRequest(`${this.config.siad_api_addr}/feemanager/add`, {
-				method: 'POST',
-				auth: {
-					username: '',
-					password: apiPassword
-				},
-				form: {
-					amount,
-					address,
-					recurring,
-					appuid: appID
-				}
-			});
-
-		return (await this.getPendingFees()).filter(f => f.feeiud === body.feeuid)[0];
-	}
-
-	async cancelFee(feeID) {
-		const apiPassword = await this.getDefaultAPIPassword();
-
-		await sendJSONRequest(`${this.config.siad_api_addr}/feemanager/cancel`, {
-			method: 'POST',
-			auth: {
-				username: '',
-				password: apiPassword
-			},
-			form: {
-				feeuid: feeID
-			}
-		});
-	}
-
-	async getPendingFees(appID) {
-		const apiPassword = await this.getDefaultAPIPassword(),
-			resp = await sendJSONRequest(`${this.config.siad_api_addr}/feemanager/pendingfees`, {
-				method: 'GET',
-				auth: {
-					username: '',
-					password: apiPassword
-				}
-			});
-
-		return (resp.body.pendingfees || []).filter(f => !appID || f.appuid === appID);
-	}
-
-	async getPaidFees(appID) {
-		const apiPassword = await this.getDefaultAPIPassword(),
-			resp = await sendJSONRequest(`${this.config.siad_api_addr}/feemanager/paidfees`, {
-				method: 'GET',
-				auth: {
-					username: '',
-					password: apiPassword
-				}
-			});
-
-		return (resp.body.paidfees || []).filter(f => !appID || f.appuid === appID);
-	}
-
 	async sendSiacoins(amount, destination, feeIncluded = false) {
 		const apiPassword = await this.getDefaultAPIPassword(),
 			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/siacoins`, {
@@ -693,10 +620,16 @@ export default class SiaApiClient {
 				}
 			});
 
-		if (resp.statusCode !== 200)
-			throw new Error(resp.body.message);
+		if (resp.statusCode !== 200) {
+			if (resp.body.message.indexOf('could not read address') !== -1)
+				throw new Error('invalid recipient');
+			else if (resp.body.message.indexOf('unable to fund transaction: insufficient balance') !== -1)
+				throw new Error('unable to fund transaction: insufficient balance');
 
-		return (resp.body.transaction || []);
+			throw new Error(resp.body.message);
+		}
+
+		return resp.body;
 	}
 
 	async sendSiacoinOutputs(outputs) {
@@ -719,5 +652,30 @@ export default class SiaApiClient {
 			throw new Error(resp.body.message);
 
 		return (resp.body.transaction || []);
+	}
+
+	async getUnspentOutputs() {
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/wallet/unspent`, {
+				method: 'GET',
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
+
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		const siacoins = [], siafunds = [];
+		for (let i = 0; i < resp.body.outputs.length; i++) {
+			const output = resp.body.outputs[i];
+			if (output.fundtype === 'siacoin output')
+				siacoins.push(output);
+			else if (output.fundtype === 'siafund output')
+				siafunds.push(output);
+		}
+
+		return { siacoins, siafunds };
 	}
 }

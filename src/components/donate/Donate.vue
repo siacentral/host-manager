@@ -7,12 +7,8 @@
 			</div>
 			<div class="add-fee" v-else-if="!paid" key="add">
 				<p>Sia Central currently relies on donations to fund development and server costs. If you enjoy our apps and services consider contributing a small amount of Siacoin either once or on a monthly basis.</p>
-				<currency-input v-model="feeAmount" />
-				<div class="control">
-					<input type="checkbox" id="chkFeeRecurring" v-model="recurring" />
-					<label for="chkFeeRecurring">Recurring</label>
-				</div>
-				<div class="control" v-if="feeAmount.gt(0)">
+				<currency-input v-model="donateAmount" />
+				<div class="control" v-if="donateAmount.gt(0)">
 					<input type="checkbox" id="chkConfirm" v-model="confirmed" />
 					<label for="chkConfirm" v-html="confirmText" />
 				</div>
@@ -23,33 +19,10 @@
 			<div class="fee-success" v-else key="success">
 				<h2 class="text-center text-success">Thank You!</h2>
 				<p>Sia Central appreciates your donation. We hope you continue to enjoy our apps and services!</p>
-				<p v-if="recurring">Your first donation of <span v-html="formatSiacoinString(feeAmount)" /> will occur at block {{ formatNumber(payoutHeight+4320) }} then again every {{ formatNumber(4320) }} blocks. You may cancel your donation from this dialog at any time.</p>
 			</div>
 		</transition>
 		<div class="text-center sponsor-link">
 			<a href="https://github.com/sponsors/siacentral">Sponsor Sia Central on GitHub</a>
-		</div>
-		<div class="fees-list" v-if="fees.length !== 0">
-			<h4>Recurring Donations</h4>
-			<table class="pending-fees">
-				<thead>
-					<tr>
-						<td>Amount</td>
-						<td>Payment Height</td>
-						<td></td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr v-for="fee in fees" :key="fee.feeuid">
-						<td>
-							<div v-html="formatSiacoinString(fee.amount)" />
-							<div v-html="formatCurrencyString(fee.amount)" />
-						</td>
-						<td>{{ formatNumber(fee.payoutheight) }}</td>
-						<td><button class="btn btn-inline" @click="onCancelFee(fee.feeuid)">Cancel</button></td>
-					</tr>
-				</tbody>
-			</table>
 		</div>
 	</div>
 </template>
@@ -61,7 +34,7 @@ import { mapState } from 'vuex';
 import BigNumber from 'bignumber.js';
 import SiaApiClient from '@/api/sia';
 import { formatPriceString, formatNumber } from '@/utils/format';
-import { HOST_MANAGER_APP_ID, HOST_MANAGER_ADDRESS } from '@/consts';
+import { HOST_MANAGER_ADDRESS } from '@/consts';
 
 export default {
 	components: {
@@ -74,25 +47,16 @@ export default {
 			coinPrice: state => state.coinPrice
 		}),
 		confirmText() {
-			if (this.recurring)
-				return `I would like to donate ${this.formatSiacoinString(this.feeAmount)} starting at block ${formatNumber(this.payoutHeight + 4320)} and recurring every month`;
-
-			return `I would like to donate to Sia Central, ${this.formatSiacoinString(this.feeAmount)} will be deducted from my wallet and sent to Sia Central.`;
+			return `I would like to donate to Sia Central, ${this.formatSiacoinString(this.donateAmount)} will be deducted from my wallet and sent to Sia Central.`;
 		}
 	},
 	data() {
 		return {
 			error: null,
-			fees: [],
-			payoutHeight: 0,
-			feeAmount: new BigNumber(0),
-			recurring: false,
+			donateAmount: new BigNumber(0),
 			confirmed: false,
 			paid: false
 		};
-	},
-	beforeMount() {
-		this.onLoadFees();
 	},
 	methods: {
 		formatNumber,
@@ -106,40 +70,17 @@ export default {
 
 			return `${format.value} <span class="currency-display">${format.label}</span>`;
 		},
-		async onLoadFees() {
-			try {
-				const client = new SiaApiClient(this.config),
-					pending = await client.getPendingFees(HOST_MANAGER_APP_ID),
-					payoutHeight = await client.feeManagerPayoutHeight();
-
-				this.fees = pending;
-				this.payoutHeight = payoutHeight;
-			} catch (ex) {
-				console.error('FeeModal.beforeMount', ex);
-			}
-		},
 		async sendDonation() {
 			const client = new SiaApiClient(this.config);
 
-			await client.sendSiacoins(this.feeAmount.toString(10), HOST_MANAGER_ADDRESS, true);
-		},
-		async addFee() {
-			const client = new SiaApiClient(this.config);
-
-			await client.addFee(this.feeAmount.toString(10), HOST_MANAGER_ADDRESS, HOST_MANAGER_APP_ID, this.recurring);
-			await this.onLoadFees();
+			await client.sendSiacoins(this.donateAmount.toString(10), HOST_MANAGER_ADDRESS, true);
 		},
 		async onDonate() {
 			try {
 				if (!this.confirmed)
 					return;
 
-				if (this.recurring)
-					await this.addFee();
-				else
-					await this.sendDonation();
-
-				await this.onLoadFees();
+				await this.sendDonation();
 
 				this.$emit('donated');
 				this.paid = true;
@@ -147,23 +88,10 @@ export default {
 				this.error = ex.message;
 				console.error('FeeModal.onDonate', ex);
 			}
-		},
-		async onCancelFee(feeID) {
-			try {
-				const client = new SiaApiClient(this.config);
-
-				await client.cancelFee(feeID);
-				await this.onLoadFees();
-			} catch (ex) {
-				console.error('FeeModal.onCancelFee', ex);
-			}
 		}
 	},
 	watch: {
-		feeAmount() {
-			this.confirmed = false;
-		},
-		recurring() {
+		donateAmount() {
 			this.confirmed = false;
 		}
 	}
