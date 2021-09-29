@@ -68,16 +68,11 @@ export async function getBlock(height) {
 export async function getContracts(ids, currency = 'usd') {
 	const promises = [];
 
-	for (let i = 0; i < ids.length; i += 5e3) {
-		let end = i + 5e3;
-
-		if (end >= ids.length)
-			end = ids.length;
-
+	for (let i = 0; i < ids.length; i += 500) {
 		promises.push(sendJSONRequest(`https://api.siacentral.com/v2/explorer/contracts?currency=${currency}`, {
 			method: 'POST',
 			body: {
-				contracts: ids.slice(i, end)
+				contracts: ids.slice(i, i + 500)
 			}
 		}));
 	}
