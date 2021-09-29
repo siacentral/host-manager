@@ -189,6 +189,12 @@ export default {
 					value: new BigNumber(o.value)
 				};
 			}).sort((a, b) => a.value.gt(b.value) ? -1 : a.value.lt(b.value) ? 1 : 0);
+
+			// recalculate the UI from any changes while data was loading.
+			console.log(this.usePct, this.sendPct);
+			if (this.usePct)
+				this.calcSendPct(this.sendPct);
+
 			this.calcFeeEstimate();
 			this.loaded = true;
 		} catch (ex) {
@@ -258,7 +264,7 @@ export default {
 		},
 		calcSendPct(pct = 1) {
 			try {
-				if (!this.loaded || this.sending || this.sent) return;
+				if (this.sending || this.sent) return;
 
 				this.amount = this.spendableBalance.times(pct).dp(0, BigNumber.ROUND_DOWN);
 				this.includeFees = true;
@@ -282,6 +288,11 @@ export default {
 			this.confirmed = false;
 		},
 		recipient() {
+			this.calcFeeEstimate();
+			this.confirmed = false;
+		},
+		usePct() {
+			this.calcSendPct(this.sendPct);
 			this.calcFeeEstimate();
 			this.confirmed = false;
 		},
