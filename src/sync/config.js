@@ -31,7 +31,7 @@ export async function refreshHostConfig() {
 		if (config.maxcollateral.lte(0)) {
 			console.log('fixing max collateral');
 			apiClient.updateHost({
-				maxcollateral: config.collateral.times(4320).times(1e12).times(4).toFixed(0)
+				maxcollateral: config.collateral.times(4320).times(1e12).toFixed(0)
 			});
 			await refreshHostConfig();
 			return;

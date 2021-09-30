@@ -12,21 +12,26 @@
 			<price-item :value="contractPrice" :average="averageSettings.contract_price" :pinned="isPinned('mincontractprice')" @change="onChangePrice('mincontractprice', $event)">
 				<template slot="title">Contract Price</template>
 				<template slot="denomination">per contract</template>
-				<template slot="description">The amount of money to form a contract with the host. A contract is required to upload, download and store data. <span class="suggestion">Suggested: less than 1 SC. The contract fee should only be used to cover expected transaction fees.</span></template>
+				<template slot="description">The amount of Siacoin to form a contract with the host. A contract is required to upload, download and store data. <span class="suggestion">Suggested: less than 1 SC. The contract fee should only be used to cover expected transaction fees.</span></template>
 			</price-item>
 			<price-item :value="storagePrice" :average="averageSettings.storage_price.times(4320).times(1e12)" :pinned="isPinned('minstorageprice')" @change="onChangePrice('minstorageprice', $event)">
 				<template slot="title">Storage Price</template>
 				<template slot="denomination">per {{ dataUnit }}/Month</template>
-				<template slot="description">The amount of money to store 1 {{ dataUnit }} for 1 month</template>
+				<template slot="description">The amount of Siacoin to store 1 {{ dataUnit }} for 1 month</template>
 			</price-item>
 			<price-item :value="collateral" :average="averageSettings.collateral.times(4320).times(1e12)" :pinned="isPinned('collateral')" @change="onChangePrice('collateral', $event)">
 				<template slot="title">Collateral</template>
 				<template slot="denomination">per sector</template>
-				<template slot="description">The amount of money per 1 {{ dataUnit }}/month stored to be locked as collateral. <span class="suggestion">Suggested: 2x storage price.</span></template>
+				<template slot="description">The amount of Siacoin per 1 {{ dataUnit }}/month stored to be locked as collateral. <span class="suggestion">Suggested: {{ recommendedCollateral }}.</span></template>
+			</price-item>
+			<price-item :value="maxcollateral" :pinned="isPinned('maxcollateral')" @change="onChangePrice('maxcollateral', $event)">
+				<template slot="title">Max Collateral</template>
+				<template slot="denomination">per contract</template>
+				<template slot="description">The maximum amount of collateral the host will lock into a single contract. This setting also limits the amount of data that the renter can store per contract. <span class="suggestion">Suggested: {{ recommendedMaxCollateral }} (1 TB of uploaded data).</span></template>
 			</price-item>
 			<price-item :value="collateralBudget" :pinned="isPinned('collateralbudget')" @change="onChangePrice('collateralbudget', $event)">
 				<template slot="title">Collateral Budget</template>
-				<template slot="description">The maximum amount of money that can be used as collateral. <span class="suggestion">Suggested: to prevent issues with stale contracts, a very large number or multiple times your wallet balance.</span></template>
+				<template slot="description">The maximum amount of Siacoin that can be used as collateral. <span class="suggestion">Suggested: to prevent issues with stale contracts, a very large number or multiple times your wallet balance.</span></template>
 			</price-item>
 			<duration-item :value="maxDuration" :average="averageSettings.max_duration" @change="onChangeValue('maxduration', $event)">
 				<template slot="title">Max Contract Duration</template>
@@ -36,20 +41,20 @@
 			<price-item :value="downloadPrice" :average="averageSettings.download_price.times(1e12)" :pinned="isPinned('mindownloadbandwidthprice')" @change="onChangePrice('mindownloadbandwidthprice', $event)">
 				<template slot="title">Download Price</template>
 				<template slot="denomination">per {{ dataUnit }}</template>
-				<template slot="description">The amount of money to download 1 {{ dataUnit }} from the host</template>
+				<template slot="description">The amount of Siacoin to download 1 {{ dataUnit }} from the host</template>
 			</price-item>
 			<price-item :value="uploadPrice" :average="averageSettings.upload_price.times(1e12)" :pinned="isPinned('minuploadbandwidthprice')" @change="onChangePrice('minuploadbandwidthprice', $event)">
 				<template slot="title">Upload Price</template>
 				<template slot="denomination">per {{ dataUnit }}</template>
-				<template slot="description">The amount of money to upload 1 {{ dataUnit }} to the host</template>
+				<template slot="description">The amount of Siacoin to upload 1 {{ dataUnit }} to the host</template>
 			</price-item>
 			<size-item :value="downloadBatchSize" :average="averageSettings.max_download_batch_size" @change="onChangeValue('maxdownloadbatchsize', $event)">
 				<template slot="title">Download Batch Size</template>
-				<template slot="description">The maximum size of a download request. Larger batch size means better performance, but higher risk of losing money when downloading data.</template>
+				<template slot="description">The maximum size of a download request. Larger batch size means better performance, but higher risk of losing Siacoin when downloading data.</template>
 			</size-item>
 			<size-item :value="reviseBatchSize" :average="averageSettings.max_revise_batch_size" @change="onChangeValue('maxrevisebatchsize', $event)">
 				<template slot="title">Revise Batch Size</template>
-				<template slot="description">The maximum size of an upload request. Larger batch size means better performance, but higher risk of losing money when uploading data.</template>
+				<template slot="description">The maximum size of an upload request. Larger batch size means better performance, but higher risk of losing Siacoin when uploading data.</template>
 			</size-item>
 			<div class="config-header">Skynet</div>
 			<size-item :value="registrySize" @change="onChangeValue('registrysize', $event)">
@@ -64,12 +69,12 @@
 			<price-item :value="baseRPCPrice" :average="averageSettings.base_rpc_price" :pinned="isPinned('minbaserpcprice')" @change="onChangePrice('minbaserpcprice', $event)">
 				<template slot="title">Base RPC Price</template>
 				<template slot="denomination">per RPC</template>
-				<template slot="description">The amount of money required to interact with the host. <span class="suggestion">Suggested: very low or zero since this is charged per interaction.</span></template>
+				<template slot="description">The amount of Siacoin required to interact with the host. <span class="suggestion">Suggested: very low or zero since this is charged per interaction.</span></template>
 			</price-item>
 			<price-item :value="sectorAccessPrice" :average="averageSettings.sector_access_price" :pinned="isPinned('minsectoraccessprice')" @change="onChangePrice('minsectoraccessprice', $event)">
 				<template slot="title">Sector Access Price</template>
 				<template slot="denomination">per sector</template>
-				<template slot="description">The amount of money required to download or upload a single sector from the host. <span class="suggestion">Suggested: very low or zero since this is charged per sector in addition to download price.</span></template>
+				<template slot="description">The amount of Siacoin required to download or upload a single sector from the host. <span class="suggestion">Suggested: very low or zero since this is charged per sector in addition to download price.</span></template>
 			</price-item>
 		</div>
 		<div class="controls">
@@ -87,6 +92,7 @@ import { writeConfig } from '@/utils';
 import { parseCurrencyString } from '@/utils/parse';
 import SiaApiClient from '@/api/sia';
 import { refreshHostConfig } from '@/sync/config';
+import { formatPriceString } from '@/utils/format';
 
 import AnnounceHostModal from '@/components/config/AnnounceHostModal';
 import PriceItem from '@/components/config/PriceItem';
@@ -112,6 +118,18 @@ export default {
 		}),
 		dataUnit() {
 			return this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
+		},
+		recommendedCollateral() {
+			const rec = this.storagePrice.times(2),
+				fmt = formatPriceString(rec, 2, 'sc', 1);
+
+			return `${fmt.value} SC`;
+		},
+		recommendedMaxCollateral() {
+			const rec = this.collateral.div(1e12).div(4320).times(this.maxDuration).times(1e12),
+				fmt = formatPriceString(rec, 2, 'sc', 1);
+
+			return `${fmt.value} SC`;
 		}
 	},
 	data() {
@@ -124,6 +142,7 @@ export default {
 			sectorAccessPrice: new BigNumber(0),
 			baseRPCPrice: new BigNumber(0),
 			collateralBudget: new BigNumber(0),
+			maxcollateral: new BigNumber(0),
 			collateral: new BigNumber(0),
 			downloadBatchSize: new BigNumber(0),
 			reviseBatchSize: new BigNumber(0),
@@ -197,6 +216,7 @@ export default {
 			this.sectorAccessPrice = this.setValueOrPin('minsectoraccessprice');
 			this.collateralBudget = this.setValueOrPin('collateralbudget');
 			this.collateral = this.setValueOrPin('collateral');
+			this.maxcollateral = this.setValueOrPin('maxcollateral');
 			this.maxDuration = this.hostConfig.maxduration;
 
 			this.reviseBatchSize = this.hostConfig.maxrevisebatchsize;
@@ -254,8 +274,7 @@ export default {
 
 				await client.updateHost({
 					...this.config,
-					windowsize: 144,
-					maxcollateral: this.collateral.times(this.maxDuration / 4320).times(4).toFixed(0)
+					windowsize: 144
 				});
 
 				for (let pin in this.pinned) {

@@ -124,15 +124,6 @@ async function updatePinnedPricing() {
 				if (currentValue === undefined || newValue === undefined || newValue === currentValue)
 					continue;
 
-				// removed the max collateral setting from config
-				if (pin === 'maxcollateral')
-					continue;
-
-				if (pin === 'collateral') {
-					newConfig['maxcollateral'] = value.times(1e12).times(4).times(4320).times(6).toFixed(0);
-					log.debug('maxcollateral', newConfig['maxcollateral']);
-				}
-
 				log.debug('updated', pin, 'from', currentValue, 'to', newValue);
 
 				newConfig[pin] = newValue;

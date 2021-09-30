@@ -3,8 +3,10 @@
 ## Changed
 + Removed the exchange rate from all currency columns on the contract page.
 + Removed the fee manager integration and reoccuring donations.
++ Max collateral is no longer automatically calculated.
 
 ## Added
++ Added max collateral to the config page.
 + Added the ability to send Siacoins from the wallet page.
 + Added a base exchange rate column to the contracts page showing the exchange rate of the contract's payout
 + Added a gain/loss column to the contracts page showing the percent change in value over the initial payout's value
