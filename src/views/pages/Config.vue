@@ -56,14 +56,14 @@
 				<template slot="title">Revise Batch Size</template>
 				<template slot="description">The maximum size of an upload request. Larger batch size means better performance, but higher risk of losing Siacoin when uploading data.</template>
 			</size-item>
-			<div class="config-header">Skynet</div>
+			<div class="config-header">Registry</div>
 			<size-item :value="registrySize" @change="onChangeValue('registrysize', $event)">
 				<template slot="title">Registry Size</template>
-				<template slot="description">The size of the Skynet Registry. The Skynet Registry is a key value store for linking uploaded data to a constant key. Hosts are payed much more than the resources actually consumed. Make sure that you have enough free space on your disk before allocating the registry. <span class="suggestion">Suggested: 4GB</span></template>
+				<template slot="description">The size of the host registry. The registry is a key value store for linking uploaded data to a constant key. Hosts are payed much more than the resources actually consumed. Make sure that you have enough free space on your disk before allocating the registry. <span class="suggestion">Suggested: 4GB</span></template>
 			</size-item>
 			<file-item :value="registryPath" @change="onChangeValue('customregistrypath', $event)">
-				<template slot="title">Custom Registry Location</template>
-				<template slot="description">The location of the Skynet Registry on disk, leave blank for default. Defaults to your Sia data path, usually the disk your operating system is installed on.</template>
+				<template slot="title">Registry Location</template>
+				<template slot="description">The location of the registry on disk, leave blank for default. Defaults to your Sia data path, usually the disk your operating system is installed on.</template>
 			</file-item>
 			<div class="config-header">Advanced</div>
 			<price-item :value="baseRPCPrice" :average="averageSettings.base_rpc_price" :pinned="isPinned('minbaserpcprice')" @change="onChangePrice('minbaserpcprice', $event)">
@@ -120,12 +120,16 @@ export default {
 			return this.appConfig.data_unit === 'decimal' ? 'TB' : 'TiB';
 		},
 		recommendedCollateral() {
+			/* eslint-disable no-unused-expressions */
+			this.recalc;
 			const rec = this.storagePrice.times(2),
 				fmt = formatPriceString(rec, 2, 'sc', 1);
 
 			return `${fmt.value} SC`;
 		},
 		recommendedMaxCollateral() {
+			/* eslint-disable no-unused-expressions */
+			this.recalc;
 			const rec = this.collateral.div(1e12).div(4320).times(this.maxDuration).times(1e12),
 				fmt = formatPriceString(rec, 2, 'sc', 1);
 
@@ -155,7 +159,8 @@ export default {
 			pinned: {},
 			updating: false,
 			changed: false,
-			modal: null
+			modal: null,
+			recalc: 0 // hack for Vue's reactivity not working
 		};
 	},
 	beforeMount() {
