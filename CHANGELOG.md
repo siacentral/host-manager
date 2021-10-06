@@ -1,4 +1,4 @@
-# 1.1.0-beta (2021-09-29)
+# 1.1.0 (2021-10-06)
 
 ## Changed
 + Removed the exchange rate from all currency columns on the contract page.
