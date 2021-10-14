@@ -1,3 +1,8 @@
+# 1.1.1 (2021-10-15)
+
+## Added 
++ Added Account Funding to the contracts page
+
 # 1.1.0 (2021-10-06)
 
 ## Changed
