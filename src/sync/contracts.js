@@ -29,6 +29,7 @@ export function filteredContracts(filter = {}) {
 	let length = 0;
 	const total = {
 		data_size: new BigNumber(0),
+		account_funding: new BigNumber(0),
 		potential_revenue: new BigNumber(0),
 		earned_revenue: new BigNumber(0),
 		lost_revenue: new BigNumber(0),
@@ -80,6 +81,7 @@ export function filteredContracts(filter = {}) {
 		if (added) {
 			total.data_size = total.data_size.plus(c.data_size);
 			total.contract_cost = total.contract_cost.plus(c.contract_cost);
+			total.account_funding = total.account_funding.plus(c.account_funding);
 			total.potential_revenue = total.potential_revenue.plus(c.potential_revenue);
 			total.earned_revenue = total.earned_revenue.plus(c.earned_revenue);
 			total.cost_basis.value = total.cost_basis.value.plus(c.earned_revenue.div('1e24').times(c.expiration_exchange_rate.rate));
@@ -112,6 +114,7 @@ export function filteredContracts(filter = {}) {
 
 			switch (key) {
 			case 'data_size':
+			case 'account_funding':
 			case 'locked_collateral':
 			case 'risked_collateral':
 			case 'returned_collateral':
@@ -271,6 +274,7 @@ function mergeContract(chain, sia, stats, snapshots) {
 	c.contract_cost = new BigNumber(sia.contractcost);
 	c.transaction_fees = new BigNumber(sia.transactionfeesadded);
 	c.data_size = new BigNumber(sia.datasize);
+	c.account_funding = new BigNumber(sia.potentialaccountfunding);
 	c.storage_revenue = new BigNumber(sia.potentialstoragerevenue);
 	c.download_revenue = new BigNumber(sia.potentialdownloadrevenue);
 	c.upload_revenue = new BigNumber(sia.potentialuploadrevenue);

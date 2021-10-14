@@ -119,6 +119,12 @@ export default {
 					format: 'currency'
 				},
 				{
+					text: 'Account Funding',
+					key: 'account_funding',
+					total_key: 'account_funding',
+					format: 'currency'
+				},
+				{
 					text: 'Est. Storage Revenue',
 					key: 'storage_revenue',
 					total_key: 'storage_revenue',
