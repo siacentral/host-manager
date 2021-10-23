@@ -38,6 +38,7 @@ export default {
 	},
 	computed: {
 		...mapState({
+			config: state => state.config,
 			configNetAddress: state => state.hostConfig.config.netaddress,
 			netAddress: state => state.netAddress,
 			host: state => state.explorer.host
