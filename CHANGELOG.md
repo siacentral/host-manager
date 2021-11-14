@@ -1,4 +1,7 @@
-# 1.1.1 (2021-10-15)
+# 1.1.1 (2021-11-15)
+
+## Fixed
++ Fixed a bug in host announcement when using a non-standard API port.
 
 ## Added 
 + Added Account Funding to the contracts page
