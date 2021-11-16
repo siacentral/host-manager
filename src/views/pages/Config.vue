@@ -48,18 +48,10 @@
 				<template slot="denomination">per {{ dataUnit }}</template>
 				<template slot="description">The amount of Siacoin to upload 1 {{ dataUnit }} to the host</template>
 			</price-item>
-			<size-item :value="downloadBatchSize" :average="averageSettings.max_download_batch_size" @change="onChangeValue('maxdownloadbatchsize', $event)">
-				<template slot="title">Download Batch Size</template>
-				<template slot="description">The maximum size of a download request. Larger batch size means better performance, but higher risk of losing Siacoin when downloading data.</template>
-			</size-item>
-			<size-item :value="reviseBatchSize" :average="averageSettings.max_revise_batch_size" @change="onChangeValue('maxrevisebatchsize', $event)">
-				<template slot="title">Revise Batch Size</template>
-				<template slot="description">The maximum size of an upload request. Larger batch size means better performance, but higher risk of losing Siacoin when uploading data.</template>
-			</size-item>
 			<div class="config-header">Registry</div>
 			<size-item :value="registrySize" @change="onChangeValue('registrysize', $event)">
 				<template slot="title">Registry Size</template>
-				<template slot="description">The size of the host registry. The registry is a key value store for linking uploaded data to a constant key. Hosts are payed much more than the resources actually consumed. Make sure that you have enough free space on your disk before allocating the registry. <span class="suggestion">Suggested: 4GB</span></template>
+				<template slot="description">The size of the host registry. The registry is an in-memory key value store. Make sure that you have enough free space on your disk and enough system memory before allocating the registry. <span class="suggestion">Suggested: {{ recommendedRegistrySize }}</span></template>
 			</size-item>
 			<file-item :value="registryPath" @change="onChangeValue('customregistrypath', $event)">
 				<template slot="title">Registry Location</template>
@@ -85,6 +77,7 @@
 </template>
 
 <script>
+// import process from 'process';
 import log from 'electron-log';
 import BigNumber from 'bignumber.js';
 import { mapState, mapActions } from 'vuex';
@@ -92,7 +85,7 @@ import { writeConfig } from '@/utils';
 import { parseCurrencyString } from '@/utils/parse';
 import SiaApiClient from '@/api/sia';
 import { refreshHostConfig } from '@/sync/config';
-import { formatPriceString } from '@/utils/format';
+import { formatPriceString, formatByteString } from '@/utils/format';
 
 import AnnounceHostModal from '@/components/config/AnnounceHostModal';
 import PriceItem from '@/components/config/PriceItem';
@@ -134,6 +127,17 @@ export default {
 				fmt = formatPriceString(rec, 2, 'sc', 1);
 
 			return `${fmt.value} SC`;
+		},
+		recommendedRegistrySize() {
+			const { total } = process.getSystemMemoryInfo(),
+				max = new BigNumber(this.appConfig.data_unit === 'decimal' ? 1000 : 1024).pow(3).times(4); // 4GiB or 4GB depending on data unit
+			let bytes = new BigNumber(total).times(1000).div(4);
+
+			if (bytes.gt(max))
+				bytes = max;
+
+			const { value, label } = formatByteString(bytes, this.appConfig.data_unit, 2);
+			return `${value} ${label}`;
 		}
 	},
 	data() {
