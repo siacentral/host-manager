@@ -11,7 +11,7 @@
 		<div class="registry-usage" v-if="totalRegKeys !== 0">
 			<icon icon="database" />
 			<div class="usage-wrapper">
-				<div class="usage-title">Skynet Registry Usage</div>
+				<div class="usage-title">Registry Usage</div>
 				<div class="usage-bar"><div class="bar" :style="registryPct" /></div>
 				<div class="usage-label">{{ formatNumber(totalRegKeys - remainingRegKeys, 0) }} / {{ formatNumber(totalRegKeys, 0) }}</div>
 			</div>

@@ -1,9 +1,18 @@
+# 1.2.0 (2022-02-06)
+
+## Changed
++ Use `yarn` instead of `npm`
+
+## Added
++ arm64 releases for all platforms
++ Payout date column to contract grid
+
 # 1.1.1 (2021-11-15)
 
 ## Fixed
 + Fixed a bug in host announcement when using a non-standard API port.
 
-## Added 
+## Added
 + Added Account Funding to the contracts page
 
 # 1.1.0 (2021-10-06)
@@ -29,7 +38,7 @@
 + Update to Sia v1.5.7
 + Add/remove/delete folder dialogs can no longer be closed when they're waiting to complete.
 
-## Added 
+## Added
 + Added a "max" button to the add storage folder modal.
 + Added "Cost Basis" column to contract financials and contract export. "Cost Basis" is calculated using the exchange rate at the time the revenue was received.
 + Additional random known working peers from Sia Central's network scanner will be added for the initial sync.

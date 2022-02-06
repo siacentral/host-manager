@@ -28,8 +28,8 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: '~1.16.7'
-      - run: npm i
-      - run: npm run lint
+      - run: yarn
+      - run: yarn run lint
       - name: setup
         run: |
           # extract apple cert
@@ -67,16 +67,30 @@ jobs:
           git clone https://github.com/siafoundation/siad build/bin/tmp/sia
           cd build/bin/tmp/sia
           git checkout $SIA_VERSION
-          GOOS=linux make static
-          cp release/* $wd/build/bin/linux && rm -rf release
-          GOOS=darwin make static
-          cp release/* $wd/build/bin/mac && rm -rf release
-          GOOS=windows make static
-          cp release/* $wd/build/bin/win && rm -rf release
+          for os in darwin linux windows; do
+            for arch in amd64 arm64; do
+              diros=$os
+              dirarch=$arch
+              # electron expects "mac", go expects "darwin"
+              if [ $os == 'darwin' ]; then
+                diros="mac"
+              elif [ $os == 'windows' ]; then
+                diros="win"
+              fi
+
+              # electron expectrs "x64", go expects "amd64"
+              if [ $arch == 'amd64' ]; then
+                dirarch="x64"
+              fi
+              mkdir -p $wd/build/bin/$diros/$dirarch
+              GOOS=$os GOARCH=$arch make static
+              cp release/* $wd/build/bin/$diros/$dirarch && rm -rf release
+            done
+          done
 
           # package
           cd $wd
-          npm run publish -- --win --linux --mac --x64
+          yarn run publish --win --linux --mac --x64 --arm64
       - name: publish changelog
         uses: actions/github-script@v4
         with:
