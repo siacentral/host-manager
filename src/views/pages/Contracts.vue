@@ -32,7 +32,7 @@ import ContractGrid from '@/components/contracts/ContractGrid';
 import EmptyState from '@/components/EmptyState';
 
 import { formatCurrency, formatPriceString as formatPriceStringNew } from '@/utils/format';
-import { formatPriceString, formatByteString, formatShortDateString, formatFriendlyStatus } from '@/utils/formatLegacy';
+import { formatPriceString, formatByteString, formatShortDateString, formatBlockTimeString, formatFriendlyStatus } from '@/utils/formatLegacy';
 import { showSaveDialogAsync } from '@/utils';
 import { filteredContracts } from '@/sync/contracts';
 
@@ -81,6 +81,11 @@ export default {
 					text: 'Expiration Date',
 					key: 'expiration_timestamp',
 					format: 'date'
+				},
+				{
+					text: 'Payout Time',
+					key: 'payout_blocks',
+					format: 'block-time'
 				},
 				{
 					text: 'Est. Data Size',
@@ -345,10 +350,15 @@ export default {
 					return formatByteString(0, 2);
 
 				return formatByteString(value, 2);
+			case 'block-time':
+				if (!value)
+					return '0 blocks';
+				else if (value < 10)
+					return '< 1 hr';
+				return formatBlockTimeString(value);
 			default:
 				if (!value)
 					return '';
-
 				return value;
 			}
 		},

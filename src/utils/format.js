@@ -60,6 +60,35 @@ export function numberToString(number, divisor, units, decimals) {
 	};
 };
 
+export function formatFriendlyBlockTimeString(blocks) {
+	if (blocks <= 0) return '0 hours';
+
+	const denoms = { year: 52560, month: 4320, week: 1008, day: 144, hour: 6 },
+		segments = [];
+
+	for (let key in denoms) {
+		const d = denoms[key];
+
+		if (blocks < d)
+			continue;
+
+		const value = Math.floor(blocks / d);
+		blocks = blocks % d;
+
+		if (value > 1)
+			key += 's';
+
+		segments.push(`${value} ${key}`);
+	}
+
+	if (segments.length === 0)
+		return '0 hours';
+	else if (segments.length > 2)
+		return segments.slice(0, 2).join(' ');
+
+	return segments.join(' ');
+}
+
 export function formatBlockTimeString(blocks) {
 	if (blocks <= 0)
 		return '0 hr';

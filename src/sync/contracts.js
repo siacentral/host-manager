@@ -266,7 +266,7 @@ function stdDate(d) {
 	return s.getTime();
 }
 
-function mergeContract(chain, sia, stats, snapshots) {
+function mergeContract(chain, sia, stats, snapshots, block) {
 	const c = new Contract();
 
 	c.id = chain.id;
@@ -301,12 +301,19 @@ function mergeContract(chain, sia, stats, snapshots) {
 	c.earned_revenue = new BigNumber(0);
 	c.lost_revenue = new BigNumber(0);
 	c.potential_revenue = new BigNumber(0);
+	c.renewed = false;
 	c.proof_required = !c.valid_proof_outputs[1].value.eq(c.missed_proof_outputs[1].value);
+	c.payout_height = 0;
 	c.expiration_exchange_rate = {
 		rate: new BigNumber(chain.expiration_exchange_rate.rate),
 		currency: chain.expiration_exchange_rate.currency
 	};
 	c.tags = [];
+
+	// check for cleared contract
+	// Javascript VM rounds the revision number to 18446744073709552000
+	if (new BigNumber(chain.revision_number).gte('18446744073709551615') && chain.valid_proof_outputs.length === chain.missed_proof_outputs.length)
+		c.renewed = true;
 
 	stats.total++;
 
@@ -329,6 +336,15 @@ function mergeContract(chain, sia, stats, snapshots) {
 
 		i = stdDate(next);
 	}
+
+	if (c.proof_confirmed)
+		c.payout_height = chain.proof_height + 144;
+	else
+		c.payout_height = chain.expiration_height + 144;
+
+	c.payout_blocks = c.payout_height - block.height;
+	if (c.payout_blocks < 0)
+		c.payout_blocks = 0;
 
 	switch (c.status.toLowerCase()) {
 	case 'obligationsucceeded': {
@@ -467,7 +483,7 @@ async function parseHostContracts() {
 
 		for (let i = 0; i < confirmed.length; i++) {
 			const contract = confirmed[i],
-				c = mergeContract(contract, contractMap[contract.id], stats, snapshots);
+				c = mergeContract(contract, contractMap[contract.id], stats, snapshots, currentBlock);
 
 			if (c.proof_deadline < currentBlock.height && c.proof_required && !c.proof_confirmed) {
 				c.tags.push({
