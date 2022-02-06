@@ -27,9 +27,8 @@ import { mapActions, mapState, mapGetters } from 'vuex';
 import log from 'electron-log';
 
 import { launch, running } from '@/sync/daemon';
-import { checkForUpdates } from '@/sync/autoupdate';
 import { refreshData } from '@/sync';
-import { readConfig, writeConfig } from '@/utils';
+import { writeConfig } from '@/utils';
 
 import ChangeApiCredentials from '@/views/ChangeAPICredentials';
 import Loader from '@/views/Loader';
@@ -47,6 +46,11 @@ export default {
 		Setup,
 		UnlockWallet
 	},
+	async beforeMount() {
+		document.body.classList.add('dark');
+		console.log('try load beforeMount');
+		await this.tryLoad();
+	},
 	methods: {
 		...mapActions(['setConfig', 'pushNotification', 'setLoaded', 'setCriticalError',
 			'setFirstRun']),
@@ -56,18 +60,8 @@ export default {
 				if (this.$route.name !== 'dashboard')
 					this.$router.replace({ name: 'dashboard' });
 
-				const config = await readConfig();
-				if (typeof config.siad_data_path !== 'string' || config.siad_data_path.length === 0) {
-					this.pushNotification({
-						message: 'Config appears to be corrupt, running setup.',
-						icon: 'folder',
-						severity: 'danger'
-					});
-					throw new Error('siad_data_path missing');
-				}
-
-				this.setConfig(config);
-				this.setFirstRun(false);
+				if (!this.config)
+					return;
 
 				if (await running()) {
 					await refreshData();
@@ -126,12 +120,6 @@ export default {
 		return {
 			animationComplete: false
 		};
-	},
-	async beforeMount() {
-		document.body.classList.add('dark');
-		console.log('try load beforeMount');
-		checkForUpdates();
-		await this.tryLoad();
 	},
 	computed: {
 		...mapGetters(['alerts']),

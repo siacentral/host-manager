@@ -6,6 +6,7 @@
 ## Added
 + arm64 releases for all platforms
 + Payout date column to contract grid
++ Show pending payouts with wallet balance
 
 # 1.1.1 (2021-11-15)
 

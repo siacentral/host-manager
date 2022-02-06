@@ -473,6 +473,7 @@ async function parseHostContracts() {
 			alerts = [],
 			siaContracts = await apiClient.getHostContracts(),
 			contractMap = {};
+		let pendingPayout = new BigNumber(0);
 
 		currentBlock.timestamp = new Date(currentBlock.timestamp * 1000);
 
@@ -491,6 +492,9 @@ async function parseHostContracts() {
 					text: 'Proof Not Submitted'
 				});
 			}
+
+			if ((c.status === 'obligationSucceeded' || c.status === 'obligationFailed') && c.payout_height > currentBlock.height)
+				pendingPayout = pendingPayout.plus(c.payout);
 
 			confirmed[i] = c;
 		}
@@ -512,6 +516,7 @@ async function parseHostContracts() {
 			});
 		}
 
+		Store.dispatch('hostContracts/setPendingPayouts', pendingPayout);
 		// deep copy here
 		Store.dispatch('hostContracts/setAlerts', alerts);
 		confirmedContracts = confirmed;

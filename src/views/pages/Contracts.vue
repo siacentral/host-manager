@@ -31,8 +31,8 @@ import FilterPanel from '@/components/contracts/FilterPanel';
 import ContractGrid from '@/components/contracts/ContractGrid';
 import EmptyState from '@/components/EmptyState';
 
-import { formatCurrency, formatPriceString as formatPriceStringNew } from '@/utils/format';
-import { formatPriceString, formatByteString, formatShortDateString, formatBlockTimeString, formatFriendlyStatus } from '@/utils/formatLegacy';
+import { formatCurrency, formatPriceString as formatPriceStringNew, formatFriendlyBlockTimeString } from '@/utils/format';
+import { formatPriceString, formatByteString, formatShortDateString, formatFriendlyStatus } from '@/utils/formatLegacy';
 import { showSaveDialogAsync } from '@/utils';
 import { filteredContracts } from '@/sync/contracts';
 
@@ -350,13 +350,16 @@ export default {
 					return formatByteString(0, 2);
 
 				return formatByteString(value, 2);
-			case 'block-time':
+			case 'block-time': {
 				if (!value)
 					return '0 blocks';
 				else if (value < 10)
 					return '< 1 hr';
-				return formatBlockTimeString(value);
-			default:
+				else if (value > 144)
+					return formatShortDateString(new Date(Date.now() + (value * 10 * 60 * 1000)));
+
+				return formatFriendlyBlockTimeString(value);
+			} default:
 				if (!value)
 					return '';
 				return value;

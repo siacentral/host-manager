@@ -6,7 +6,8 @@ import router from './router';
 import store from './store';
 
 import { attachDaemonIPC } from '@/sync/daemon';
-import { attachUpdateIPC } from '@/sync/autoupdate';
+import { attachUpdateIPC, checkForUpdates } from '@/sync/autoupdate';
+import { readConfig } from '@/utils';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
@@ -27,15 +28,35 @@ process.on('unhandledRejection', error => {
 attachDaemonIPC();
 attachUpdateIPC();
 
-createApp(App)
-	.use(store)
-	.use(router)
-	.component('icon', FontAwesomeIcon)
-	.mixin({
-		methods: {
-			pushNotification(notification) {
-				store.dispatch('pushNotification', notification);
-			}
+(async() => {
+	try {
+		const config = await readConfig();
+		if (typeof config.siad_data_path !== 'string' || config.siad_data_path.length === 0) {
+			this.pushNotification({
+				message: 'Config appears to be corrupt, running setup.',
+				icon: 'folder',
+				severity: 'danger'
+			});
+			throw new Error('siad_data_path missing');
 		}
-	})
-	.mount('#app');
+
+		store.dispatch('setConfig', config);
+		store.dispatch('setup/setFirstRun', false);
+		checkForUpdates();
+	} catch (ex) {
+		log.warn('load config', ex);
+	}
+
+	createApp(App)
+		.use(store)
+		.use(router)
+		.component('icon', FontAwesomeIcon)
+		.mixin({
+			methods: {
+				pushNotification(notification) {
+					store.dispatch('pushNotification', notification);
+				}
+			}
+		})
+		.mount('#app');
+})();

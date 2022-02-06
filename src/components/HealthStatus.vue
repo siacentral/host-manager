@@ -4,23 +4,33 @@
 			<div :class="connectionSeverity">
 				<icon icon="wifi" />
 			</div>
-			<div class="sia-status-title">{{ connectionText }}</div>
-			<div class="sia-status-text">Connectivity</div>
+			<div class="sia-status-meta">
+				<div class="sia-status-title">{{ connectionText }}</div>
+				<div class="sia-status-text">Connectivity</div>
+			</div>
 		</a>
 		<div class="sia-status-item">
 			<div :class="{'sia-status-icon': true, 'status-warning': !synced }">
 				<icon icon="redo" v-if="!synced" />
 				<icon icon="check-circle" v-else />
 			</div>
-			<div class="sia-status-title">{{ formatNumber(blockHeight, 0) }}</div>
-			<div class="sia-status-text">{{ statusText }}</div>
+			<div class="sia-status-meta">
+				<div class="sia-status-title">{{ formatNumber(blockHeight, 0) }}</div>
+				<div class="sia-status-text">{{ statusText }}</div>
+			</div>
 		</div>
 		<router-link :to="{ name: 'wallet' }" class="sia-status-item">
 			<div :class="{'sia-status-icon': true, 'status-warning': !synced }">
 				<icon icon="wallet" />
 			</div>
-			<div class="sia-status-title" v-html="walletBalanceDisplay" />
-			<div class="sia-status-text">Balance</div>
+			<div class="sia-status-meta">
+				<div class="sia-status-title" v-html="walletBalanceDisplay" />
+				<div class="sia-status-text">Balance</div>
+			</div>
+			<div class="sia-status-meta" v-if="pendingPayouts.gt(0)">
+				<div class="sia-status-title" v-html="pendingPayoutDisplay" />
+				<div class="sia-status-text">Pending Payout</div>
+			</div>
 		</router-link>
 	</div>
 </template>
@@ -40,7 +50,8 @@ export default {
 			connection: state => state.explorer.report,
 			dataUnit: state => state.config.data_unit,
 			currency: state => state.config.currency,
-			coinPrice: state => state.coinPrice
+			coinPrice: state => state.coinPrice,
+			pendingPayouts: state => state.hostContracts.pendingPayouts
 		}),
 		statusText() {
 			if (this.synced)
@@ -64,6 +75,12 @@ export default {
 		walletBalanceDisplay() {
 			const sc = formatPriceString(this.balance, 2, 'sc', 1),
 				disp = formatPriceString(this.balance, 2, this.currency, this.coinPrice[this.currency]);
+
+			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
+		},
+		pendingPayoutDisplay() {
+			const sc = formatPriceString(this.pendingPayouts, 2, 'sc', 1),
+				disp = formatPriceString(this.pendingPayouts, 2, this.currency, this.coinPrice[this.currency]);
 
 			return `<div>${sc.value} <span class="currency-display">${sc.label}</span></div><div>${disp.value} <span class="currency-display">${disp.label}</span></div>`;
 		},
@@ -140,14 +157,16 @@ export default {
 		}
 	}
 
-	.sia-status-title {
-		font-size: 1rem;
-		color: rgba(0, 0, 0, 0.87);
+	.sia-status-meta {
 		grid-area: auto / 2;
 	}
 
+	.sia-status-title {
+		font-size: 1rem;
+		color: rgba(0, 0, 0, 0.87);
+	}
+
 	.sia-status-text {
-		grid-area: auto / 2;
 		font-size: 0.8rem;
 		color: rgba(0, 0, 0, 0.28);
 		white-space: nowrap;

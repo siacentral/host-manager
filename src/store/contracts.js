@@ -1,10 +1,13 @@
+import BigNumber from 'bignumber.js';
+
 export default {
 	namespaced: true,
 	state: {
 		stats: {},
 		alerts: [],
 		snapshots: {},
-		newAlertsCount: 0
+		newAlertsCount: 0,
+		pendingPayouts: new BigNumber(0)
 	},
 	mutations: {
 		setStats(state, stats) {
@@ -24,6 +27,9 @@ export default {
 			}, 0);
 
 			state.alerts = alerts;
+		},
+		setPendingPayouts(state, payout) {
+			state.pendingPayouts = payout;
 		}
 	},
 	actions: {
@@ -35,6 +41,9 @@ export default {
 		},
 		setAlerts(context, alerts) {
 			context.commit('setAlerts', alerts);
+		},
+		setPendingPayouts({ commit }, payout) {
+			commit('setPendingPayouts', payout);
 		}
 	},
 	getters: {
