@@ -1,6 +1,6 @@
 <template>
 	<transition name="qr-fade" mode="out-in" appear>
-		<div class="code-wrapper" v-html="qrCode"><svg></svg></div>
+		<div class="code-wrapper" v-html="qrCode"/>
 	</transition>
 </template>
 

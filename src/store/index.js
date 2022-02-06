@@ -1,5 +1,4 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import { createStore } from 'vuex';
 import { ipcRenderer } from 'electron';
 
 import hostContracts from './contracts';
@@ -10,10 +9,7 @@ import hostStorage from './storage';
 import hostWallet from './wallet';
 import setup from './setup';
 
-Vue.use(Vuex);
-
-const store = new Vuex.Store({
-	strict: true,
+const store = createStore({
 	modules: {
 		explorer,
 		hostContracts,
@@ -49,7 +45,7 @@ const store = new Vuex.Store({
 	},
 	getters: {
 		alerts(state) {
-			let alerts = state.alerts.concat(state.hostStorage.alerts, state.hostContracts.alerts,
+			const alerts = state.alerts.concat(state.hostStorage.alerts, state.hostContracts.alerts,
 				state.hostWallet.alerts, state.hostConfig.alerts,
 				state.explorer.alerts);
 

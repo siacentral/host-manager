@@ -32,8 +32,8 @@ async function loadWalletAddress() {
 		if (typeof Store.state.hostWallet.lastAddress === 'string' && Store.state.hostWallet.lastAddress.trim().length !== 0)
 			return;
 
-		let wallet = await apiClient.getWalletAddresses(1),
-			address = Array.isArray(wallet.addresses) ? wallet.addresses[0] : null;
+		const wallet = await apiClient.getWalletAddresses(1);
+		let address = Array.isArray(wallet.addresses) ? wallet.addresses[0] : null;
 
 		if (typeof address !== 'string' || address.trim().length === 0) {
 			address = await createWalletAddress();

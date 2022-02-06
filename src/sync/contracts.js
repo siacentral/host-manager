@@ -127,7 +127,7 @@ export function filteredContracts(filter = {}) {
 			case 'earned_revenue':
 			case 'lost_revenue':
 			case 'payout':
-			case 'revenue':
+			case 'revenue': {
 				const aNum = new BigNumber(a),
 					agtB = aNum.gt(b);
 
@@ -144,7 +144,7 @@ export function filteredContracts(filter = {}) {
 					return -1;
 
 				return 0;
-			case 'cost_basis':
+			} case 'cost_basis':
 				return (() => {
 					const aNum = new BigNumber(ac.earned_revenue).div('1e24').times(ac.expiration_exchange_rate.rate),
 						bNum = new BigNumber(bc.earned_revenue).div('1e24').times(bc.expiration_exchange_rate.rate),
@@ -331,7 +331,7 @@ function mergeContract(chain, sia, stats, snapshots) {
 	}
 
 	switch (c.status.toLowerCase()) {
-	case 'obligationsucceeded':
+	case 'obligationsucceeded': {
 		if (c.proof_confirmed)
 			c.payout = c.valid_proof_outputs[1].value;
 		else
@@ -362,7 +362,7 @@ function mergeContract(chain, sia, stats, snapshots) {
 			snapshots[expireStamp].expired_contracts--;
 
 		break;
-	case 'obligationfailed':
+	} case 'obligationfailed': {
 		c.payout = new BigNumber(c.missed_proof_outputs[1].value);
 		c.revenue = c.missed_proof_outputs[1].value.minus(sia.lockedcollateral);
 		c.earned_revenue = c.revenue;
@@ -395,7 +395,7 @@ function mergeContract(chain, sia, stats, snapshots) {
 			snapshots[expireStamp].expired_contracts--;
 
 		break;
-	default:
+	} default:
 		c.locked_collateral = new BigNumber(sia.lockedcollateral);
 		c.potential_revenue = c.sia_valid_proof_outputs[1].value.minus(sia.lockedcollateral);
 		c.revenue = c.potential_revenue;

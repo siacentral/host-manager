@@ -108,10 +108,10 @@ async function updatePinnedPricing() {
 		if (!Store.state.config || !Store.state.config.host_pricing_pins)
 			return;
 
-		let changed = false,
-			newConfig = {};
+		let changed = false;
+		const newConfig = {};
 
-		for (let pin in Store.state.config.host_pricing_pins) {
+		for (const pin in Store.state.config.host_pricing_pins) {
 			try {
 				if (!Store.state.config.host_pricing_pins || !Store.state.config.host_pricing_pins[pin] ||
 					typeof Store.state.config.host_pricing_pins[pin].value !== 'string')

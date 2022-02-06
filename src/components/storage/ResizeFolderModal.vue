@@ -2,7 +2,7 @@
 	<modal @close="canClose" title="Resize Storage Location">
 		<div class="control">
 			<label>Path</label>
-			<input type="text" v-model="folder.path" readonly/>
+			<input type="text" v-model="folderPath" readonly/>
 		</div>
 		<div class="control">
 			<label>New Size</label>
@@ -36,20 +36,13 @@ export default {
 	},
 	data() {
 		return {
-			sizeStr: '100 GB',
-			sizeValue: new BigNumber(0),
+			folderPath: this.folder.path,
+			sizeStr: formatByteString(this.folder?.total_capacity || 0, 2),
+			sizeValue: new BigNumber(this.folder?.total_capacity || 0),
 			errors: {},
 			valid: true,
 			resizing: false
 		};
-	},
-	beforeMount() {
-		try {
-			this.sizeValue = this.folder.total_capacity;
-			this.sizeStr = formatByteString(this.folder.total_capacity, 2);
-		} catch (ex) {
-			log.error('resize folder beforeMount', ex.message);
-		}
 	},
 	computed: {
 		...mapState(['config'])
@@ -95,15 +88,15 @@ export default {
 			}
 		},
 		validate() {
-			let errors = {};
+			const errors = {};
 
 			try {
 				this.sizeValue = parseByteString(this.sizeStr);
 
 				if (!this.sizeValue || this.sizeValue.eq(0))
-					errors['size'] = 'Size must be greater than 0';
+					errors.size = 'Size must be greater than 0';
 			} catch (ex) {
-				errors['size'] = ex.message;
+				errors.size = ex.message;
 			}
 
 			this.valid = Object.keys(errors).length === 0;

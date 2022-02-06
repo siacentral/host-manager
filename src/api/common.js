@@ -45,7 +45,7 @@ export async function sendRequest(url, opts = {}) {
 export async function sendJSONRequest(url, opts) {
 	const r = await sendRequest(url, opts);
 
-	let resp = { statusCode: r.statusCode };
+	const resp = { statusCode: r.statusCode };
 
 	try {
 		resp.body = await r.json();

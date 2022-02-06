@@ -15,6 +15,7 @@ export function setShutdown(val) {
 }
 
 export async function createTray() {
+	/* global __static */
 	if (!mainTray)
 		mainTray = new Tray(path.join(__static, 'icons/siacentral_white_16.png'));
 

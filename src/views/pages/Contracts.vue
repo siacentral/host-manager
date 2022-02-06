@@ -298,8 +298,8 @@ export default {
 		},
 		pageText() {
 			if (this.count > this.perPage) {
-				let start = this.page * this.perPage,
-					end = start + this.perPage;
+				const start = this.page * this.perPage;
+				let end = start + this.perPage;
 
 				if (end > this.count)
 					end = this.count;

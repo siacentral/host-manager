@@ -1,7 +1,7 @@
 <template>
 	<svg :viewBox="`0 0 ${width} ${height}`" @resize="onResize">
-		<template v-for="(group, i) in coordinates">
-			<path :key="`line-fill-${i}`" class="line" :fill="fills[i]" :stroke="colors[i]" :d="fillPaths[i]" stroke-width="2" />
+		<template v-for="(group, i) in coordinates" :key="`line-fill-${i}`">
+			<path class="line" :fill="fills[i]" :stroke="colors[i]" :d="fillPaths[i]" stroke-width="2" />
 			<!--<path :key="`line-${i}`" class="line" :stroke="colors[i]" :d="lines[i]" fill="none" stroke-width="4" />-->
 			<circle
 				class="point-bg" v-for="(point, j) in group"
@@ -105,7 +105,7 @@ export default {
 	beforeMount() {
 		window.addEventListener('resize', this.onResize);
 	},
-	beforeDestroy() {
+	beforeUnmount() {
 		window.removeEventListener('resize', this.onResize);
 	},
 	mounted() {

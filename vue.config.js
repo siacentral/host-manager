@@ -5,18 +5,17 @@ module.exports = {
 	chainWebpack: config => {
 		config.output.publicPath = `${process.cwd()}/dist/`;
 
-		const svgRule = config.module.rule('svg'),
-			types = ['vue-modules', 'vue', 'normal-modules', 'normal'];
+		const types = ['vue-modules', 'vue', 'normal-modules', 'normal'];
+		types.forEach(type => addStyleResource(config.module.rule('stylus').oneOf(type)));
 
+		const svgRule = config.module.rule('svg');
 		svgRule.uses.clear();
 		svgRule
+			.use('vue-loader')
+			.loader('vue-loader-v16')
+			.end()
 			.use('vue-svg-loader')
-			.loader('vue-svg-loader')
-			.options({
-				svgo: false
-			});
-
-		types.forEach(type => addStyleResource(config.module.rule('stylus').oneOf(type)));
+			.loader('vue-svg-loader');
 	},
 	pluginOptions: {
 		electronBuilder: {
@@ -29,11 +28,11 @@ module.exports = {
 				afterSign: 'build/scripts/notarize.js',
 				afterAllArtifactBuild: 'build/scripts/sign.js',
 				/* eslint-disable no-template-curly-in-string */
-				artifactName: '${productName}-v${version}.${ext}',
+				artifactName: '${productName}-v${version}-${arch}.${ext}',
 				extraResources: [
 					{
 						/* eslint-disable no-template-curly-in-string */
-						from: 'build/bin/${os}',
+						from: 'build/bin/${os}/${arch}',
 						to: 'bin',
 						filter: [
 							'**/*'
@@ -42,7 +41,7 @@ module.exports = {
 				],
 				mac: {
 					/* eslint-disable no-template-curly-in-string */
-					artifactName: '${productName}-v${version}.${ext}',
+					artifactName: '${productName}-v${version}-${arch}.${ext}',
 					hardenedRuntime: true,
 					// disabled due to new Apple notarization failing
 					gatekeeperAssess: false,
@@ -52,7 +51,7 @@ module.exports = {
 				linux: {
 					executableName: 'Sia Host Manager',
 					/* eslint-disable no-template-curly-in-string */
-					artifactName: '${productName}-v${version}.${ext}',
+					artifactName: '${productName}-v${version}-${arch}.${ext}',
 					target: [
 						'deb',
 						'AppImage'
@@ -61,7 +60,7 @@ module.exports = {
 				},
 				appImage: {
 					/* eslint-disable no-template-curly-in-string */
-					artifactName: '${productName}-v${version}.${ext}'
+					artifactName: '${productName}-v${version}-${arch}.${ext}'
 				},
 				dmg: {
 					// new apple notarization does not need the dmg signed

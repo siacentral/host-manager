@@ -39,10 +39,10 @@ function buildEnv(config) {
 	const env = JSON.parse(JSON.stringify(process.env));
 
 	if (typeof config.siad_wallet_password === 'string' && config.siad_wallet_password.length > 0)
-		env['SIA_WALLET_PASSWORD'] = config.siad_wallet_password;
+		env.SIA_WALLET_PASSWORD = config.siad_wallet_password;
 
 	if (typeof config.siad_api_password === 'string' && config.siad_api_password.length > 0)
-		env['SIA_API_PASSWORD'] = config.siad_api_password;
+		env.SIA_API_PASSWORD = config.siad_api_password;
 
 	return env;
 }

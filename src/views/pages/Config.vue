@@ -10,63 +10,63 @@
 		<div class="host-config">
 			<div class="config-header">Storage</div>
 			<price-item :value="contractPrice" :average="averageSettings.contract_price" :pinned="isPinned('mincontractprice')" @change="onChangePrice('mincontractprice', $event)">
-				<template slot="title">Contract Price</template>
-				<template slot="denomination">per contract</template>
-				<template slot="description">The amount of Siacoin to form a contract with the host. A contract is required to upload, download and store data. <span class="suggestion">Suggested: less than 1 SC. The contract fee should only be used to cover expected transaction fees.</span></template>
+				<template v-slot:title>Contract Price</template>
+				<template v-slot:denomination>per contract</template>
+				<template v-slot:description>The amount of Siacoin to form a contract with the host. A contract is required to upload, download and store data. <span class="suggestion">Suggested: less than 1 SC. The contract fee should only be used to cover expected transaction fees.</span></template>
 			</price-item>
 			<price-item :value="storagePrice" :average="averageSettings.storage_price.times(4320).times(1e12)" :pinned="isPinned('minstorageprice')" @change="onChangePrice('minstorageprice', $event)">
-				<template slot="title">Storage Price</template>
-				<template slot="denomination">per {{ dataUnit }}/Month</template>
-				<template slot="description">The amount of Siacoin to store 1 {{ dataUnit }} for 1 month</template>
+				<template v-slot:title>Storage Price</template>
+				<template v-slot:denomination>per {{ dataUnit }}/Month</template>
+				<template v-slot:description>The amount of Siacoin to store 1 {{ dataUnit }} for 1 month</template>
 			</price-item>
 			<price-item :value="collateral" :average="averageSettings.collateral.times(4320).times(1e12)" :pinned="isPinned('collateral')" @change="onChangePrice('collateral', $event)">
-				<template slot="title">Collateral</template>
-				<template slot="denomination">per sector</template>
-				<template slot="description">The amount of Siacoin per 1 {{ dataUnit }}/month stored to be locked as collateral. <span class="suggestion">Suggested: {{ recommendedCollateral }}.</span></template>
+				<template v-slot:title>Collateral</template>
+				<template v-slot:denomination>per sector</template>
+				<template v-slot:description>The amount of Siacoin per 1 {{ dataUnit }}/month stored to be locked as collateral. <span class="suggestion">Suggested: {{ recommendedCollateral }}.</span></template>
 			</price-item>
 			<price-item :value="maxcollateral" :pinned="isPinned('maxcollateral')" @change="onChangePrice('maxcollateral', $event)">
-				<template slot="title">Max Collateral</template>
-				<template slot="denomination">per contract</template>
-				<template slot="description">The maximum amount of collateral the host will lock into a single contract. This setting also limits the amount of data that the renter can store per contract. <span class="suggestion">Suggested: {{ recommendedMaxCollateral }} (1 TB of uploaded data).</span></template>
+				<template v-slot:title>Max Collateral</template>
+				<template v-slot:denomination>per contract</template>
+				<template v-slot:description>The maximum amount of collateral the host will lock into a single contract. This setting also limits the amount of data that the renter can store per contract. <span class="suggestion">Suggested: {{ recommendedMaxCollateral }} (1 TB of uploaded data).</span></template>
 			</price-item>
 			<price-item :value="collateralBudget" :pinned="isPinned('collateralbudget')" @change="onChangePrice('collateralbudget', $event)">
-				<template slot="title">Collateral Budget</template>
-				<template slot="description">The maximum amount of Siacoin that can be used as collateral. <span class="suggestion">Suggested: to prevent issues with stale contracts, a very large number or multiple times your wallet balance.</span></template>
+				<template v-slot:title>Collateral Budget</template>
+				<template v-slot:description>The maximum amount of Siacoin that can be used as collateral. <span class="suggestion">Suggested: to prevent issues with stale contracts, a very large number or multiple times your wallet balance.</span></template>
 			</price-item>
 			<duration-item :value="maxDuration" :average="averageSettings.max_duration" @change="onChangeValue('maxduration', $event)">
-				<template slot="title">Max Contract Duration</template>
-				<template slot="description">The maximum amount of time a contract can be created for. Payouts only occur at the end of the contract. <span class="suggestion">Suggested: at least 3 months.</span></template>
+				<template v-slot:title>Max Contract Duration</template>
+				<template v-slot:description>The maximum amount of time a contract can be created for. Payouts only occur at the end of the contract. <span class="suggestion">Suggested: at least 3 months.</span></template>
 			</duration-item>
 			<div class="config-header">Network</div>
 			<price-item :value="downloadPrice" :average="averageSettings.download_price.times(1e12)" :pinned="isPinned('mindownloadbandwidthprice')" @change="onChangePrice('mindownloadbandwidthprice', $event)">
-				<template slot="title">Download Price</template>
-				<template slot="denomination">per {{ dataUnit }}</template>
-				<template slot="description">The amount of Siacoin to download 1 {{ dataUnit }} from the host</template>
+				<template v-slot:title>Download Price</template>
+				<template v-slot:denomination>per {{ dataUnit }}</template>
+				<template v-slot:description>The amount of Siacoin to download 1 {{ dataUnit }} from the host</template>
 			</price-item>
 			<price-item :value="uploadPrice" :average="averageSettings.upload_price.times(1e12)" :pinned="isPinned('minuploadbandwidthprice')" @change="onChangePrice('minuploadbandwidthprice', $event)">
-				<template slot="title">Upload Price</template>
-				<template slot="denomination">per {{ dataUnit }}</template>
-				<template slot="description">The amount of Siacoin to upload 1 {{ dataUnit }} to the host</template>
+				<template v-slot:title>Upload Price</template>
+				<template v-slot:denomination>per {{ dataUnit }}</template>
+				<template v-slot:description>The amount of Siacoin to upload 1 {{ dataUnit }} to the host</template>
 			</price-item>
 			<div class="config-header">Registry</div>
 			<size-item :value="registrySize" @change="onChangeValue('registrysize', $event)">
-				<template slot="title">Registry Size</template>
-				<template slot="description">The size of the host registry. The registry is an in-memory key value store. Make sure that you have enough free space on your disk and enough system memory before allocating the registry. <span class="suggestion">Suggested: {{ recommendedRegistrySize }}</span></template>
+				<template v-slot:title>Registry Size</template>
+				<template v-slot:description>The size of the host registry. The registry is an in-memory key value store. Make sure that you have enough free space on your disk and enough system memory before allocating the registry. <span class="suggestion">Suggested: {{ recommendedRegistrySize }}</span></template>
 			</size-item>
 			<file-item :value="registryPath" @change="onChangeValue('customregistrypath', $event)">
-				<template slot="title">Registry Location</template>
-				<template slot="description">The location of the registry on disk, leave blank for default. Defaults to your Sia data path, usually the disk your operating system is installed on.</template>
+				<template v-slot:title>Registry Location</template>
+				<template v-slot:description>The location of the registry on disk, leave blank for default. Defaults to your Sia data path, usually the disk your operating system is installed on.</template>
 			</file-item>
 			<div class="config-header">Advanced</div>
 			<price-item :value="baseRPCPrice" :average="averageSettings.base_rpc_price" :pinned="isPinned('minbaserpcprice')" @change="onChangePrice('minbaserpcprice', $event)">
-				<template slot="title">Base RPC Price</template>
-				<template slot="denomination">per RPC</template>
-				<template slot="description">The amount of Siacoin required to interact with the host. <span class="suggestion">Suggested: very low or zero since this is charged per interaction.</span></template>
+				<template v-slot:title>Base RPC Price</template>
+				<template v-slot:denomination>per RPC</template>
+				<template v-slot:description>The amount of Siacoin required to interact with the host. <span class="suggestion">Suggested: very low or zero since this is charged per interaction.</span></template>
 			</price-item>
 			<price-item :value="sectorAccessPrice" :average="averageSettings.sector_access_price" :pinned="isPinned('minsectoraccessprice')" @change="onChangePrice('minsectoraccessprice', $event)">
-				<template slot="title">Sector Access Price</template>
-				<template slot="denomination">per sector</template>
-				<template slot="description">The amount of Siacoin required to download or upload a single sector from the host. <span class="suggestion">Suggested: very low or zero since this is charged per sector in addition to download price.</span></template>
+				<template v-slot:title>Sector Access Price</template>
+				<template v-slot:denomination>per sector</template>
+				<template v-slot:description>The amount of Siacoin required to download or upload a single sector from the host. <span class="suggestion">Suggested: very low or zero since this is charged per sector in addition to download price.</span></template>
 			</price-item>
 		</div>
 		<div class="controls">
@@ -286,7 +286,7 @@ export default {
 					windowsize: 144
 				});
 
-				for (let pin in this.pinned) {
+				for (const pin in this.pinned) {
 					if (!pin)
 						continue;
 
@@ -327,7 +327,7 @@ export default {
 			if (this.hostConfig.acceptingcontracts === value)
 				return;
 
-			this.config['acceptingcontracts'] = value;
+			this.config.acceptingcontracts = value;
 			this.changed = true;
 		}
 	}

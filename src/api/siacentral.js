@@ -1,7 +1,7 @@
 import { sendJSONRequest } from './common';
 
 export async function getAverageSettings() {
-	const resp = await sendJSONRequest(`https://api.siacentral.com/v2/hosts/network/averages`, {
+	const resp = await sendJSONRequest('https://api.siacentral.com/v2/hosts/network/averages', {
 		method: 'GET'
 	});
 
@@ -39,7 +39,7 @@ export async function getHost(netaddress) {
 }
 
 export async function getSiaCentralBootstrap() {
-	const resp = await sendJSONRequest(`https://api.siacentral.com/v2/bootstrap/latest`, {
+	const resp = await sendJSONRequest('https://api.siacentral.com/v2/bootstrap/latest', {
 		method: 'GET'
 	});
 
@@ -50,7 +50,7 @@ export async function getSiaCentralBootstrap() {
 }
 
 export async function getBlock(height) {
-	let url = `https://api.siacentral.com/v2/explorer/blocks`;
+	let url = 'https://api.siacentral.com/v2/explorer/blocks';
 
 	if (height)
 		url += `/${height}`;
@@ -91,7 +91,7 @@ export async function getContracts(ids, currency = 'usd') {
 }
 
 export async function getCoinPrice() {
-	const resp = await sendJSONRequest(`https://api.siacentral.com/v2/market/exchange-rate?currencies=sc`, {
+	const resp = await sendJSONRequest('https://api.siacentral.com/v2/market/exchange-rate?currencies=sc', {
 		method: 'GET'
 	});
 

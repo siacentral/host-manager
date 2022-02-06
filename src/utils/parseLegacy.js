@@ -35,11 +35,11 @@ export function parseNumberString(str, mul, units) {
 export function parseBlockTimeString(str) {
 	/* eslint-disable object-property-newline */
 	const multipliers = {
-		'm': 4320, 'w': 1008, 'd': 144, 'h': 6,
-		'mth': 4320, 'mths': 4320,
-		'mon': 4320, 'wk': 1008, 'dy': 144, 'hr': 6,
-		'month': 4320, 'week': 1008, 'day': 144, 'hour': 6,
-		'months': 4320, 'weeks': 1008, 'days': 144, 'hours': 6
+		m: 4320, w: 1008, d: 144, h: 6,
+		mth: 4320, mths: 4320,
+		mon: 4320, wk: 1008, dy: 144, hr: 6,
+		month: 4320, week: 1008, day: 144, hour: 6,
+		months: 4320, weeks: 1008, days: 144, hours: 6
 	};
 
 	const unit = str.replace(/[^a-z]/gi, ''),

@@ -24,7 +24,7 @@ export default {
 	},
 	computed: {
 		classes() {
-			const classes = { 'modal': true };
+			const classes = { modal: true };
 
 			if (this.modalStyle)
 				classes[`modal-${this.modalStyle}`] = true;

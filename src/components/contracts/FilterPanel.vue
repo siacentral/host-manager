@@ -179,7 +179,7 @@ export default {
 				end.setHours(23, 59, 59, 999);
 
 				break;
-			case 'week':
+			case 'week': {
 				const curr = start.getDay(),
 					diff = start.getDate() - curr + (curr === 0 ? -6 : 1);
 
@@ -189,7 +189,7 @@ export default {
 				end.setHours(23, 59, 59, 999);
 
 				break;
-			default:
+			} default:
 				start.setHours(0, 0, 0, 0);
 				end.setHours(23, 59, 59, 999);
 
@@ -202,7 +202,7 @@ export default {
 			this.endDateStr = this.dateControlFormat(end);
 		},
 		dateControlFormat(date) {
-			let month = (date.getMonth() + 1).toString().padStart(2, '0'),
+			const month = (date.getMonth() + 1).toString().padStart(2, '0'),
 				day = date.getDate().toString().padStart(2, '0');
 
 			return `${date.getFullYear()}-${month}-${day}`;
@@ -239,11 +239,11 @@ export default {
 			this.startDate.setHours(0, 0, 0, 0);
 
 			if (this.startDate && this.endDate && this.startDate > this.endDate) {
-				this.errors['date'] = 'Start date must be after end date';
+				this.errors.date = 'Start date must be after end date';
 				return;
 			}
 
-			this.errors['date'] = null;
+			this.errors.date = null;
 			this.buildFilter();
 		},
 		endDateStr(val) {
@@ -264,11 +264,11 @@ export default {
 			this.endDate.setHours(23, 59, 59, 999);
 
 			if (this.startDate && this.endDate && this.startDate > this.endDate) {
-				this.errors['date'] = 'Start date must be after end date';
+				this.errors.date = 'Start date must be after end date';
 				return;
 			}
 
-			this.errors['date'] = null;
+			this.errors.date = null;
 			this.buildFilter();
 		},
 		revenueMinStr(val) {
@@ -280,11 +280,11 @@ export default {
 				}
 
 				this.revenueMin = parseCurrencyString(val);
-				this.errors['revenue'] = null;
+				this.errors.revenue = null;
 
 				this.buildFilter();
 			} catch (ex) {
-				this.errors['revenue'] = ex.message;
+				this.errors.revenue = ex.message;
 			}
 		},
 		revenueMaxStr(val) {
@@ -296,11 +296,11 @@ export default {
 				}
 
 				this.revenueMax = parseCurrencyString(val);
-				this.errors['revenue'] = null;
+				this.errors.revenue = null;
 
 				this.buildFilter();
 			} catch (ex) {
-				this.errors['revenue'] = ex.message;
+				this.errors.revenue = ex.message;
 			}
 		}
 	}

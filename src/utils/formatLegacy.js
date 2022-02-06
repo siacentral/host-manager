@@ -22,8 +22,8 @@ export function numberToString(number, divisor, units, decimals) {
 	decimals = isFinite(decimals) ? decimals : -1;
 
 	let unit = units[0],
-		num = new BigNumber(number),
 		mag = new BigNumber(divisor);
+	const num = new BigNumber(number);
 
 	for (let i = 0; i < units.length; i++) {
 		unit = units[i];
@@ -50,9 +50,9 @@ export function formatBlockTimeString(blocks) {
 	if (blocks <= 0)
 		return '0 hr';
 
-	const denoms = { 'mth': 4320, 'wk': 1008, 'day': 144, 'hr': 6 };
+	const denoms = { mth: 4320, wk: 1008, day: 144, hr: 6 };
 
-	for (let key in denoms) {
+	for (const key in denoms) {
 		const d = denoms[key];
 
 		if (blocks < d)
@@ -91,9 +91,9 @@ export function formatDuration(sec, short) {
 	let denoms;
 
 	if (short)
-		denoms = { 'd': 86400, 'h': 3600, 'm': 60 };
+		denoms = { d: 86400, h: 3600, m: 60 };
 	else
-		denoms = { 'day': 86400, 'hour': 3600, 'min': 60 };
+		denoms = { day: 86400, hour: 3600, min: 60 };
 
 	const keys = Object.keys(denoms), len = keys.length;
 
@@ -113,7 +113,7 @@ export function formatDuration(sec, short) {
 		return `${amt} ${amt > 1 && !short ? label + 's' : label}`;
 	}
 
-	return `< 1 m`;
+	return '< 1 m';
 }
 
 export function formatByteString(val, dec) {

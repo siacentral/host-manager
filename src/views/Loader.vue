@@ -47,7 +47,7 @@ export default {
 	},
 	computed: {
 		loaderClasses() {
-			const classes = { 'loader': true };
+			const classes = { loader: true };
 
 			classes[`loader-${this.severity}`] = true;
 

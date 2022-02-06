@@ -51,9 +51,7 @@ export function launch() {
 export async function running() {
 	try {
 		const client = new SiaApiClient(Store.state.config);
-
 		await client.getDaemonVersion();
-
 		return true;
 	} catch (ex) {
 		log.error('daemon running', ex.message);

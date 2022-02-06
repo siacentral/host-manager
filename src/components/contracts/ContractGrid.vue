@@ -192,7 +192,7 @@ export default {
 			return formatBlockTimeString(blocks);
 		},
 		getTagClasses(tag) {
-			const classes = { 'tag': true };
+			const classes = { tag: true };
 
 			classes[`tag-${tag.severity}`] = true;
 

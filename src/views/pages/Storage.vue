@@ -87,7 +87,7 @@ export default {
 	beforeMount() {
 		this.refreshTimer = setInterval(refreshHostStorage, 5000);
 	},
-	beforeDestroy() {
+	beforeUnmount() {
 		window.clearInterval(this.refreshTimer);
 	},
 	data() {

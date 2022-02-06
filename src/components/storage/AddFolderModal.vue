@@ -136,7 +136,7 @@ export default {
 		},
 		async onBrowsePath() {
 			try {
-				this.errors['path'] = null;
+				this.errors.path = null;
 
 				const fp = await dialog.showOpenDialog({ title: 'Path for new Storage Folder', buttonLabel: 'Select', properties: ['openDirectory'] });
 
@@ -228,33 +228,33 @@ export default {
 			}
 		},
 		validate() {
-			let errors = {};
+			const errors = {};
 
 			if (!this.path || this.path.trim().length === 0)
-				errors['path'] = 'Path is required';
+				errors.path = 'Path is required';
 
 			try {
 				this.sizeValue = parseByteString(this.sizeStr);
 
 				if (!this.sizeValue || this.sizeValue.eq(0))
-					errors['size'] = 'Size must be greater than 0';
+					errors.size = 'Size must be greater than 0';
 
 				if (this.sizeValue.lte(minStorageSize))
-					errors['size'] = `Size must be greater than ${minSizeStr}`;
+					errors.size = `Size must be greater than ${minSizeStr}`;
 			} catch (ex) {
-				errors['size'] = ex.message;
+				errors.size = ex.message;
 			}
 
 			if (this.splitFolders) {
 				if (!this.subName || this.subName.trim().length === 0)
-					errors['subdirectory'] = 'Name is required';
+					errors.subdirectory = 'Name is required';
 
 				if (this.splitCount <= 0)
-					errors['splitcount'] = 'Must be greater than 0';
+					errors.splitcount = 'Must be greater than 0';
 				else if (this.sizeValue.div(this.splitCount).lte(minStorageSize)) {
 					const maxSplit = Math.floor(this.sizeValue.div(minStorageSize).toNumber());
 
-					errors['splitcount'] = `Split count must be less than ${maxSplit}`;
+					errors.splitcount = `Split count must be less than ${maxSplit}`;
 				}
 			}
 

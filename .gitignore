@@ -10,11 +10,13 @@ node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # siad binaries
 build/bin
 
 # Editor directories and files
+.editorconfig
 .idea
 .vscode
 *.suo
@@ -27,6 +29,7 @@ build/bin
 *.pem
 *.cer
 *.crt
+private_keys
 
 #Electron-builder output
 /dist_electron

@@ -37,7 +37,7 @@ export default {
 		]),
 		updateText() {
 			if (this.update && this.update.ready)
-				return `Update is ready to install!`;
+				return 'Update is ready to install!';
 
 			if (this.updateProgress && this.updateProgress.percent)
 				return 'Update downloading...';

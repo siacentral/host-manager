@@ -19,7 +19,7 @@ function validNumber(n, def) {
 	return n;
 }
 
-function createWindow() {
+async function createWindow() {
 	const windowState = readWinConfigSync(),
 		width = validNumber(windowState.width, 1000),
 		height = validNumber(windowState.height, 800),
@@ -34,12 +34,16 @@ function createWindow() {
 		minWidth: 800,
 		minHeight: 600,
 		title: 'Sia Host Manager',
+		/* global __static */
 		icon: path.join(__static, 'icon.png'),
 		autoHideMenuBar: true,
 		backgroundColor: '#1d1e21',
 		show: false,
 		webPreferences: {
+			// Use pluginOptions.nodeIntegration, leave this alone
+			// See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
 			nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+			contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
 			enableRemoteModule: true,
 			webSecurity: false
 		},
@@ -58,10 +62,9 @@ function createWindow() {
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
 		// Load the url of the dev server if in development mode
-		mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL, {
+		await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL, {
 			userAgent: 'Sia-Agent'
 		});
-
 		if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
 	} else {
 		createProtocol('app');
@@ -113,9 +116,9 @@ function createWindow() {
 	mainWindow.focus();
 }
 
-export function openWindow() {
+export async function openWindow() {
 	if (!mainWindow)
-		createWindow();
+		await createWindow();
 
 	if (mainWindow.isMinimized())
 		mainWindow.restore();

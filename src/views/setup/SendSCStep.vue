@@ -49,7 +49,7 @@ export default {
 			return formatSiacoinString(this.balance, 2);
 		},
 		minAmountSC() {
-			return new BigNumber(Math.ceil((10 / this.coinPrice['usd']) / 1000) * 1000).times(1e24);
+			return new BigNumber(Math.ceil((10 / this.coinPrice.usd) / 1000) * 1000).times(1e24);
 		},
 		minAmountStr() {
 			return formatSiacoinString(this.minAmountSC, 2);

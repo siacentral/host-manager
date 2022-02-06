@@ -150,30 +150,31 @@ export default {
 			const portRegex = /^:(?<port>[0-9]{1,5})$/mi,
 				listenRegex = /^(?<address>\S+):(?<port>[0-9]{1,5})$/mi;
 
-			let errors = {}, hasErrors = false;
+			const errors = {};
+			let hasErrors = false;
 
 			if (this.hostPort && this.hostPort.length > 0 && portRegex.exec(this.hostPort) === null) {
-				errors['hostPort'] = 'host port must match the format :9982';
+				errors.hostPort = 'host port must match the format :9982';
 				hasErrors = true;
 			}
 
 			if (this.siaMuxWSPort && this.siaMuxWSPort.length > 0 && portRegex.exec(this.siaMuxWSPort) === null) {
-				errors['siaMuxWSPort'] = 'SiaMux port must match the format :9984';
+				errors.siaMuxWSPort = 'SiaMux port must match the format :9984';
 				hasErrors = true;
 			}
 
 			if (this.siaMuxPort && this.siaMuxPort.length > 0 && portRegex.exec(this.siaMuxPort) === null) {
-				errors['siaMuxPort'] = 'SiaMux port must match the format :9983';
+				errors.siaMuxPort = 'SiaMux port must match the format :9983';
 				hasErrors = true;
 			}
 
 			if (this.rpcPort && this.rpcPort.length > 0 && portRegex.exec(this.rpcPort) === null) {
-				errors['rpcPort'] = 'RPC port must match the format :9981';
+				errors.rpcPort = 'RPC port must match the format :9981';
 				hasErrors = true;
 			}
 
 			if (this.apiAddr && this.apiAddr.length > 0 && listenRegex.exec(this.apiAddr) === null) {
-				errors['apiAddr'] = 'API Address must match the format localhost:9980';
+				errors.apiAddr = 'API Address must match the format localhost:9980';
 				hasErrors = true;
 			}
 

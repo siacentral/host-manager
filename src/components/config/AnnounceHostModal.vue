@@ -111,15 +111,14 @@ export default {
 			try {
 				this.announcing = true;
 
-				let hostConfig = {
-						acceptingcontracts: true
-					},
-					address = null;
+				const hostConfig = {
+					acceptingcontracts: true
+				};
+				let address = null;
 
 				switch (this.addressMode.toLowerCase()) {
 				case 'automatic':
 					hostConfig.netaddress = '';
-					address = null;
 					break;
 				case 'custom':
 					hostConfig.netaddress = this.announceAddress;
@@ -135,7 +134,7 @@ export default {
 				await client.announceHost(address);
 
 				this.pushNotification({
-					message: `Successfully announced to the network`,
+					message: 'Successfully announced to the network',
 					icon: 'bullhorn',
 					severity: 'success'
 				});

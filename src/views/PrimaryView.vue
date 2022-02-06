@@ -2,9 +2,11 @@
 	<div class="app-wrapper">
 		<primary-nav />
 		<div class="app-content">
-			<transition name="fade" appear>
-				<router-view />
-			</transition>
+			<router-view v-slot="{ Component }">
+				<transition name="fade" mode="out-in" appear>
+					<component :is="Component" />
+				</transition>
+			</router-view>
 		</div>
 	</div>
 </template>
