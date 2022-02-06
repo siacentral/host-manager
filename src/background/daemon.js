@@ -21,7 +21,7 @@ function getPath() {
 			platform = 'mac';
 
 		/* global __static */
-		return path.join(__static, '..', 'build', 'bin', platform, binary);
+		return path.join(__static, '..', 'build', 'bin', platform, process.arch, binary);
 	}
 
 	return path.join(process.resourcesPath, 'bin', binary);
