@@ -47,11 +47,18 @@ attachUpdateIPC();
 		log.warn('load config', ex);
 	}
 
+	let uid = 0;
+
 	createApp(App)
 		.use(store)
 		.use(router)
 		.component('icon', FontAwesomeIcon)
 		.mixin({
+			data() {
+				return {
+					hmID: (uid++).toString()
+				};
+			},
 			methods: {
 				pushNotification(notification) {
 					store.dispatch('pushNotification', notification);

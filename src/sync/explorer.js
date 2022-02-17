@@ -38,6 +38,9 @@ function translateSeverity(severity) {
 
 export async function checkHostConnectability() {
 	try {
+		if (!Store.state.netaddress)
+			return;
+
 		const report = await getConnectability(Store.state.netAddress);
 
 		if (!report)
@@ -78,6 +81,8 @@ export async function checkHostConnectability() {
 async function loadExplorerHost() {
 	try {
 		const publicHost = await getHost(Store.state.netAddress);
+		if (!publicHost)
+			return;
 
 		if (publicHost.settings) {
 			publicHost.settings = {

@@ -58,7 +58,7 @@ function checkConfig(config) {
 		throw new Error('siad_data_path is required');
 
 	if (typeof config.siad_modules !== 'string')
-		config.siad_modules = 'gctwhf';
+		config.siad_modules = 'gctwh';
 
 	return config;
 }

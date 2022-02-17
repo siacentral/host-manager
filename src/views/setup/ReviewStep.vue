@@ -77,7 +77,6 @@ export default {
 			}
 
 			ipcRenderer.once('daemonLoaded', this.onDaemonLoaded);
-
 			launch();
 		} catch (ex) {
 			log.error('review step mounted', ex.message);

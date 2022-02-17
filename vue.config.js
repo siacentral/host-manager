@@ -39,6 +39,10 @@ module.exports = {
 						]
 					}
 				],
+				win: {
+					/* eslint-disable no-template-curly-in-string */
+					artifactName: '${productName}-v${version}-${arch}.${ext}'
+				},
 				mac: {
 					/* eslint-disable no-template-curly-in-string */
 					artifactName: '${productName}-v${version}-${arch}.${ext}',

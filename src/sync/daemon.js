@@ -45,12 +45,12 @@ export function attachDaemonIPC() {
 }
 
 export function launch() {
-	ipcRenderer.send('launchDaemon', Store.state.config);
+	ipcRenderer.send('launchDaemon', JSON.parse(JSON.stringify(Store.state.config)));
 }
 
 export async function running() {
 	try {
-		const client = new SiaApiClient(Store.state.config);
+		const client = new SiaApiClient(JSON.parse(JSON.stringify(Store.state.config)));
 		await client.getDaemonVersion();
 		return true;
 	} catch (ex) {

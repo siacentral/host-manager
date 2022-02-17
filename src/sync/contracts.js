@@ -477,10 +477,15 @@ async function parseHostContracts() {
 
 		currentBlock.timestamp = new Date(currentBlock.timestamp * 1000);
 
+		if (!Array.isArray(siaContracts.contracts))
+			siaContracts.contracts = [];
+
 		for (let i = 0; i < siaContracts.contracts.length; i++)
 			contractMap[siaContracts.contracts[i].obligationid] = siaContracts.contracts[i];
 
-		const confirmed = await getContracts(Object.keys(contractMap), Store.state.config.currency);
+		let confirmed = await getContracts(Object.keys(contractMap), Store.state.config.currency);
+		if (!Array.isArray(confirmed))
+			confirmed = [];
 
 		for (let i = 0; i < confirmed.length; i++) {
 			const contract = confirmed[i],
