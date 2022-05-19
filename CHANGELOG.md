@@ -1,4 +1,4 @@
-# 1.2.0-beta (2022-05-19)
+# 1.2.0 (2022-05-19)
 
 ## Changed
 + Update to siad v1.5.8-rc1
@@ -8,6 +8,7 @@
 + arm64 releases for all platforms
 + Payout date column to contract grid
 + Show pending payouts with wallet balance
++ New alerts for sector removal and folder resize, addition, and deletion
 
 # 1.1.1 (2021-11-15)
 

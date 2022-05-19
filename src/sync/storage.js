@@ -125,6 +125,9 @@ async function loadHostStorage() {
 	if (successfulWrites + failedWrites > 0)
 		writePct = failedWrites / (successfulWrites + failedWrites);
 
+	const addAlerts = (await syncHostAlerts()) || [];
+	storageAlerts.push(...addAlerts);
+
 	// deep copy here
 	Store.dispatch('hostStorage/setFolders', JSON.parse(JSON.stringify(folders)));
 	Store.dispatch('hostStorage/setUsedStorage', usedStorage);
@@ -132,4 +135,38 @@ async function loadHostStorage() {
 	Store.dispatch('hostStorage/setReadPercent', readPct);
 	Store.dispatch('hostStorage/setWritePercent', writePct);
 	Store.dispatch('hostStorage/setAlerts', storageAlerts);
+}
+
+function translateSiaSeverity(severity) {
+	switch (severity.toLowerCase()) {
+	case 'info':
+		return 'info';
+	case 'warning':
+		return 'warning';
+	case 'error', 'critical':
+		return 'danger';
+	}
+}
+
+async function syncHostAlerts() {
+	try {
+		let { alerts } = await apiClient.getAlerts(Store.state.netAddress);
+		if (!Array.isArray(alerts))
+			alerts = [];
+
+		return alerts.reduce((alerts, alert) => {
+			if (alert.module !== 'host')
+				return alerts;
+
+			alerts.push({
+				category: 'storage',
+				icon: 'hdd',
+				severity: translateSiaSeverity(alert.severity),
+				message: alert.msg
+			});
+			return alerts;
+		}, []);
+	} catch (ex) {
+		log.error('syncHostAlerts', ex);
+	}
 }

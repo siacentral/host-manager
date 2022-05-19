@@ -158,5 +158,11 @@ body.win32 {
 		color: #71660f;
 		background: #fffae4;
 	}
+
+	&.alert-info {
+		border-color: #46606b;
+		color: #46606b;
+		background: #d0d4e4;
+	}
 }
 </style>

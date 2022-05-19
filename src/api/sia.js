@@ -678,4 +678,20 @@ export default class SiaApiClient {
 
 		return { siacoins, siafunds };
 	}
+
+	async getAlerts() {
+		const apiPassword = await this.getDefaultAPIPassword(),
+			resp = await sendJSONRequest(`${this.config.siad_api_addr}/daemon/alerts`, {
+				method: 'GET',
+				auth: {
+					username: '',
+					password: apiPassword
+				}
+			});
+
+		if (resp.statusCode !== 200)
+			throw new Error(resp.body.message);
+
+		return resp.body;
+	}
 }
