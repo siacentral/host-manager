@@ -1,6 +1,7 @@
-# 1.2.0 (2022-05-19)
+# 1.2.0-beta (2022-05-19)
 
 ## Changed
++ Update to siad v1.5.8-rc1
 + Use `yarn` instead of `npm`
 
 ## Added

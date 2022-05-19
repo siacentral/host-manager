@@ -131,7 +131,7 @@ jobs:
 
             // if we didn't find the body, throw an error
             if (!body.length)
-              throw new Error(`Could not find release body for ${name}`);
+              throw new Error(`could not find release body for ${name}`);
 
             // update the release
             await github.repos.updateRelease({
