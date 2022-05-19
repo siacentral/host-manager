@@ -1,4 +1,4 @@
-# 1.2.0 (2022-02-06)
+# 1.2.0 (2022-05-19)
 
 ## Changed
 + Use `yarn` instead of `npm`

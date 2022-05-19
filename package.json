@@ -12,7 +12,7 @@
 		"url": "https://github.com/siacentral/host-manager/issues"
 	},
 	"license": "AGPLv3",
-	"siaVersion": "1.5.7",
+	"siaVersion": "1.5.8-rc1",
 	"private": true,
 	"scripts": {
 		"lint": "vue-cli-service lint",
