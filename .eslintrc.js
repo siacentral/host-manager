@@ -8,7 +8,7 @@ module.exports = {
 		'@vue/standard'
 	],
 	parserOptions: {
-		parser: 'babel-eslint'
+		parser: '@babel/eslint-parser'
 	},
 	rules: {
 		// allow async-await
@@ -23,6 +23,7 @@ module.exports = {
 		'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
 		'one-var': 'off',
 		curly: ['error', 'multi-or-nest'],
-		'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off'
+		'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+		'vue/multi-word-component-names': 'off'
 	}
 };

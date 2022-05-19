@@ -7,8 +7,8 @@ import SiaApiClient from './sia/api';
 import { openWindow, sendIPC } from './window';
 import { shutdownDaemon, running } from './daemon';
 
-export var mainTray;
-export var shutdown = false;
+export let mainTray;
+export let shutdown = false;
 
 export function setShutdown(val) {
 	shutdown = val;

@@ -5,7 +5,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { shutdown } from './tray';
 import { readWinConfigSync, writeWinConfigSync } from './utils';
 
-export var mainWindow;
+export let mainWindow;
 
 app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors');
 app.commandLine.appendSwitch('js-flags', '--expose_gc --max-old-space-size=1024');
@@ -48,13 +48,17 @@ async function createWindow() {
 			webSecurity: false
 		},
 		// darwin overrides
-		...(process.platform === 'darwin' ? {
-			titleBarStyle: 'hiddenInset'
-		} : {}),
+		...(process.platform === 'darwin'
+			? {
+				titleBarStyle: 'hiddenInset'
+			}
+			: {}),
 		// windows overrides
-		...(process.platform === 'win32' ? {
-			frame: false
-		} : {})
+		...(process.platform === 'win32'
+			? {
+				frame: false
+			}
+			: {})
 	};
 
 	// Create the browser window.
