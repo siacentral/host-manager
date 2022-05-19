@@ -48,7 +48,6 @@ export default {
 	},
 	async beforeMount() {
 		document.body.classList.add('dark');
-		console.log('try load beforeMount');
 		await this.tryLoad();
 	},
 	methods: {
@@ -83,9 +82,8 @@ export default {
 
 				this.setConfig(config);
 				await writeConfig(config);
-
-				await refreshData(config);
 				this.setCriticalError(null);
+				refreshData(config);
 			} catch (ex) {
 				log.error('App.onChangeAPIPassword', ex);
 				this.setCriticalError(ex.message);

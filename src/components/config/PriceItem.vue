@@ -8,7 +8,7 @@
 			</div>
 		</div>
 		<div class="config-values">
-			<currency-input v-model="price" @update="onCurrencyUpdate" />
+			<currency-input v-model="price" :refresh="refresh" @update="onCurrencyUpdate" />
 			<div class="avg-value" v-if="average && average.gt(0)">
 				<div class="avg-title">Average</div>
 				<div class="values" v-html="averageDisplay" />
@@ -36,7 +36,7 @@ export default {
 			coinPrice: state => state.coinPrice
 		}),
 		checkboxID() {
-			return `chk-pin-price-${this._uid}`;
+			return `chk-pin-price-${this.hmID}`;
 		},
 		averageDisplay() {
 			if (!this.average)
@@ -53,15 +53,24 @@ export default {
 		average: Object,
 		pinned: Boolean
 	},
-	beforeMount() {
+	emits: [
+		'change'
+	],
+	setup(props) {
+		console.log('SETUP', props);
+	},
+	mounted() {
+		console.log('MOUNTED', this.value);
 		this.price = this.value;
 		this.pricePinned = this.pinned;
+		this.refresh++;
 	},
 	data() {
 		return {
 			pricePinned: false,
 			price: new BigNumber(0),
-			fiatPrice: '$0.00'
+			fiatPrice: '$0.00',
+			refresh: 0
 		};
 	},
 	methods: {
@@ -72,11 +81,22 @@ export default {
 			this.onUpdate();
 		},
 		onUpdate() {
+			console.log('onUpdate', this.price);
+
+			if (!this.price)
+				return;
+
 			this.$emit('change', {
 				value: this.price,
 				fiat: this.fiatPrice,
 				pinned: this.pricePinned
 			});
+		}
+	},
+	watch: {
+		price(val) {
+			console.log('updated price', val.toString());
+			this.onUpdate();
 		}
 	}
 };

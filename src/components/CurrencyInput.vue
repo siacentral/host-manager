@@ -15,10 +15,14 @@ import { parseSiacoinString, parseCurrencyString } from '@/utils/parse';
 
 export default {
 	props: {
-		value: Object,
+		modelValue: Object,
 		readonly: Boolean,
 		refresh: Number
 	},
+	emits: [
+		'update:modelValue',
+		'update'
+	],
 	computed: {
 		...mapState({
 			currency: state => state.config.currency,
@@ -31,8 +35,8 @@ export default {
 		};
 	},
 	mounted() {
-		this.amount = this.value;
-		this.onFormatValues();
+		this.amount = this.modelValue;
+		this.onFormatValues(false);
 	},
 	methods: {
 		formatCurrencyString(value) {
@@ -47,6 +51,7 @@ export default {
 				this.amount = parseSiacoinString(value);
 				this.$refs.txtCurrency.value = this.formatCurrencyString(this.amount);
 				this.$emit('input', this.amount);
+				this.$emit('update:modelValue', this.amount);
 				this.$emit('update', { amount: this.amount, fiat: this.$refs.txtCurrency.value });
 			} catch (ex) {
 				console.error('CurrencyInput.onChangeSiacoin', ex);
@@ -63,6 +68,7 @@ export default {
 				this.amount = parsed;
 				this.$refs.txtSiacoin.value = siacoins.value;
 				this.$emit('input', this.amount);
+				this.$emit('update:modelValue', this.amount);
 				this.$emit('update', { amount: this.amount, fiat: this.$refs.txtCurrency.value });
 			} catch (ex) {
 				console.error('CurrencyInput.onChangeCurrency', ex);
@@ -85,7 +91,8 @@ export default {
 	},
 	watch: {
 		refresh() {
-			this.amount = this.value;
+			console.log('refreshing', this.modelValue);
+			this.amount = this.modelValue;
 			this.onFormatValues(false);
 		}
 	}

@@ -66,25 +66,20 @@ export async function getBlock(height) {
 }
 
 export async function getContracts(ids, currency = 'usd') {
-	const promises = [];
+	const contracts = [];
 
-	for (let i = 0; i < ids.length; i += 500) {
-		promises.push(sendJSONRequest(`https://api.siacentral.com/v2/explorer/contracts?currency=${currency}`, {
+	for (let i = 0; i < ids.length; i += 250) {
+		const resp = await sendJSONRequest(`https://api.siacentral.com/v2/explorer/contracts?currency=${currency}`, {
 			method: 'POST',
 			body: {
-				contracts: ids.slice(i, i + 500)
+				contracts: ids.slice(i, i + 250)
 			}
-		}));
-	}
+		});
 
-	const resps = await Promise.all(promises);
-	let contracts = [];
+		if (resp.statusCode !== 200 || resp.body.type !== 'success' || !Array.isArray(resp.body.contracts))
+			throw new Error(resp.body.message);
 
-	for (let i = 0; i < resps.length; i++) {
-		if (resps[i].statusCode !== 200 || resps[i].body.type !== 'success' || !Array.isArray(resps[i].body.contracts))
-			throw new Error(resps[i].body.message);
-
-		contracts = contracts.concat(resps[i].body.contracts);
+		contracts.push(...resp.body.contracts);
 	}
 
 	return contracts;
