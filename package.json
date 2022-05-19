@@ -60,8 +60,7 @@
     "style-resources-loader": "^1.5.0",
     "stylus": "^0.54.7",
     "stylus-loader": "^3.0.2",
-    "vue-cli-plugin-electron-builder": "~2.1.1",
-    "vue-svg-loader": "^0.17.0-beta.2"
+    "vue-cli-plugin-electron-builder": "~2.1.1"
   },
   "bugs": {
     "url": "https://github.com/siacentral/host-manager/issues"

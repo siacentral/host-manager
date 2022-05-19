@@ -43,7 +43,7 @@ import AlertsPanel from '@/components/Alerts';
 import DonateModal from '@/components/donate/DonateModal';
 import HealthStatus from '@/components/HealthStatus';
 import SettingsModal from '@/components/SettingsModal';
-import SiaCentral from '@/assets/siacentral.svg';
+import SiaCentral from '@/components/svg/SiaCentral';
 import UpdateItem from '@/components/update/UpdateItem';
 
 export default {

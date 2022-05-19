@@ -18,7 +18,7 @@
 <script>
 import log from 'electron-log';
 import SetupStep from './SetupStep';
-import SiaCentralSia from '@/assets/siacentral+sia.svg';
+import SiaCentralSia from '@/components/svg/SiaCentralSia';
 
 export default {
 	props: {

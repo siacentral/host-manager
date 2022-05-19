@@ -528,6 +528,7 @@ async function parseHostContracts() {
 		Store.dispatch('hostContracts/setAlerts', alerts);
 		confirmedContracts = confirmed;
 	} catch (ex) {
-		log.error('parseHostContracts', ex.message);
+		console.error(ex);
+		log.error('parseHostContracts', ex);
 	}
 }

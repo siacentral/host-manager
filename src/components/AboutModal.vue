@@ -34,7 +34,7 @@ import { remote, shell } from 'electron';
 import { getLogPath } from '@/utils';
 import log from 'electron-log';
 
-import SiaCentral from '@/assets/siacentral.svg';
+import SiaCentral from '@/components/svg/SiaCentral';
 import Modal from '@/components/Modal';
 
 const appVersion = remote.app.getVersion();

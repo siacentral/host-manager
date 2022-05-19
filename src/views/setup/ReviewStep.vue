@@ -37,7 +37,7 @@ import SiaApiClient from '@/api/sia';
 import ProgressBar from '@/components/ProgressBar';
 
 import SetupStep from './SetupStep';
-import SiaCentral from '@/assets/siacentral.svg';
+import SiaCentral from '@/components/svg/SiaCentral';
 
 export default {
 	components: {

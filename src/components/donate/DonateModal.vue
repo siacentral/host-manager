@@ -10,7 +10,7 @@
 <script>
 import Donate from './Donate';
 import Modal from '@/components/Modal';
-import SiaCentral from '@/assets/siacentral.svg';
+import SiaCentral from '@/components/svg/SiaCentral';
 
 export default {
 	components: {
