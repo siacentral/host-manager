@@ -522,13 +522,12 @@ async function parseHostContracts() {
 		}
 
 		Store.dispatch('hostContracts/setPendingPayouts', pendingPayout);
+		Store.dispatch('hostContracts/setStats', stats);
+		Store.dispatch('hostContracts/setSnapshots', snapshots);
 		// deep copy here
 		Store.dispatch('hostContracts/setAlerts', alerts);
 		confirmedContracts = confirmed;
 	} catch (ex) {
 		log.error('parseHostContracts', ex.message);
-	} finally {
-		Store.dispatch('hostContracts/setStats', stats);
-		Store.dispatch('hostContracts/setSnapshots', snapshots);
 	}
 }
