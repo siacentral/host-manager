@@ -6,7 +6,8 @@
 
 ## Added
 + arm64 releases for all platforms
-+ Payout date column to contract grid
++ Payout date column to show payout availability
++ Renewed column to show if a contract has been renewed.
 + Show pending payouts with wallet balance
 + New alerts for sector removal and folder resize, addition, and deletion
 
