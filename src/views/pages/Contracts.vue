@@ -73,6 +73,11 @@ export default {
 					format: 'status'
 				},
 				{
+					text: 'Renewed',
+					key: 'renewed',
+					format: 'bool'
+				},
+				{
 					text: 'Start Date',
 					key: 'negotiation_timestamp',
 					format: 'date'
@@ -350,9 +355,11 @@ export default {
 					return formatByteString(0, 2);
 
 				return formatByteString(value, 2);
+			case 'bool':
+				return value ? 'Yes' : 'No';
 			case 'block-time': {
 				if (!value)
-					return '0 blocks';
+					return 'Paid';
 				else if (value < 10)
 					return '< 1 hr';
 				else if (value > 144)

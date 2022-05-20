@@ -128,12 +128,11 @@ export default {
 
 .sia-status-item {
 	display: grid;
-	column-gap: 15px;
-	row-gap: 2px;
+	grid-gap: 5px 15px;
 	grid-template-columns: 18px 1fr;
 	align-items: center;
-	margin-bottom: 15px;
 	text-decoration: none;
+	margin-bottom: 5px;
 
 	&:last-child {
 		margin-bottom: 0;
@@ -141,7 +140,7 @@ export default {
 
 	.sia-status-icon {
 		color: primary;
-		grid-area: auto / 1 / span 2;
+		// grid-area: auto / 1 / span 2;
 
 		&.status-warning {
 			color: warning-accent;

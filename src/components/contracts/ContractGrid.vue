@@ -167,9 +167,11 @@ export default {
 					return formatPriceString(0, 4);
 
 				return formatPriceString(value, 4);
+			case 'bool':
+				return value ? 'Yes' : 'No';
 			case 'block-time': {
 				if (!value)
-					return '0 blocks';
+					return 'Paid';
 				else if (value < 10)
 					return '< 1 hr';
 				else if (value > 144)
