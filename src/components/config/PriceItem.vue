@@ -56,11 +56,7 @@ export default {
 	emits: [
 		'change'
 	],
-	setup(props) {
-		console.log('SETUP', props);
-	},
 	mounted() {
-		console.log('MOUNTED', this.value);
 		this.price = this.value;
 		this.pricePinned = this.pinned;
 		this.refresh++;
@@ -81,8 +77,6 @@ export default {
 			this.onUpdate();
 		},
 		onUpdate() {
-			console.log('onUpdate', this.price);
-
 			if (!this.price)
 				return;
 
@@ -91,12 +85,6 @@ export default {
 				fiat: this.fiatPrice,
 				pinned: this.pricePinned
 			});
-		}
-	},
-	watch: {
-		price(val) {
-			console.log('updated price', val.toString());
-			this.onUpdate();
 		}
 	}
 };

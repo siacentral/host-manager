@@ -94,7 +94,6 @@ export default class SiaApiClient {
 
 	async gatewayConnect(addr) {
 		try {
-			console.log('connecting to', addr);
 			const apiPassword = await this.getDefaultAPIPassword(),
 				resp = await sendJSONRequest(`${this.config.siad_api_addr}/gateway/connect/${encodeURIComponent(addr)}`, {
 					method: 'POST',
