@@ -57,17 +57,20 @@ export default {
 		}
 	},
 	watch: {
-		notifications() {
-			try {
-				if (this.notification)
-					return;
+		notifications: {
+			deep: true,
+			handler() {
+				try {
+					if (this.notification)
+						return;
 
-				this.notification = this.notifications[0];
+					this.notification = this.notifications[0];
 
-				if (this.notification)
-					this.startTimeout();
-			} catch (ex) {
-				log.error('watch notifications', ex.message);
+					if (this.notification)
+						this.startTimeout();
+				} catch (ex) {
+					log.error('watch notifications', ex.message);
+				}
 			}
 		}
 	}
