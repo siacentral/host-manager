@@ -47,7 +47,7 @@ export default {
 		UnlockWallet
 	},
 	async beforeMount() {
-		document.body.classList.add('dark');
+		document.body.classList.add('dark', process.platform);
 		await this.tryLoad();
 	},
 	methods: {
