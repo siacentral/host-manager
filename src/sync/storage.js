@@ -137,15 +137,30 @@ async function loadHostStorage() {
 	Store.dispatch('hostStorage/setAlerts', storageAlerts);
 }
 
-function translateSiaSeverity(severity) {
-	switch (severity.toLowerCase()) {
+function convertAlert(siaAlert) {
+	const alert = {
+		message: siaAlert.msg,
+		icon: 'info'
+	};
+
+	switch (siaAlert.severity.toLowerCase()) {
 	case 'info':
-		return 'info';
+		alert.severity = 'info';
+		break;
 	case 'warning':
-		return 'warning';
+		alert.severity = 'warning';
+		break;
 	case 'error', 'critical':
-		return 'danger';
+		alert.severity = 'danger';
+		break;
 	}
+
+	if (siaAlert.cause === 'folder op') {
+		alert.category = 'storage';
+		alert.icon = 'folder';
+	}
+
+	return alert;
 }
 
 async function syncHostAlerts() {
@@ -154,18 +169,7 @@ async function syncHostAlerts() {
 		if (!Array.isArray(alerts))
 			alerts = [];
 
-		return alerts.reduce((alerts, alert) => {
-			if (alert.module !== 'host')
-				return alerts;
-
-			alerts.push({
-				category: 'storage',
-				icon: 'hdd',
-				severity: translateSiaSeverity(alert.severity),
-				message: alert.msg
-			});
-			return alerts;
-		}, []);
+		return alerts.map(convertAlert);
 	} catch (ex) {
 		log.error('syncHostAlerts', ex);
 	}
