@@ -68,7 +68,7 @@ export default {
 
 				const client = new SiaApiClient(this.config);
 
-				await client.resizeStorageFolder(this.folder.path, this.sizeValue);
+				client.resizeStorageFolder(this.folder.path, this.sizeValue);
 				await refreshHostStorage();
 
 				this.pushNotification({

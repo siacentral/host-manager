@@ -184,12 +184,12 @@ export default {
 					for (let i = 1; i < this.splitCount + 1; i++) {
 						const subPath = path.join(this.path, `${this.subName}${i}`);
 
-						await this.createFolder(subPath, size);
+						this.createFolder(subPath, size);
 
 						this.createdCount++;
 					}
 				} else
-					await this.createFolder(this.path, this.sizeValue);
+					this.createFolder(this.path, this.sizeValue);
 
 				await refreshHostStorage();
 				this.$emit('close');

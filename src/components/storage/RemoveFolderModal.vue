@@ -72,7 +72,7 @@ export default {
 
 				const client = new SiaApiClient(this.config);
 
-				await client.removeStorageFolder(this.folder.path, this.forceDelete);
+				client.removeStorageFolder(this.folder.path, this.forceDelete);
 				await refreshHostStorage();
 
 				this.pushNotification({
