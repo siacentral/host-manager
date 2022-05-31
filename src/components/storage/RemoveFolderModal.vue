@@ -60,6 +60,19 @@ export default {
 			this.$emit('close');
 		},
 		formatByteString,
+		async removeFolder() {
+			try {
+				const client = new SiaApiClient(this.config);
+				await client.removeStorageFolder(this.folder.path, this.forceDelete);
+			} catch (ex) {
+				log.error('remove folder', ex.message);
+				this.pushNotification({
+					message: ex.message,
+					icon: 'hdd',
+					severity: 'danger'
+				});
+			}
+		},
 		async onRemoveFolder() {
 			if (this.removing)
 				return;
@@ -70,11 +83,8 @@ export default {
 				if (this.validateName !== this.folder.path)
 					return;
 
-				const client = new SiaApiClient(this.config);
-
-				await client.removeStorageFolder(this.folder.path, this.forceDelete);
+				this.removeFolder();
 				await refreshHostStorage();
-
 				this.pushNotification({
 					message: 'Folder is being removed. Any stored data will be moved to other locations',
 					icon: 'hdd'

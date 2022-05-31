@@ -55,6 +55,19 @@ export default {
 
 			this.$emit('close');
 		},
+		async resizeFolder() {
+			try {
+				const client = new SiaApiClient(this.config);
+				await client.resizeStorageFolder(this.folder.path, this.sizeValue);
+			} catch (ex) {
+				log.error('resize folder', ex.message);
+				this.pushNotification({
+					message: ex.message,
+					icon: 'hdd',
+					severity: 'danger'
+				});
+			}
+		},
 		async onResizeFolder() {
 			if (this.resizing)
 				return;
@@ -66,11 +79,8 @@ export default {
 				if (!this.valid)
 					return;
 
-				const client = new SiaApiClient(this.config);
-
-				await client.resizeStorageFolder(this.folder.path, this.sizeValue);
+				this.resizeFolder();
 				await refreshHostStorage();
-
 				this.pushNotification({
 					message: 'Folder is being resized. This can take some time.',
 					icon: 'hdd'

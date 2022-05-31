@@ -132,7 +132,7 @@ export default {
 	grid-template-columns: 18px 1fr;
 	align-items: center;
 	text-decoration: none;
-	margin-bottom: 5px;
+	margin-bottom: 8px;
 
 	&:last-child {
 		margin-bottom: 0;
