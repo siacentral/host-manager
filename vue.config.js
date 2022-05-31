@@ -19,7 +19,7 @@ module.exports = {
 				afterSign: 'build/scripts/notarize.js',
 				afterAllArtifactBuild: 'build/scripts/sign.js',
 				/* eslint-disable no-template-curly-in-string */
-				artifactName: '${productName}-v${version}-${arch}.${ext}',
+				artifactName: '${productName}-v${version}-${os}-${arch}.${ext}',
 				extraResources: [
 					{
 						/* eslint-disable no-template-curly-in-string */
@@ -32,11 +32,11 @@ module.exports = {
 				],
 				win: {
 					/* eslint-disable no-template-curly-in-string */
-					artifactName: '${productName}-v${version}-${arch}.${ext}'
+					artifactName: '${productName}-v${version}-${os}-${arch}.${ext}'
 				},
 				mac: {
 					/* eslint-disable no-template-curly-in-string */
-					artifactName: '${productName}-v${version}-${arch}.${ext}',
+					artifactName: '${productName}-v${version}-${os}-${arch}.${ext}',
 					hardenedRuntime: true,
 					// disabled due to new Apple notarization failing
 					gatekeeperAssess: false,
@@ -46,7 +46,7 @@ module.exports = {
 				linux: {
 					executableName: 'Sia Host Manager',
 					/* eslint-disable no-template-curly-in-string */
-					artifactName: '${productName}-v${version}-${arch}.${ext}',
+					artifactName: '${productName}-v${version}-${os}-${arch}.${ext}',
 					target: [
 						'deb',
 						'AppImage'
@@ -55,7 +55,7 @@ module.exports = {
 				},
 				appImage: {
 					/* eslint-disable no-template-curly-in-string */
-					artifactName: '${productName}-v${version}-${arch}.${ext}'
+					artifactName: '${productName}-v${version}-${os}-${arch}.${ext}'
 				},
 				dmg: {
 					// new apple notarization does not need the dmg signed
@@ -66,10 +66,10 @@ module.exports = {
 					perMachine: true
 				},
 				publish: {
-					provider: 'github',
-					repo: 'host-manager',
-					owner: 'siacentral',
-					releaseType: 'prerelease'
+					provider: 's3',
+					bucket: 'siacentral',
+					endpoint: 'https://s3.filebase.com',
+					path: '/releases/host-manager'
 				}
 			}
 		}

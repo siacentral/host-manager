@@ -1,15 +1,16 @@
-# 1.2.0 (2022-05-19)
+# 1.2.0 (2022-05-31)
 
 ## Changed
-+ Update to siad v1.5.8-rc1
++ Update to siad v1.5.8
 + Use `yarn` instead of `npm`
++ Add/Remove/Resize folder modals are non-blocking again.
 
 ## Added
 + arm64 releases for all platforms
 + Payout date column to show payout availability
 + Renewed column to show if a contract has been renewed.
 + Show pending payouts with wallet balance
-+ New alerts for sector removal and folder resize, addition, and deletion
++ New alerts for all folder operations
 
 # 1.1.1 (2021-11-15)
 
