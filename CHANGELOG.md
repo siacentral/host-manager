@@ -1,3 +1,8 @@
+# 1.2.1 (2022-06-05)
+
+## Fixed
++ Fixed an issue with changing the host's max duration
+
 # 1.2.0 (2022-05-31)
 
 ## Changed
