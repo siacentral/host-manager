@@ -21,7 +21,8 @@ export default {
 	},
 	emits: [
 		'update:modelValue',
-		'update'
+		'update',
+		'input'
 	],
 	computed: {
 		...mapState({
@@ -91,7 +92,6 @@ export default {
 	},
 	watch: {
 		refresh() {
-			console.log('refreshing', this.modelValue);
 			this.amount = this.modelValue;
 			this.onFormatValues(false);
 		}

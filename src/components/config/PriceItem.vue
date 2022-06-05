@@ -54,7 +54,7 @@ export default {
 		pinned: Boolean
 	},
 	emits: [
-		'change'
+		'update'
 	],
 	mounted() {
 		this.price = this.value;
@@ -80,7 +80,7 @@ export default {
 			if (!this.price)
 				return;
 
-			this.$emit('change', {
+			this.$emit('update', {
 				value: this.price,
 				fiat: this.fiatPrice,
 				pinned: this.pricePinned

@@ -27,6 +27,7 @@ export default {
 		value: Object,
 		average: Object
 	},
+	emits: ['update'],
 	beforeMount() {
 		this.size = this.value;
 		this.onFormatSize();
@@ -55,7 +56,7 @@ export default {
 			try {
 				this.size = parseByteString(this.sizeStr);
 
-				this.$emit('change', this.size);
+				this.$emit('update', this.size);
 			} catch (ex) {
 				console.error('SizeItem.onChange', ex);
 			}

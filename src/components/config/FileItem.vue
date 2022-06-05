@@ -5,7 +5,7 @@
 		</div>
 		<div class="config-error"><slot name="error" /></div>
 		<div class="control control-search">
-			<input type="text" v-model="path" @input="$emit('change', path)" />
+			<input type="text" v-model="path" @input="$emit('update', path)" />
 			<button @click="onSelectDir"><icon icon="search" /> Browse</button>
 		</div>
 		<div class="config-denom"><slot name="denomination" /></div>
@@ -22,6 +22,7 @@ export default {
 	props: {
 		value: String
 	},
+	emits: ['update'],
 	beforeMount() {
 		this.path = this.value;
 	},
@@ -36,7 +37,7 @@ export default {
 
 			this.path = filePath || '';
 
-			this.$emit('change', this.path);
+			this.$emit('update', this.path);
 		}
 	}
 };

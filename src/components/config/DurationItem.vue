@@ -26,6 +26,7 @@ export default {
 		value: Number,
 		average: Number
 	},
+	emits: ['update'],
 	beforeMount() {
 		this.duration = this.value;
 		this.onFormatDuration();
@@ -49,9 +50,10 @@ export default {
 	methods: {
 		onChange() {
 			try {
+				console.log('pre change', this.durationStr);
 				this.duration = parseBlockTimeString(this.durationStr);
-
-				this.$emit('change', this.duration);
+				console.log('change', this.duration, this.durationStr);
+				this.$emit('update', this.duration);
 			} catch (ex) {
 				console.error('DurationItem.onChange', ex);
 			}
