@@ -130,7 +130,7 @@ export default {
 		},
 		recommendedRegistrySize() {
 			const { total } = process.getSystemMemoryInfo(),
-				max = new BigNumber(this.appConfig.data_unit === 'decimal' ? 1000 : 1024).pow(3).times(4); // 4GiB or 4GB depending on data unit
+				max = new BigNumber(this.appConfig.data_unit === 'decimal' ? 1000 : 1024).pow(3); // 1GiB or 1GB depending on data unit
 			let bytes = new BigNumber(total).times(1000).div(4);
 
 			if (bytes.gt(max))
