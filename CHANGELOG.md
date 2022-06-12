@@ -1,3 +1,11 @@
+# 1.2.2 (2022-06-12)
+
+## Changed
++ Lowered the recommended registry size
+
+## Fixed
++ Fixed an issue with pending payout calculation
+
 # 1.2.1 (2022-06-05)
 
 ## Fixed
