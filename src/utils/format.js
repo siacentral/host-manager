@@ -121,12 +121,7 @@ export function formatBlockTimeString(blocks) {
 export function formatDate(date) {
 	return date.toLocaleString([], {
 		dateStyle: 'short',
-		timeStyle: 'short',
-		year: '2-digit',
-		month: '2-digit',
-		day: '2-digit',
-		hour: '2-digit',
-		minute: '2-digit'
+		timeStyle: 'short'
 	});
 }
 
@@ -135,7 +130,7 @@ export function formatShortDateString(date) {
 }
 
 export function formatShortTimeString(date) {
-	return date.toLocaleTimeString([], { timeStyle: 'short', hour: '2-digit', minute: '2-digit' });
+	return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 export function formatDuration(sec, short) {

@@ -204,6 +204,7 @@ export function filteredContracts(filter = {}) {
 				return 0;
 			case 'negotiation_timestamp':
 			case 'expiration_timestamp':
+			case 'payout_timestamp':
 				if (a > b && filter.sort.descending)
 					return -1;
 				else if (a > b)
@@ -289,7 +290,10 @@ function mergeContract(chain, sia, stats, snapshots, block) {
 	c.sia_missed_proof_outputs = sia.missedproofoutputs.map(o => ({ unlock_hash: o.unlockhash, value: new BigNumber(o.value) }));
 	c.negotiation_height = chain.negotiation_height;
 	c.expiration_height = chain.expiration_height;
+	c.proof_height = chain.proof_height;
 	c.proof_deadline = chain.proof_deadline;
+	c.payout_height = chain.payout_height;
+	c.payout_timestamp = new Date(chain.payout_timestamp);
 	c.negotiation_timestamp = new Date(chain.negotiation_timestamp);
 	c.expiration_timestamp = new Date(chain.expiration_timestamp);
 	c.proof_deadline_timestamp = new Date(chain.proof_deadline_timestamp);
@@ -303,7 +307,6 @@ function mergeContract(chain, sia, stats, snapshots, block) {
 	c.potential_revenue = new BigNumber(0);
 	c.renewed = false;
 	c.proof_required = !c.valid_proof_outputs[1].value.eq(c.missed_proof_outputs[1].value);
-	c.payout_height = 0;
 	c.expiration_exchange_rate = {
 		rate: new BigNumber(chain.expiration_exchange_rate.rate),
 		currency: chain.expiration_exchange_rate.currency
@@ -336,15 +339,6 @@ function mergeContract(chain, sia, stats, snapshots, block) {
 
 		i = stdDate(next);
 	}
-
-	if (c.proof_confirmed)
-		c.payout_height = chain.proof_height + 144;
-	else
-		c.payout_height = chain.expiration_height + 144;
-
-	c.payout_blocks = c.payout_height - block.height;
-	if (c.payout_blocks < 0)
-		c.payout_blocks = 0;
 
 	switch (c.status.toLowerCase()) {
 	case 'obligationsucceeded': {

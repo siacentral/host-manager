@@ -49,7 +49,7 @@
 import BigNumber from 'bignumber.js';
 import { mapState } from 'vuex';
 import { formatByteString, formatShortDateString, formatFriendlyStatus } from '@/utils/formatLegacy';
-import { formatPriceString, formatCurrency, formatBlockTimeString, formatFriendlyBlockTimeString } from '@/utils/format';
+import { formatDate, formatPriceString, formatCurrency, formatBlockTimeString } from '@/utils/format';
 
 export default {
 	props: {
@@ -169,15 +169,8 @@ export default {
 				return formatPriceString(value, 4);
 			case 'bool':
 				return value ? 'Yes' : 'No';
-			case 'block-time': {
-				if (!value)
-					return 'Paid';
-				else if (value < 10)
-					return '< 1 hr';
-				else if (value > 144)
-					return formatShortDateString(new Date(Date.now() + (value * 10 * 60 * 1000)));
-
-				return formatFriendlyBlockTimeString(value);
+			case 'datetime': {
+				return formatDate(value);
 			} case 'bytes':
 				if (!value)
 					return formatByteString(0, 2);
