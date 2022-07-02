@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { encode, decode } from '@stablelib/utf8';
 
-const configPath = path.join(app.getPath('userData'), 'windowState.json'),
+const windowConfigPath = path.join(app.getPath('userData'), 'windowState.json'),
 	defaultConfig = {
 		width: 1000,
 		height: 800
@@ -11,7 +11,7 @@ const configPath = path.join(app.getPath('userData'), 'windowState.json'),
 
 export function readWinConfigSync() {
 	try {
-		const buf = fs.readFileSync(configPath);
+		const buf = fs.readFileSync(windowConfigPath);
 
 		return {
 			...defaultConfig,
@@ -25,7 +25,7 @@ export function readWinConfigSync() {
 export function writeWinConfigSync(cfg) {
 	const existing = readWinConfigSync();
 
-	return fs.writeFileSync(configPath, encode(JSON.stringify({
+	return fs.writeFileSync(windowConfigPath, encode(JSON.stringify({
 		...existing,
 		...cfg
 	})));

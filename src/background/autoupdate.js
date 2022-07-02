@@ -1,11 +1,31 @@
 import { app, ipcMain } from 'electron';
+import path from 'path';
+import fs from 'fs';
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import { setShutdown } from './tray';
 import { sendIPC } from './window';
 import { shutdownDaemon } from './daemon';
+import { decode } from '@stablelib/utf8';
 
 let updateTimeout, checkingForUpdates = false;
+
+const configPath = path.join(app.getPath('userData'), 'config.json');
+
+export function getChannel() {
+	let channel = 'latest';
+	try {
+		const buf = fs.readFileSync(configPath),
+			{ updateChannel } = JSON.parse(decode(buf));
+		if (updateChannel && typeof updateChannel === 'string')
+			channel = updateChannel.toLowerCase();
+		if (['latest', 'beta', 'alpha'].indexOf(channel) === -1)
+			channel = 'latest';
+	} catch (ex) {
+		log.error('getChannel', ex);
+	}
+	return channel;
+}
 
 export function attachUpdateIPC() {
 	ipcMain.on('installUpdate', onInstallUpdate);
@@ -22,6 +42,7 @@ async function onInstallUpdate() {
 		setShutdown(true);
 		await shutdownDaemon();
 
+		autoUpdater.channel = getChannel();
 		if (app.isPackaged)
 			autoUpdater.quitAndInstall(true, true);
 		else
@@ -37,8 +58,8 @@ function onCheckForUpdates() {
 
 	try {
 		checkingForUpdates = true;
-
 		clearTimeout(updateTimeout);
+		autoUpdater.channel = getChannel();
 		autoUpdater.checkForUpdates();
 	} catch (ex) {
 		log.error('onCheckForUpdates', ex.message);

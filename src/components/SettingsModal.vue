@@ -35,6 +35,17 @@
 							<label class="error" v-if="errors['currency']">{{ errors['currency'] }}</label>
 						</transition>
 					</div>
+					<div class="control">
+						<label>Update Channel</label>
+						<select v-model="updateChannel">
+							<option value="latest">Stable</option>
+							<option value="beta">Beta</option>
+							<option value="alpha">Alpha</option>
+						</select>
+						<transition name="fade" mode="out-in" appear>
+							<label class="error" v-if="errors['updateChannel']">{{ errors['updateChannel'] }}</label>
+						</transition>
+					</div>
 					<div class="settings-section text-small text-success">Daemon Settings</div>
 					<div class="control control-search">
 						<label>Data Path</label>
@@ -130,6 +141,7 @@ export default {
 		return {
 			currency: 'usd',
 			dataUnit: 'decimal',
+			updateChannel: 'latest',
 			apiAddr: '',
 			apiAgent: '',
 			apiPassword: '',
@@ -181,8 +193,14 @@ export default {
 			this.errors = errors;
 			this.valid = !hasErrors;
 		},
+		checkChannel(channel) {
+			channel = channel?.toLowerCase() || 'latest';
+			const validChannels = ['latest', 'beta', 'alpha'];
+			return validChannels.indexOf(channel) === -1 ? 'latest' : channel;
+		},
 		updateConfig() {
 			this.currency = this.config.currency || 'usd';
+			this.updateChannel = this.checkChannel(this.config.updateChannel);
 			this.dataUnit = this.config.data_unit || 'decimal';
 			this.apiAddr = this.config.siad_api_addr;
 			this.apiAgent = this.config.siad_api_agent;
@@ -198,6 +216,7 @@ export default {
 				const newConfig = {
 					...this.config,
 					currency: this.currency,
+					updateChannel: this.updateChannel,
 					data_unit: this.dataUnit,
 					siad_api_addr: this.apiAddr,
 					siad_api_agent: this.apiAgent,
@@ -225,6 +244,14 @@ export default {
 				return;
 
 			this.changed = (val !== this.config.currency);
+		},
+		updateChannel(val) {
+			this.validate();
+
+			if (this.changed)
+				return;
+
+			this.changed = (val !== this.config.updateChannel);
 		},
 		dataUnit(val) {
 			this.validate();

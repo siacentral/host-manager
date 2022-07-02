@@ -30,6 +30,7 @@ module.exports = {
 						]
 					}
 				],
+				generateUpdatesFilesForAllChannels: true,
 				win: {
 					/* eslint-disable no-template-curly-in-string */
 					artifactName: '${productName}-v${version}-${os}-${arch}.${ext}'
