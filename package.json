@@ -1,6 +1,6 @@
 {
   "name": "Sia-Host-Manager",
-  "version": "1.2.2",
+  "version": "1.2.3-beta.1",
   "private": true,
   "description": "User-friendly management utility for Sia storage network hosts. Provides easy configuration, better financials, and smart alerts to make hosting simpler.",
   "author": {
@@ -76,5 +76,5 @@
       "git add"
     ]
   },
-  "siaVersion": "1.5.8"
+  "siaVersion": "1.5.9-rc1"
 }
