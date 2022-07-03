@@ -13,18 +13,17 @@ let updateTimeout, checkingForUpdates = false;
 const configPath = path.join(app.getPath('userData'), 'config.json');
 
 export function getChannel() {
-	let channel = 'latest';
 	try {
 		const buf = fs.readFileSync(configPath),
 			{ updateChannel } = JSON.parse(decode(buf));
-		if (updateChannel && typeof updateChannel === 'string')
-			channel = updateChannel.toLowerCase();
-		if (['latest', 'beta', 'alpha'].indexOf(channel) === -1)
-			channel = 'latest';
+		if (!updateChannel || typeof updateChannel !== 'string')
+			return;
+		else if (['latest', 'beta', 'alpha'].indexOf(updateChannel.toLowerCase()) === -1)
+			return;
+		return updateChannel.toLowerCase();
 	} catch (ex) {
 		log.error('getChannel', ex);
 	}
-	return channel;
 }
 
 export function attachUpdateIPC() {
@@ -41,8 +40,10 @@ async function onInstallUpdate() {
 	try {
 		setShutdown(true);
 		await shutdownDaemon();
+		const channel = getChannel();
+		if (channel)
+			autoUpdater.channel = channel;
 
-		autoUpdater.channel = getChannel();
 		if (app.isPackaged)
 			autoUpdater.quitAndInstall(true, true);
 		else
@@ -59,7 +60,11 @@ function onCheckForUpdates() {
 	try {
 		checkingForUpdates = true;
 		clearTimeout(updateTimeout);
-		autoUpdater.channel = getChannel();
+
+		const channel = getChannel();
+		if (channel)
+			autoUpdater.channel = channel;
+
 		autoUpdater.checkForUpdates();
 	} catch (ex) {
 		log.error('onCheckForUpdates', ex.message);
