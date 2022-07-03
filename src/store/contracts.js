@@ -3,7 +3,18 @@ import BigNumber from 'bignumber.js';
 export default {
 	namespaced: true,
 	state: {
-		stats: {},
+		stats: {
+			total: 0,
+			active: 0,
+			failed: 0,
+			successful: 0,
+			potentialRevenue: new BigNumber(0),
+			earnedRevenue: new BigNumber(0),
+			lostRevenue: new BigNumber(0),
+			riskedCollateral: new BigNumber(0),
+			lockedCollateral: new BigNumber(0),
+			burntCollateral: new BigNumber(0)
+		},
 		alerts: [],
 		snapshots: {},
 		newAlertsCount: 0,

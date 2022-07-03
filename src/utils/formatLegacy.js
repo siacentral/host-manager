@@ -153,6 +153,7 @@ const numFormatter = new Intl.NumberFormat({
 	];
 
 export function formatNumber(val, dec) {
+	val = val || 0;
 	if (!dec)
 		dec = 0;
 
