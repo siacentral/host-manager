@@ -1,3 +1,11 @@
+# 1.2.3 (2022-07-21)
+
+## Changed
++ Update to siad v1.5.9
+
+## Fixed
++ Fixed a null value error when calculating contract values on startup
+
 # 1.2.2 (2022-06-12)
 
 ## Changed
