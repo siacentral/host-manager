@@ -95,16 +95,74 @@ jobs:
           # package
           cd $wd
           yarn run publish --win --linux --mac --x64 --arm64
-      - name: upload
-        uses: actions/upload-artifact@v3
+      - name: create release
+        uses: actions/github-script@v6
         with:
-          name: host manager ${{ github.ref_name }}
-          path: |
-            dist/*.AppImage
-            dist/*.deb
-            dist/*.exe
-            dist/*.dmg
-            dist/*.sha256
+          script: |
+            const fs = require('fs');
+            // extract the repo and tag
+            const { repo: githubRepo, ref } = context,
+              { owner, repo } = githubRepo,
+              tag = ref.replace('refs/tags/', '').trim(),
+              name = tag.substring(1),
+              isPreRelease = tag.indexOf('-beta') !== -1 || tag.indexOf('-alpha') !== -1,
+              logLines = fs.readFileSync('CHANGELOG.md').toString('utf-8').split('\n'); // read the changelog
+
+            // find matching release in the changelog
+            let body = [], found;
+            for (let i = 0; i < logLines.length; i++) {
+              const line = logLines[i];
+              // if this line matches the target release header, start collecting lines
+              if (line.indexOf(`# ${name}`) === 0) {
+                found = true;
+                continue;
+              }
+
+              // if the release hasn't been seen yet, skip
+              if (!found)
+                continue;
+              // if the line matches the next release header, stop
+              else if (/^# [0-9]+\.[0-9]+\.[0-9]+/.test(line)) {
+                body = body.join('\n').trim();
+                break;
+              }
+
+              // otherwise, add the line to the body
+              body.push(line);
+            }
+
+            // create the release
+            const { data: {id: releaseID }} = await github.rest.repos.createRelease({
+              owner, 
+              repo, 
+              name, 
+              tag_name: tag, 
+              body: body.join('\n'), 
+              draft: true, prerelease: isPreRelease
+            });
+
+            // upload the release assets
+            const validExtensions = ['appimage', 'deb', 'exe', 'dmg', 'sha256'];
+            const assets = fs.readdirSync('dist').filter(a => validExtensions.indexOf(a.split('.').pop().toLowerCase()) !== -1);
+            // start an upload for each asset
+            for (let i = 0; i < assets.length; i++) {
+              const filename = assets[i],
+                filePath = `dist/${filename}`,
+                extension = filename.split('.').pop().toLowerCase(),
+                contentLength = fs.statSync(filePath).size,
+                mimeType = extension !== 'sha256' ? `application/octet-stream` : `text/plain`;
+
+              console.log('uploading release asset:', filename, contentLength, 'bytes');
+              await github.rest.repos.uploadReleaseAsset({
+                owner, repo, release_id: releaseID, name: filename,
+                headers: {
+                  'content-length': contentLength,
+                  'content-type': mimeType,
+                },
+                data: fs.readFileSync(filePath)
+              });
+              console.log('upload', filename, 'complete');
+            }
       - name: cleanup
         if: ${{ always() }}
         run: |
