@@ -86,8 +86,6 @@ import { decode } from '@stablelib/utf8';
 import { refreshHostWallet } from '@/sync/wallet';
 
 import SiaApiClient from '@/api/sia';
-import { showSaveDialogAsync, showOpenDialogAsync } from '@/utils';
-
 import SetupStep from './SetupStep';
 
 export default {
@@ -185,7 +183,7 @@ export default {
 			try {
 				this.saving = true;
 
-				const { filePaths, canceled } = await showOpenDialogAsync({
+				const { filePaths, canceled } = await this.showOpenDialog({
 					title: 'Load Wallet Seed',
 					buttonLabel: 'Load Seed',
 					filters: [
@@ -216,7 +214,7 @@ export default {
 			try {
 				this.saving = true;
 
-				const { filePath, canceled } = await showSaveDialogAsync({
+				const { filePath, canceled } = await this.showSaveDialog({
 					title: 'Save Wallet Seed',
 					defaultPath: 'my-wallet.seed',
 					buttonLabel: 'Save Seed',

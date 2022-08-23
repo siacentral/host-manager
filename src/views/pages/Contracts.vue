@@ -33,7 +33,6 @@ import EmptyState from '@/components/EmptyState';
 
 import { formatDate, formatCurrency, formatPriceString as formatPriceStringNew } from '@/utils/format';
 import { formatPriceString, formatByteString, formatShortDateString, formatFriendlyStatus } from '@/utils/formatLegacy';
-import { showSaveDialogAsync } from '@/utils';
 import { filteredContracts } from '@/sync/contracts';
 
 export default {
@@ -383,7 +382,7 @@ export default {
 			try {
 				this.exporting = true;
 
-				const { filePath, canceled } = await showSaveDialogAsync({
+				const { filePath, canceled } = await this.showSaveDialog({
 					title: 'Export Contracts',
 					defaultPath: 'contracts.csv',
 					buttonLabel: 'Export',

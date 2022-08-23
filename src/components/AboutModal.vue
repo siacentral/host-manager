@@ -30,14 +30,12 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import { remote, shell } from 'electron';
+import { ipcRenderer } from 'electron';
 import { getLogPath } from '@/utils';
 import log from 'electron-log';
 
 import SiaCentral from '@/components/svg/SiaCentral';
 import Modal from '@/components/Modal';
-
-const appVersion = remote.app.getVersion();
 
 export default {
 	components: {
@@ -49,16 +47,21 @@ export default {
 			daemonVersion: state => state.hostDaemon.version,
 			daemonManaged: state => state.hostDaemon.managed,
 			config: state => state.config
-		}),
-		appVersion() {
-			return appVersion;
-		}
+		})
+	},
+	data() {
+		return {
+			appVersion: ''
+		};
+	},
+	async beforeMount() {
+		this.appVersion = await ipcRenderer.invoke('getAppVersion');
 	},
 	methods: {
 		...mapActions(['pushNotification']),
 		onOpenLogFolder() {
 			try {
-				shell.openPath(getLogPath());
+				this.openPath(getLogPath());
 			} catch (ex) {
 				log.error('onOpenLogFolder', ex.message);
 				this.pushNotification({
@@ -70,7 +73,7 @@ export default {
 		},
 		onOpenDataFolder() {
 			try {
-				shell.openPath(this.config.siad_data_path);
+				this.openPath(this.config.siad_data_path);
 			} catch (ex) {
 				log.error('open data folder', ex.message);
 				this.pushNotification({

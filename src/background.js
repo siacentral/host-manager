@@ -6,8 +6,8 @@ import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 
 import { createTray } from './background/tray';
 import { openWindow } from './background/window';
-import { attachDaemonIPC, shutdownDaemon } from './background/daemon';
-import { attachUpdateIPC } from './background/autoupdate';
+import { shutdownDaemon } from './background/daemon';
+import { attachIPC } from './background/ipc';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -36,7 +36,7 @@ app.on('will-quit', async() => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', async() => {
+app.whenReady().then(async() => {
 	if (isDevelopment && !process.env.IS_TEST) {
 		// Install Vue Devtools
 		try {
@@ -46,8 +46,7 @@ app.on('ready', async() => {
 		}
 	}
 
-	attachDaemonIPC();
-	attachUpdateIPC();
+	attachIPC();
 	await openWindow();
 	await createTray();
 });

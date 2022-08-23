@@ -22,7 +22,6 @@
 	</div>
 </template>
 <script>
-import { remote } from 'electron';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import log from 'electron-log';
 
@@ -91,24 +90,24 @@ export default {
 		},
 		onMinWindow() {
 			try {
-				const window = remote.getCurrentWindow();
-				window.minimize();
+				/* const window = remote.getCurrentWindow();
+				window.minimize(); */
 			} catch (ex) {
 				log.error('minimize window', ex);
 			}
 		},
 		onMaxWindow() {
 			try {
-				const window = remote.getCurrentWindow();
-				window.isMaximized() ? window.unmaximize() : window.maximize();
+				/* const window = remote.getCurrentWindow();
+				window.isMaximized() ? window.unmaximize() : window.maximize(); */
 			} catch (ex) {
 				log.error('maximize window', ex);
 			}
 		},
 		onCloseWindow() {
 			try {
-				const window = remote.getCurrentWindow();
-				window.close();
+				/* const window = remote.getCurrentWindow();
+				window.close(); */
 			} catch (ex) {
 				log.error('close window', ex);
 			}

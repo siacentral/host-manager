@@ -1,27 +1,24 @@
 import { decode } from '@stablelib/utf8';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import BigNumber from 'bignumber.js';
 import log from 'electron-log';
 
-const app = remote.app,
-	dialog = remote.dialog,
-	window = remote.getCurrentWindow();
-
-export function getUserDataPath(subdir) {
+export async function getUserDataPath(subdir) {
+	const path = await ipcRenderer.invoke('getPath', 'userData');
 	if (subdir)
-		return path.join(app.getPath('userData'), '..', subdir);
-
-	return app.getPath('userData');
+		return path.join(path, '..', subdir);
+	return path;
 }
 
 export async function readSiaUIConfig() {
-	const siaUIDataPath = path.join(getUserDataPath('Sia-UI'), 'sia');
-	const config = {
-		dark_mode: true,
-		siad_data_path: siaUIDataPath
-	};
+	const siaUIPath = await getUserDataPath('Sia-UI'),
+		siaUIDataPath = path.join(siaUIPath, 'sia'),
+		config = {
+			dark_mode: true,
+			siad_data_path: siaUIDataPath
+		};
 
 	try {
 		const { siad } = JSON.parse(decode(await fs.readFile(path.join(siaUIDataPath, 'config.json'))));
@@ -44,19 +41,17 @@ export async function mkdirIfNotExist(path) {
 }
 
 export async function writeConfig(config) {
-	const siacentralPath = app.getPath('userData');
-
-	await mkdirIfNotExist(siacentralPath);
-
-	return fs.writeFile(path.join(siacentralPath, 'config.json'), JSON.stringify(config, null, '\t'));
+	const userDataPath = await getUserDataPath();
+	await mkdirIfNotExist(userDataPath);
+	return fs.writeFile(path.join(userDataPath, 'config.json'), JSON.stringify(config, null, '\t'));
 }
 
 export async function readConfig() {
-	const siacentralPath = app.getPath('userData'),
-		buf = await fs.readFile(path.join(siacentralPath, 'config.json')),
+	const userDataPath = await getUserDataPath(),
+		buf = await fs.readFile(path.join(userDataPath, 'config.json')),
 		config = {
 			data_unit: 'decimal',
-			siad_data_path: path.join(siacentralPath, 'sia'),
+			siad_data_path: path.join(userDataPath, 'sia'),
 			...JSON.parse(decode(buf))
 		};
 
@@ -172,14 +167,6 @@ export function concatUint8Array() {
 
 	return array;
 };
-
-export function showSaveDialogAsync(opts) {
-	return dialog.showSaveDialog(window, opts);
-}
-
-export function showOpenDialogAsync(opts) {
-	return dialog.showOpenDialog(window, opts);
-}
 
 /**
  * Splits a Uint8Array into equal segments of n length

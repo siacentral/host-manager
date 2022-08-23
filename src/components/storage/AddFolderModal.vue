@@ -52,7 +52,6 @@ import log from 'electron-log';
 import path from 'path';
 import { BigNumber } from 'bignumber.js';
 import { mapActions, mapState } from 'vuex';
-import { remote } from 'electron';
 import checkDiskSpace from 'check-disk-space';
 
 import { mkdirIfNotExist } from '@/utils';
@@ -62,9 +61,6 @@ import SiaApiClient from '@/api/sia';
 import { refreshHostStorage } from '@/sync/storage';
 import ProgressBar from '@/components/ProgressBar';
 import Modal from '@/components/Modal';
-
-const dialog = remote.dialog,
-	app = remote.app;
 
 const sectorSize = 1 << 22,
 	minSectors = 1 << 6,
@@ -79,7 +75,7 @@ export default {
 	},
 	data() {
 		return {
-			path: app.getPath('home'),
+			path: '',
 			sizeStr: '100 GiB',
 			maxValue: new BigNumber(0),
 			sizeValue: new BigNumber(0),
@@ -92,6 +88,10 @@ export default {
 			subName: '',
 			creating: false
 		};
+	},
+	async beforeMount() {
+		this.path = await this.getPath('home');
+		console.log(this.path);
 	},
 	async mounted() {
 		await this.updateFreeSpace();
@@ -116,6 +116,10 @@ export default {
 		},
 		async updateFreeSpace() {
 			try {
+				if (!this.path)
+					return;
+
+				console.log(this.path);
 				const { free } = await checkDiskSpace(this.path);
 				this.maxValue = new BigNumber(free);
 
@@ -138,7 +142,7 @@ export default {
 			try {
 				this.errors.path = null;
 
-				const fp = await dialog.showOpenDialog({ title: 'Path for new Storage Folder', buttonLabel: 'Select', properties: ['openDirectory'] });
+				const fp = await this.showOpenDialog({ title: 'Path for new Storage Folder', buttonLabel: 'Select', properties: ['openDirectory'] });
 
 				if (!fp || !Array.isArray(fp.filePaths) || fp.filePaths.length === 0)
 					return;

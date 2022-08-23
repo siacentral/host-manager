@@ -14,10 +14,6 @@
 </template>
 
 <script>
-import { remote } from 'electron';
-
-const dialog = remote.dialog;
-
 export default {
 	props: {
 		value: String
@@ -33,7 +29,7 @@ export default {
 	},
 	methods: {
 		async onSelectDir() {
-			const { filePath } = await dialog.showSaveDialog({ title: 'Select Your Registry Location', defaultPath: 'registry.dat', nameFieldLabel: 'Filename', buttonLabel: 'Select' });
+			const { filePath } = await this.showSaveDialog({ title: 'Select Your Registry Location', defaultPath: 'registry.dat', nameFieldLabel: 'Filename', buttonLabel: 'Select' });
 
 			this.path = filePath || '';
 

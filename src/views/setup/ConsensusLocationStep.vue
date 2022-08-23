@@ -19,13 +19,9 @@
 </template>
 
 <script>
-import { remote } from 'electron';
 import path from 'path';
 import log from 'electron-log';
 import SetupStep from './SetupStep';
-
-const dialog = remote.dialog,
-	app = remote.app;
 
 export default {
 	components: {
@@ -43,7 +39,7 @@ export default {
 	},
 	methods: {
 		async onSearchFile() {
-			const fp = await dialog.showOpenDialog({ title: 'Locate Your Sia Data Path', buttonLabel: 'Select', properties: ['openDirectory'] });
+			const fp = await this.showOpenDialog({ title: 'Locate Your Sia Data Path', buttonLabel: 'Select', properties: ['openDirectory'] });
 
 			if (!fp || !Array.isArray(fp.filePaths) || fp.filePaths.length === 0)
 				return;
@@ -55,12 +51,12 @@ export default {
 				return;
 
 			try {
-				let consensusPath;
+				let consensusPath = await this.getPath('userData');
 
 				this.setting = true;
 
 				if (!this.consensusLocation || this.consensusLocation.length === 0)
-					consensusPath = path.join(app.getPath('userData'), 'sia');
+					consensusPath = path.join(consensusPath, 'sia');
 				else
 					consensusPath = this.consensusLocation;
 

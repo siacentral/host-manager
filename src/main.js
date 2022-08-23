@@ -5,6 +5,7 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 
+import { ipcRenderer } from 'electron';
 import { attachDaemonIPC } from '@/sync/daemon';
 import { attachUpdateIPC, checkForUpdates } from '@/sync/autoupdate';
 import { readConfig } from '@/utils';
@@ -62,6 +63,27 @@ attachUpdateIPC();
 			methods: {
 				pushNotification(notification) {
 					store.dispatch('pushNotification', notification);
+				},
+				getPath(path) {
+					return ipcRenderer.invoke('getPath', path);
+				},
+				minimize() {
+					return ipcRenderer.invoke('minimize');
+				},
+				maximize() {
+					return ipcRenderer.invoke('maximize');
+				},
+				close() {
+					return ipcRenderer.invoke('close');
+				},
+				showOpenDialog(params) {
+					return ipcRenderer.invoke('dialog', 'showOpenDialog', params);
+				},
+				showSaveDialog(params) {
+					return ipcRenderer.invoke('dialog', 'showSaveDialog', params);
+				},
+				openPath(path) {
+					return ipcRenderer.invoke('openPath', path);
 				}
 			}
 		})
