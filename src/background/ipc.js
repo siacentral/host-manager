@@ -28,7 +28,7 @@ function getPath(event, path) {
 	return app.getPath(path);
 }
 
-function openPath(path) {
+async function openPath(event, path) {
 	return shell.openPath(path);
 }
 
