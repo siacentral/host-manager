@@ -121,4 +121,10 @@ export default {
 .error {
 	color: negative-accent;
 }
+
+.storage-location {
+    background: #3b3b3b;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
 </style>

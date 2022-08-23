@@ -301,6 +301,7 @@ export default {
 	grid-template-columns: minmax(0, 1fr) auto;
 	align-items: center;
 	grid-gap: 5px 15px;
+	margin-bottom: 30px;
 
 	label {
 		font-size: 0.9rem;
