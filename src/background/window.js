@@ -113,7 +113,7 @@ async function createWindow() {
 	});
 
 	mainWindow.webContents.on('will-navigate', handleRedirect);
-	mainWindow.webContents.on('new-window', handleRedirect);
+	mainWindow.webContents.setWindowOpenHandler(handleRedirect);
 
 	mainWindow.show();
 	mainWindow.focus();
