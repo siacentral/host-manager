@@ -191,7 +191,6 @@ export default {
 			}).sort((a, b) => a.value.gt(b.value) ? -1 : a.value.lt(b.value) ? 1 : 0);
 
 			// recalculate the UI from any changes while data was loading.
-			console.log(this.usePct, this.sendPct);
 			if (this.usePct)
 				this.calcSendPct(this.sendPct);
 

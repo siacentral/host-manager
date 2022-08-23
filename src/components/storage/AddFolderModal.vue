@@ -91,7 +91,6 @@ export default {
 	},
 	async beforeMount() {
 		this.path = await this.getPath('home');
-		console.log(this.path);
 	},
 	async mounted() {
 		await this.updateFreeSpace();
@@ -119,7 +118,6 @@ export default {
 				if (!this.path)
 					return;
 
-				console.log(this.path);
 				const { free } = await checkDiskSpace(this.path);
 				this.maxValue = new BigNumber(free);
 

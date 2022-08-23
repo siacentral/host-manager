@@ -7,8 +7,6 @@ import SiaDaemon from './sia/daemon';
 
 let daemon;
 
-console.log('STATIC', __static);
-
 function getPath() {
 	const binary = process.platform === 'win32' ? 'siad.exe' : 'siad';
 

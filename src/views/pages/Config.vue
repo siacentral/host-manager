@@ -265,7 +265,6 @@ export default {
 		},
 		onChangeValue(key, value) {
 			try {
-				console.log(value);
 				this.config[key] = value;
 				this.changed = true;
 			} catch (ex) {

@@ -50,9 +50,7 @@ export default {
 	methods: {
 		onChange() {
 			try {
-				console.log('pre change', this.durationStr);
 				this.duration = parseBlockTimeString(this.durationStr);
-				console.log('change', this.duration, this.durationStr);
 				this.$emit('update', this.duration);
 			} catch (ex) {
 				console.error('DurationItem.onChange', ex);
