@@ -79,6 +79,7 @@ async function createWindow() {
 
 	const handleRedirect = (e, url) => {
 		try {
+			url = url || e.url;
 			if (url.startsWith('http') && url !== mainWindow.webContents.getURL()) {
 				shell.openExternal(url);
 

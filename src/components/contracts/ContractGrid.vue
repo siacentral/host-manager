@@ -39,7 +39,7 @@
 						<div :class="getTagClasses(tag)" v-for="(tag, i) in contract.tags" :key="i">{{ tag.text }}</div>
 					</div>
 				</td>
-				<td class="fit-text"><a :href="getSiaStatsLink(contract)" target="_blank"><icon icon="external-link-alt" />SiaStats</a></td>
+				<td class="fit-text"><a :href="getSiaStatsLink(contract)"><icon icon="external-link-alt" />SiaStats</a></td>
 			</tr>
 		</tbody>
 	</table>
