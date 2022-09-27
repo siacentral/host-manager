@@ -92,7 +92,7 @@ export default {
 					format: 'datetime'
 				},
 				{
-					text: 'Est. Data Size',
+					text: 'Stored Data',
 					key: 'data_size',
 					total_key: 'data_size',
 					format: 'bytes'
