@@ -1,3 +1,13 @@
+# 1.2.4 (2022-10-07)
+
+## Changed 
++ Changed "Storage Usage" on the dashboard to "Physical Storage Usage"
++ Changed "Est. Data Size" on the contracts page to "Stored Data"
++ Remove use of electron remote, switch to custom IPC
+
+## Fixed
++ Fixed overlapping error text in the add storage modal
+
 # 1.2.3 (2022-07-21)
 
 ## Changed
