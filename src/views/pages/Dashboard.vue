@@ -3,7 +3,7 @@
 		<div class="storage-usage">
 			<icon icon="hdd" />
 			<div class="usage-wrapper">
-				<div class="usage-title">Storage Usage</div>
+				<div class="usage-title">Physical Storage Usage</div>
 				<div class="usage-bar"><div class="bar" :style="storagePct" /></div>
 				<div class="usage-label">{{ formatByteString(usedStorage, 2) }} / {{ formatByteString(totalStorage, 2) }}</div>
 			</div>
