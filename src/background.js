@@ -1,6 +1,6 @@
 'use strict';
 
-import { app, protocol, ipcMain, powerSaveBlocker } from 'electron';
+import { app, crashReporter, protocol, ipcMain, powerSaveBlocker } from 'electron';
 import log from 'electron-log';
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 
@@ -9,6 +9,11 @@ import { openWindow } from './background/window';
 import { shutdownDaemon } from './background/daemon';
 import { attachIPC } from './background/ipc';
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
+crashReporter.start({
+	submitURL: 'https://crash.siacentral.com',
+	uploadToServer: false
+});
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
