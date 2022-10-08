@@ -6,10 +6,10 @@ import BigNumber from 'bignumber.js';
 import log from 'electron-log';
 
 export async function getUserDataPath(subdir) {
-	const path = await ipcRenderer.invoke('getPath', 'userData');
+	const fp = await ipcRenderer.invoke('getPath', 'userData');
 	if (subdir)
-		return path.join(path, '..', subdir);
-	return path;
+		return path.join(fp, '..', subdir);
+	return fp;
 }
 
 export async function readSiaUIConfig() {
