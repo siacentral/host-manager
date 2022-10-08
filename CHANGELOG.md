@@ -1,6 +1,7 @@
 # 1.2.4 (2022-10-07)
 
 ## Changed 
++ Upgrade to Electron 21 to support Ubuntu 22.04 LTS
 + Changed "Storage Usage" on the dashboard to "Physical Storage Usage"
 + Changed "Est. Data Size" on the contracts page to "Stored Data"
 + Remove use of electron remote, switch to custom IPC
