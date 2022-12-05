@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Support
+    url: https://github.com/siacentral/host-manager/discussions/categories/support
+    about: Please check the support category before asking a question.
+  - name: Sia Community Discord
+    url: https://discord.gg/sia
+    about: Join the Sia community discord for more help with Sia and Host Manager.
+  - name: Request a Feature
+    url: https://github.com/siacentral/host-manager/discussions/categories/feature-requests
+    about: Request a feature for Host Manager.
