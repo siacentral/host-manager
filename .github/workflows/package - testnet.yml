@@ -96,7 +96,7 @@ jobs:
 
           # package
           cd $wd
-          vue-cli-service electron:build -p never --win --linux --mac --x64 --arm64
+          yarn run package --win --linux --mac --x64 --arm64
       - name: Upload
         uses: actions/upload-artifact@v3
         with:

@@ -15,6 +15,7 @@
     "generate-icons": "electron-icon-builder --input=./public/icon.png --output=build --flatten",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
+	"package": "cross-env PUBLISH=false vue-cli-service electron:build -p never",
     "publish": "cross-env PUBLISH=true vue-cli-service electron:build -p always"
   },
   "main": "background.js",
