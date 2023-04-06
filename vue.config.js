@@ -79,7 +79,7 @@ function electronOptionsZen() {
 			afterSign: 'build/scripts/notarize.js',
 			afterAllArtifactBuild: 'build/scripts/sign.js',
 			/* eslint-disable no-template-curly-in-string */
-			artifactName: '${productName}-zen-v${version}-${os}-${arch}.${ext}',
+			artifactName: '${productName}-v${version}-${os}-${arch}.${ext}',
 			extraResources: [
 				{
 					/* eslint-disable no-template-curly-in-string */
@@ -93,11 +93,11 @@ function electronOptionsZen() {
 			generateUpdatesFilesForAllChannels: true,
 			win: {
 				/* eslint-disable no-template-curly-in-string */
-				artifactName: '${productName}-zen-v${version}-${os}-${arch}.${ext}'
+				artifactName: '${productName}-v${version}-${os}-${arch}.${ext}'
 			},
 			mac: {
 				/* eslint-disable no-template-curly-in-string */
-				artifactName: '${productName}-zen-v${version}-${os}-${arch}.${ext}',
+				artifactName: '${productName}-v${version}-${os}-${arch}.${ext}',
 				hardenedRuntime: true,
 				// disabled due to new Apple notarization failing
 				gatekeeperAssess: false,
@@ -107,7 +107,7 @@ function electronOptionsZen() {
 			linux: {
 				executableName: 'Sia Host Manager - Zen',
 				/* eslint-disable no-template-curly-in-string */
-				artifactName: '${productName}-zen-v${version}-${os}-${arch}.${ext}',
+				artifactName: '${productName}-v${version}-${os}-${arch}.${ext}',
 				target: [
 					'deb',
 					'AppImage'
@@ -116,7 +116,7 @@ function electronOptionsZen() {
 			},
 			appImage: {
 				/* eslint-disable no-template-curly-in-string */
-				artifactName: '${productName}-zen-v${version}-${os}-${arch}.${ext}'
+				artifactName: '${productName}-v${version}-${os}-${arch}.${ext}'
 			},
 			dmg: {
 				// new apple notarization does not need the dmg signed
