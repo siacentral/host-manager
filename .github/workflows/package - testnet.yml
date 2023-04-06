@@ -104,11 +104,11 @@ jobs:
         with:
           name: Host Manager - Testnet
           path: |
-            dist/Sia Host Manager-*.AppImage
-            dist/Sia Host Manager-*.dmg
-            dist/Sia Host Manager-*.deb
-            dist/Sia Host Manager-*.exe
-            dist/Sia Host Manager-*.sha256
+            dist/Sia Host Manager - Zen*.AppImage
+            dist/Sia Host Manager - Zen*.dmg
+            dist/Sia Host Manager - Zen*.deb
+            dist/Sia Host Manager - Zen*.exe
+            dist/Sia Host Manager - Zen*.sha256
       - name: cleanup
         if: ${{ always() }}
         run: |
