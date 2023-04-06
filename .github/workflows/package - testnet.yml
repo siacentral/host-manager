@@ -49,10 +49,10 @@ jobs:
           echo -n "$APPLE_CONNECT_JWT" | base64 --decode --output $APPLE_CONNECT_JWT_PATH
 
           # extract windows cert
-          WIN_CSC_LINK=$RUNNER_TEMP/win_cert.p12
-          echo -n "$WIN_CODE_SIGNING_B64" | base64 --decode --output $WIN_CSC_LINK
-          echo "WIN_CSC_LINK=$WIN_CSC_LINK" >> .env.local
-          echo "WIN_CSC_KEY_PASSWORD=$WIN_CSC_KEY_PASSWORD" >> .env.local
+          # WIN_CSC_LINK=$RUNNER_TEMP/win_cert.p12
+          # echo -n "$WIN_CODE_SIGNING_B64" | base64 --decode --output $WIN_CSC_LINK
+          # echo "WIN_CSC_LINK=$WIN_CSC_LINK" >> .env.local
+          # echo "WIN_CSC_KEY_PASSWORD=$WIN_CSC_KEY_PASSWORD" >> .env.local
 
           # create temp keychain
           security create-keychain -p "$APPLE_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
@@ -84,7 +84,7 @@ jobs:
                 diros="win"
               fi
 
-              # electron expectrs "x64", go expects "amd64"
+              # electron expects "x64", go expects "amd64"
               if [ $arch == 'amd64' ]; then
                 dirarch="x64"
               fi
@@ -96,7 +96,7 @@ jobs:
 
           # package
           cd $wd
-          yarn run publish --win --linux --mac --x64 --arm64
+          vue-cli-service electron:build -p never --win --linux --mac --x64 --arm64
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
