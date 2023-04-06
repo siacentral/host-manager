@@ -1,0 +1,114 @@
+name: Package - Testnet
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-alpha'
+      - 'v[0-9]+.[0-9]+.[0-9]+-beta'
+      - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
+
+jobs:
+  package:
+    runs-on: macos-latest
+    env:
+      EP_GH_IGNORE_TIME: true
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.FILEBASE_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.FILEBASE_SECRET_ACCESS_KEY }}
+      APPLE_CERT_ID: ${{ secrets.APPLE_CERT_ID }}
+      APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+      APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+      APPLE_CONNECT_JWT: ${{ secrets.APPLE_CONNECT_JWT }}
+      APPLE_CERT_B64: ${{ secrets.APPLE_CERT_B64 }}
+      APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
+      APPLE_KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD }}
+      WIN_CODE_SIGNING_B64: ${{ secrets.SIA_CENTRAL_CODE_SIGNING }}
+      WIN_CSC_KEY_PASSWORD: ${{ secrets.SIA_CENTRAL_CODE_SIGNING_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+      - uses: actions/setup-go@v2
+      - run: yarn
+      - run: yarn run lint
+      - name: setup
+        run: |
+          # extract apple cert
+          APPLE_CERT_PATH=$RUNNER_TEMP/apple_cert.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          echo -n "$APPLE_CERT_B64" | base64 --decode --output $APPLE_CERT_PATH
+
+          # extract itunes connect JWT
+          mkdir -p ~/private_keys
+          APPLE_CONNECT_JWT_PATH=~/private_keys/AuthKey_$APPLE_API_KEY.p8
+          echo -n "$APPLE_CONNECT_JWT" | base64 --decode --output $APPLE_CONNECT_JWT_PATH
+
+          # extract windows cert
+          WIN_CSC_LINK=$RUNNER_TEMP/win_cert.p12
+          echo -n "$WIN_CODE_SIGNING_B64" | base64 --decode --output $WIN_CSC_LINK
+          echo "WIN_CSC_LINK=$WIN_CSC_LINK" >> .env.local
+          echo "WIN_CSC_KEY_PASSWORD=$WIN_CSC_KEY_PASSWORD" >> .env.local
+
+          # create temp keychain
+          security create-keychain -p "$APPLE_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$APPLE_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import keychain
+          security import $APPLE_CERT_PATH -P $APPLE_CERT_PASSWORD -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $APPLE_KEYCHAIN_PASSWORD $KEYCHAIN_PATH
+      - name: build
+        run: |
+          # build sia
+          mkdir -p build/bin/linux build/bin/mac build/bin/win
+          export SIA_VERSION=v$(jq -r .siaVersion package.json)
+          export wd=$PWD
+
+          git clone https://github.com/siafoundation/siad build/bin/tmp/sia
+          cd build/bin/tmp/sia
+          git checkout master
+          for os in darwin linux windows; do
+            for arch in amd64 arm64; do
+              diros=$os
+              dirarch=$arch
+              # electron expects "mac", go expects "darwin"
+              if [ $os == 'darwin' ]; then
+                diros="mac"
+              elif [ $os == 'windows' ]; then
+                diros="win"
+              fi
+
+              # electron expectrs "x64", go expects "amd64"
+              if [ $arch == 'amd64' ]; then
+                dirarch="x64"
+              fi
+              mkdir -p $wd/build/bin/$diros/$dirarch
+              GOOS=$os GOARCH=$arch make testnet
+              cp release/* $wd/build/bin/$diros/$dirarch && rm -rf release
+            done
+          done
+
+          # package
+          cd $wd
+          yarn run publish --win --linux --mac --x64 --arm64
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: Host Manager - Testnet
+          path: |
+            dist/Sia Host Manager-*.AppImage
+            dist/Sia Host Manager-*.dmg
+            dist/Sia Host Manager-*.deb
+            dist/Sia Host Manager-*.exe
+            dist/Sia Host Manager-*.sha256
+      - name: cleanup
+        if: ${{ always() }}
+        run: |
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+          rm -rf .env* build/bin $RUNNER_TEMP/* ~/private_keys 2> /dev/null
+
+
